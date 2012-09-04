@@ -156,7 +156,7 @@ Base* createInstance(const std::string& derived_class_name, ClassLoader* loader 
 template <typename Base> 
 std::vector<std::string> getAvailableClasses(ClassLoader* loader = NULL)
 {
-  boost::mutex::scoped_lock(getCriticalSectionMutex());
+  boost::mutex::scoped_lock lock(getCriticalSectionMutex());
 
   FactoryMap& factory_map = getFactoryMapForBaseClass<Base>();
   std::vector<std::string> classes;

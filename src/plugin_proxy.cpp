@@ -206,7 +206,7 @@ LibraryVector::iterator findLoadedLibrary(const std::string& library_path)
 bool isLibraryLoadedByAnybody(const std::string& library_path)
 /*****************************************************************************/
 {
-  boost::mutex::scoped_lock(getCriticalSectionMutex());
+  boost::mutex::scoped_lock lock(getCriticalSectionMutex());
 
   bool is_it_loaded = false;
   LibraryVector& open_libraries =  getLoadedLibraryVector();
@@ -270,7 +270,7 @@ void loadLibrary(const std::string& library_path, ClassLoader* loader)
     return;
   }
   
-  boost::mutex::scoped_lock(getCriticalSectionMutex()); //Note: We start critical section here as isLibraryLoaded() call above locks CS as well
+  boost::mutex::scoped_lock lock(getCriticalSectionMutex()); //Note: We start critical section here as isLibraryLoaded() call above locks CS as well
   
   try
   {
@@ -296,7 +296,7 @@ void loadLibrary(const std::string& library_path, ClassLoader* loader)
 void unloadLibrary(const std::string& library_path, ClassLoader* loader)
 /*****************************************************************************/
 { 
-  boost::mutex::scoped_lock(getCriticalSectionMutex());
+  boost::mutex::scoped_lock lock(getCriticalSectionMutex());
 
   LibraryVector& open_libraries =  getLoadedLibraryVector();
   LibraryVector::iterator itr = findLoadedLibrary(library_path);
