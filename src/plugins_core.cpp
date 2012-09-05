@@ -1,4 +1,4 @@
-#include "plugin_proxy.h"
+#include "plugins_core.h"
 #include <cassert>
 
 namespace plugins

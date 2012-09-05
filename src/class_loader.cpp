@@ -1,43 +1,45 @@
 #include "class_loader.h"
+#include <iostream>
 
 namespace plugins
 {
 
-ClassLoader::ClassLoader()
+ClassLoader::ClassLoader(const std::string& library_path, bool enable_ondemand_loadunload) :
+enable_ondemand_loadunload_(enable_ondemand_loadunload),
+library_path_(library_path),
+plugin_ref_count_(0)
 {
+  if(!isOnDemandLoadUnloadEnabled())
+    loadLibrary();
 }
 
 ClassLoader::~ClassLoader()
 {
-  std::cout << "Destroying class loader, unloading all associated libraries..." << std::endl;
-  unloadAllLibrariesInUseByMe();
+  std::cout << "Destroying class loader, unloading associated library..." << std::endl;
+  unloadLibrary();
 }
 
-bool ClassLoader::isLibraryLoaded(const std::string& library_path)
+bool ClassLoader::isLibraryLoaded()
 {
-  return(plugins::plugins_private::isLibraryLoaded(library_path, this));
+  return(plugins::plugins_private::isLibraryLoaded(getLibraryPath(), this));
 }
 
-bool ClassLoader::isLibraryLoadedByExternalObject(const std::string& library_path)
+bool ClassLoader::isLibraryLoadedByExternalObject()
 {
-  return(plugins::plugins_private::isLibraryLoadedByAnybody(library_path));
+  return(plugins::plugins_private::isLibraryLoadedByAnybody(getLibraryPath()));
 }
 
-void ClassLoader::loadLibrary(const std::string& library_path)
+void ClassLoader::loadLibrary()
 {
-  plugins::plugins_private::loadLibrary(library_path, this);
+  plugins::plugins_private::loadLibrary(getLibraryPath(), this);
 }
 
-void ClassLoader::unloadAllLibrariesInUseByMe()
+void ClassLoader::unloadLibrary()
 {
-  std::vector<std::string> all_libs_in_use = plugins::plugins_private::getAllLibrariesUsedByClassLoader(this);
-  for(unsigned int c = 0; c < all_libs_in_use.size(); c++)
-    unloadLibrary(all_libs_in_use.at(c));
+  if(plugin_ref_count_ > 0)
+    std::cout << "ClassLoader: MAJOR WARNING!!! Attempting to unload library while objects created by this loader exist in the heap! You should delete your objects before attempting to unload the library or destroying the ClassLoader. The library will NOT be unloaded." << std::endl;
+  else
+    plugins::plugins_private::unloadLibrary(getLibraryPath(), this);
 }
 
-void ClassLoader::unloadLibrary(const std::string& library_path)
-{
-  plugins::plugins_private::unloadLibrary(library_path, this);
 }
-
-};

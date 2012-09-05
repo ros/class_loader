@@ -11,11 +11,7 @@
 #include "meta_object.h"
 #include "plugin_exceptions.h"
 
-/* Note: This header file is the internal implementation of the plugin system which is exposed via two methods:
-1) A global function interface in plugins.h
-2) A class based approach (class ClassLoader) defined in class_loader.h
-
-Both interfaces can be used side-by-side and both are implemented utilizing the functions available in this header. USERS SHOULD NOT TOUCH THE FUNCTIONS IN THIS HEADER!!!
+/* Note: This header file is the internal implementation of the plugin system which is exposed via the ClassLoader class
 */
 
 namespace plugins
@@ -65,14 +61,14 @@ void setCurrentlyLoadingLibraryName(const std::string& library_name);
 
 
 /**
- * @brief Gets the ClassLoader currently in scope which used when a library is being loaded. A special value of NULL is used to indicate use of the global function interface.
- * @return A pointer to the currently active ClassLoader. If the pointer is NULL, it indicates the global interface.
+ * @brief Gets the ClassLoader currently in scope which used when a library is being loaded.
+ * @return A pointer to the currently active ClassLoader.
  */
 ClassLoader* getCurrentlyActiveClassLoader();
 
 /**
- * @brief Sets the ClassLoader currently in scope which used when a library is being loaded. A special value of NULL is used to indicate use of the global function interface.
- * @param loader - pointer to the currently active ClassLoader. If the pointer is NULL, it indicates the global interface.
+ * @brief Sets the ClassLoader currently in scope which used when a library is being loaded. 
+ * @param loader - pointer to the currently active ClassLoader.
  */
 void setCurrentlyActiveClassLoader(ClassLoader* loader);
 
@@ -128,11 +124,11 @@ void registerPlugin(const std::string& class_name)
 /**
  * @brief This function creates an instance of a plugin class given the derived name of the class and returns a pointer of the Base class type.
  * @param derived_class_name - The name of the derived class (unmangled)
- * @param loader - The ClassLoader whose scope we are within, NULL indicates global function interface
+ * @param loader - The ClassLoader whose scope we are within
  * @return A pointer to newly created plugin, note caller is responsible for object destruction
  */
 template <typename Base> 
-Base* createInstance(const std::string& derived_class_name, ClassLoader* loader = NULL)
+Base* createInstance(const std::string& derived_class_name, ClassLoader* loader)
 {
   boost::mutex::scoped_lock lock(getCriticalSectionMutex());
 
@@ -150,11 +146,11 @@ Base* createInstance(const std::string& derived_class_name, ClassLoader* loader 
 
 /**
  * @brief This function returns all the available plugins in the plugin system that are derived from Base and within scope of the passed ClassLoader.
- * @param loader - The pointer to the ClassLoader whose scope we are within, NULL indicates global function interface
+ * @param loader - The pointer to the ClassLoader whose scope we are within,
  * @return A vector of strings where each string is a plugin we can create
  */
 template <typename Base> 
-std::vector<std::string> getAvailableClasses(ClassLoader* loader = NULL)
+std::vector<std::string> getAvailableClasses(ClassLoader* loader)
 {
   boost::mutex::scoped_lock lock(getCriticalSectionMutex());
 
@@ -172,8 +168,8 @@ std::vector<std::string> getAvailableClasses(ClassLoader* loader = NULL)
 }
 
 /**
- * @brief This function returns the names of all libraries in use by a given class loader. A value of NULL indicates global interface
- * @param loader - The ClassLoader whose scope we are within, NULL indicates global function interface
+ * @brief This function returns the names of all libraries in use by a given class loader.
+ * @param loader - The ClassLoader whose scope we are within
  * @return A vector of strings where each string is the path+name of each library that are within a ClassLoader's visible scope
  */
 std::vector<std::string> getAllLibrariesUsedByClassLoader(const ClassLoader* loader);
@@ -181,13 +177,13 @@ std::vector<std::string> getAllLibrariesUsedByClassLoader(const ClassLoader* loa
 /**
  * @brief Indicates if passed library loaded within scope of a ClassLoader. The library maybe loaded in memory, but to the class loader it may not be.
  * @param library_path - The name of the library we wish to check is open
- * @param loader - The pointer to the ClassLoader whose scope we are within, NULL indicates global function interface
+ * @param loader - The pointer to the ClassLoader whose scope we are within
  * @return true if the library is loaded within loader's scope, else false
  */
-bool isLibraryLoaded(const std::string& library_path, ClassLoader* loader = NULL);
+bool isLibraryLoaded(const std::string& library_path, ClassLoader* loader);
 
 /**
- * @brief Indicates if passed library has been loaded by any entity in memory, whether the global function interface or a ClassLoader.
+ * @brief Indicates if passed library has been loaded by ANY ClassLoader
  * @param library_path - The name of the library we wish to check is open
  * @return true if the library is loaded in memory, otherwise false
  */
@@ -196,16 +192,16 @@ bool isLibraryLoadedByAnybody(const std::string& library_path);
 /**
  * @brief Loads a library into memory if it has not already been done so. Attempting to load an already loaded library has no effect.
  * @param library_path - The name of the library to open
- * @param loader - The pointer to the ClassLoader whose scope we are within, NULL indicates global function interface
+ * @param loader - The pointer to the ClassLoader whose scope we are within
  */
-void loadLibrary(const std::string& library_path, ClassLoader* loader = NULL);
+void loadLibrary(const std::string& library_path, ClassLoader* loader);
 
 /**
  * @brief Unloads a library if it loaded in memory and cleans up its corresponding class factories. If it is not loaded, the function has no effect
  * @param library_path - The name of the library to open
- * @param loader - The pointer to the ClassLoader whose scope we are within, NULL indicates global function interface
+ * @param loader - The pointer to the ClassLoader whose scope we are within
  */
-void unloadLibrary(const std::string& library_path, ClassLoader* loader = NULL);
+void unloadLibrary(const std::string& library_path, ClassLoader* loader);
 
 
 } //End namespace plugins_private

@@ -52,24 +52,24 @@ class AbstractMetaObjectBase
 
     /**
      * @brief Associates a ClassLoader owner with this factory,
-     * @param loader Handle to the owning ClassLoader. NULL refers to global interface.
+     * @param loader Handle to the owning ClassLoader.
      */
     void addOwningClassLoader(ClassLoader* loader);
 
     /**
      * @brief Removes a ClassLoader that is an owner of this factory
-     * @param loader Handle to the owning ClassLoader. NULL refers to global interface.
+     * @param loader Handle to the owning ClassLoader. 
      */
     void removeOwningClassLoader(const ClassLoader* loader);
 
     /**
      * @brief Indicates if the factory is within the usable scope of a ClassLoader
-     * @param loader Handle to the owning ClassLoader. NULL refers to global interface.
+     * @param loader Handle to the owning ClassLoader. 
      */
     bool isOwnedBy(const ClassLoader* loader);
 
     /**
-     * @brief Indicates if the factory is within the usable scope of any entity (i.e. a ClassLoader or global interface)
+     * @brief Indicates if the factory is within the usable scope of any ClassLoader
      */
     bool isOwnedByAnybody();
 
