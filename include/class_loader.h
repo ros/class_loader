@@ -94,7 +94,7 @@ class ClassLoader
      * @brief  Indicates if a library is loaded by some entity in the plugin system (another ClassLoader), but not necessarily loaded by this ClassLoader
      * @return true if library is loaded within the scope of the plugin system, otherwise false
      */
-    bool isLibraryLoadedByExternalObject();
+    bool isLibraryLoadedByAnyClassloader();
 
     /**
      * @brief 

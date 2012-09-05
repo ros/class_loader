@@ -24,7 +24,7 @@ bool ClassLoader::isLibraryLoaded()
   return(plugins::plugins_private::isLibraryLoaded(getLibraryPath(), this));
 }
 
-bool ClassLoader::isLibraryLoadedByExternalObject()
+bool ClassLoader::isLibraryLoadedByAnyClassloader()
 {
   return(plugins::plugins_private::isLibraryLoadedByAnybody(getLibraryPath()));
 }
