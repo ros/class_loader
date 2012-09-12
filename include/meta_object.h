@@ -3,7 +3,7 @@
 #ifndef PLUGINS_PRIVATE_META_OBJECT_DEFINED
 #define PLUGINS_PRIVATE_META_OBJECT_DEFINED
 
-#include <iostream>
+#include <console_bridge/console.h>
 #include <vector>
 
 namespace plugins
@@ -146,7 +146,7 @@ class MetaObject: public AbstractMetaObject<B>
      */
     virtual ~MetaObject()
     {
-      std::cout << "MetaObject being destroyed for class type = " << (this->name()) << std::endl;
+      logDebug("plugins::MetaObject: Destructor for factory for class type = %s.\n",(this->name()));
     }
 
     /**

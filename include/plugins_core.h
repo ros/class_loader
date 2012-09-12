@@ -7,7 +7,6 @@
 #include <map>
 #include <typeinfo>
 #include <string>
-#include <iostream>
 #include "meta_object.h"
 #include "plugin_exceptions.h"
 
@@ -107,18 +106,18 @@ template <typename Derived, typename Base>
 void registerPlugin(const std::string& class_name)
 {
   //Note: Critical section not necessary as registerPlugin is called within scope of loadLibrary which is protected
-  std::cout << "Registering plugin class " << class_name << std::endl;
+  logDebug("plugins::plugins_core: Registering plugin class %s.\n", class_name.c_str());
 
   plugins_private::AbstractMetaObject<Base>* new_factory = new plugins_private::MetaObject<Derived, Base>(class_name.c_str());
 
-  std::cout << "Registering with class loader = " << getCurrentlyActiveClassLoader() << " and library name " << getCurrentlyLoadingLibraryName() << std::endl;
+  logDebug("plugins::plugins_core: Registering with class loader = %p and library name %s.\n", getCurrentlyActiveClassLoader(), getCurrentlyLoadingLibraryName().c_str());
   new_factory->addOwningClassLoader(getCurrentlyActiveClassLoader());
   new_factory->setAssociatedLibraryPath(getCurrentlyLoadingLibraryName());
 
   FactoryMap& factoryMap = getFactoryMapForBaseClass<Base>();
   factoryMap[class_name] = new_factory;
 
-  std::cout << "Registration of " << class_name << " complete." << std::endl;
+  logDebug("plugins::plugins_core: Registration of %s complete.\n", class_name.c_str());
 }
 
 /**

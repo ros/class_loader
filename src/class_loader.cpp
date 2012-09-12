@@ -1,6 +1,4 @@
 #include "class_loader.h"
-#include <iostream>
-#include <console_bridge/console.h>
 
 namespace plugins
 {
@@ -17,7 +15,7 @@ plugin_ref_count_(0)
 
 ClassLoader::~ClassLoader()
 {
-  std::cout << "Destroying class loader, unloading associated library..." << std::endl;
+  logDebug("plugins::ClassLoader: Destroying class loader, unloading associated library...\n");
   unloadLibrary();
 }
 
@@ -46,11 +44,12 @@ void ClassLoader::unloadLibrary()
 void ClassLoader::unloadLibraryInternal(bool lock_plugin_ref_count)
 {
   boost::mutex::scoped_lock load_ref_lock(load_ref_count_mutex_);
+  boost::mutex::scoped_lock plugin_ref_lock;
   if(lock_plugin_ref_count)
-    plugin_ref_count_mutex_.lock(); //Can't use scoped lock, remember to unlock...
+    plugin_ref_lock = boost::mutex::scoped_lock(plugin_ref_count_mutex_);
 
   if(plugin_ref_count_ > 0)
-    std::cout << "ClassLoader: MAJOR WARNING!!! Attempting to unload library while objects created by this loader exist in the heap! You should delete your objects before attempting to unload the library or destroying the ClassLoader. The library will NOT be unloaded." << std::endl;
+    logWarn("plugins::ClassLoader: MAJOR WARNING!!! Attempting to unload library while objects created by this loader exist in the heap! You should delete your objects before attempting to unload the library or destroying the ClassLoader. The library will NOT be unloaded.\n");
   else
   {
     load_ref_count_ = load_ref_count_ - 1;
@@ -59,10 +58,6 @@ void ClassLoader::unloadLibraryInternal(bool lock_plugin_ref_count)
     else if(load_ref_count_ < 0)
       load_ref_count_ = 0;
   }
-
-  if(lock_plugin_ref_count)
-    plugin_ref_count_mutex_.unlock(); //...and this is where we unlock
- 
 }
 
 }

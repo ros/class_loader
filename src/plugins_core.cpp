@@ -169,7 +169,7 @@ void destroyMetaObjectsForLibrary(const std::string& library_path, const ClassLo
 /*****************************************************************************/
 {
   //Note: Called within scope of unloadLibrary so no need for critical section
-  std::cout << "Purging MetaObjects associated with library " << library_path << " and class loader " << loader << "." << std::endl;
+  logDebug("plugins::plugins_core: Purging MetaObjects associated with library %s and class loader %p.\n", library_path.c_str(), loader);
 
   //We have to walk through all FactoryMaps to be sure
   BaseToFactoryMapMap& factory_map_map = getGlobalPluginBaseToFactoryMapMap();
@@ -177,7 +177,7 @@ void destroyMetaObjectsForLibrary(const std::string& library_path, const ClassLo
   for(itr = factory_map_map.begin(); itr != factory_map_map.end(); itr++)
     destroyMetaObjectsForLibrary(library_path, itr->second, loader);
 
-  std::cout << "Metaobjects removed." << std::endl;
+  logDebug("plugins::plugins_core: Metaobjects removed.\n");
 }
 
 bool areThereAnyExistingMetaObjectsForLibrary(const std::string& library_path)
@@ -252,7 +252,7 @@ void addClassLoaderOwnerForAllExistingMetaObjectsForLibrary(const std::string& l
   MetaObjectVector all_meta_objs = allMetaObjectsForLibrary(library_path);
   for(unsigned int c = 0; c < all_meta_objs.size(); c++)
   {
-    std::cout << "Tagging existing MetaObject " << all_meta_objs.at(c) << " with loader " << loader << std::endl;
+    logDebug("plugins::plugins_core: Tagging existing MetaObject %p with class loader %p.\n", all_meta_objs.at(c), loader);
     all_meta_objs.at(c)->addOwningClassLoader(loader);
   }
 }
@@ -260,11 +260,11 @@ void addClassLoaderOwnerForAllExistingMetaObjectsForLibrary(const std::string& l
 void loadLibrary(const std::string& library_path, ClassLoader* loader)
 /*****************************************************************************/
 {
-  std::cout << "Attempting to load library " << library_path << "..." << std::endl;
+  logDebug("plugins::plugins_core: Attempting to load library %s...\n", library_path.c_str());
 
   if(isLibraryLoadedByAnybody(library_path))
   {
-    std::cout << "Library already in memory, but binding existing MetaObjects to loader if necesesary." << std::endl;
+    logDebug("plugins::plugins_core: Library already in memory, but binding existing MetaObjects to loader if necesesary.\n");
     addClassLoaderOwnerForAllExistingMetaObjectsForLibrary(library_path, loader);
     return;
   }
@@ -310,7 +310,7 @@ void unloadLibrary(const std::string& library_path, ClassLoader* loader)
       //Remove from loaded library list as well if no more factories associated with said library
       if(!areThereAnyExistingMetaObjectsForLibrary(library_path))
       {
-        std::cout << "There are no more MetaObjects left for " << library_path << " so unloading library and removing from loaded library vector." << std::endl;
+        logDebug("plugins::plugins_core: There are no more MetaObjects left for %s so unloading library and removing from loaded library vector.\n", library_path.c_str());
         library->unload();
         delete(library);
         itr = open_libraries.erase(itr);

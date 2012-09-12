@@ -6,7 +6,7 @@
 #include <boost/bind.hpp>
 #include <vector>
 #include <string>
-#include <iostream>
+#include <console_bridge/console.h>
 #include "plugins_core.h"
 
 namespace plugins
@@ -102,12 +102,10 @@ class ClassLoader
     template <class Base>    
     void onPluginDeletion(Base* obj)
     {
-      std::cout << "Calling onPluginDeletion() for obj ptr = " << obj << std::endl;
+      logDebug("plugins::ClassLoader: Calling onPluginDeletion() for obj ptr = %p.\n", obj);
       if(obj)
       {
-        std::cout << "Attempting to acquire lock...";
         boost::mutex::scoped_lock lock(plugin_ref_count_mutex_);
-        std::cout << "got it." << std::endl;
         delete(obj);
         plugin_ref_count_ = plugin_ref_count_ - 1;
         assert(plugin_ref_count_ >= 0);
