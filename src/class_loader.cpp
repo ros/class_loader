@@ -1,5 +1,6 @@
 #include "class_loader.h"
 #include <iostream>
+#include <console_bridge/console.h>
 
 namespace plugins
 {

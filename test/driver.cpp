@@ -10,8 +10,8 @@ using std::endl;
 
 int main()
 {
-  plugins::ClassLoader loader1("libPlugins1.so", true);
-  plugins::ClassLoader loader2("libPlugins2.so");
+  plugins::ClassLoader loader1("../lib/libTestPlugins1.so", true);
+  plugins::ClassLoader loader2("../lib/libTestPlugins2.so");
 
   cout << "Making a Cat from lib1 to see if lazy load works..." << endl;
   (loader1.createInstance<Base>("Cat"))->saySomething(); //See if lazy load works

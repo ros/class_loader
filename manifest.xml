@@ -1,0 +1,18 @@
+<package>
+  <description brief="plugins">
+     plugins
+  </description>
+  <author>Mirza Shah</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/plugins</url>
+
+  <export>
+    <cpp cflags="-I${prefix}/include -I${prefix} `rosboost-cfg --cflags`" lflags="-Wl,-rpath,${prefix}/lib -L${prefix}/lib -lPlugins -ldl -lPocoFoundation"/>
+    <rosbuild cmake_directory="${prefix}/cmake"/>
+  </export>
+
+
+</package>
+
+

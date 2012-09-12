@@ -208,7 +208,6 @@ bool isLibraryLoadedByAnybody(const std::string& library_path)
 {
   boost::mutex::scoped_lock lock(getCriticalSectionMutex());
 
-  bool is_it_loaded = false;
   LibraryVector& open_libraries =  getLoadedLibraryVector();
   LibraryVector::iterator itr = findLoadedLibrary(library_path);
 
