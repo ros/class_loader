@@ -8,7 +8,7 @@
   <url>http://ros.org/wiki/plugins</url>
 
   <export>
-    <cpp cflags="-I${prefix}/include -I${prefix} `rosboost-cfg --cflags`" lflags="-Wl,-rpath,${prefix}/lib -L${prefix}/lib -lPlugins -ldl -lPocoFoundation"/>
+    <cpp cflags="-I${prefix}/include -I${prefix} `rosboost-cfg --cflags`" lflags="-Wl,-rpath,${prefix}/lib -L${prefix}/lib -lplugins -ldl -lPocoFoundation"/>
     <rosbuild cmake_directory="${prefix}/cmake"/>
   </export>
 
