@@ -4,4 +4,12 @@
 #include "plugin_register_macro.h"
 #include "class_loader.h"
 
+namespace plugins
+{
+
+std::string systemLibrarySuffix();
+
+};
+
+
 #endif
