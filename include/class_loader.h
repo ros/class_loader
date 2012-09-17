@@ -61,8 +61,8 @@ class ClassLoader
       if(obj)
         plugin_ref_count_ = plugin_ref_count_ + 1;
 
-      boost::shared_ptr<T> smartObj(obj, boost::bind(&(ClassLoader::onPluginDeletion<T>), this, _1));
-      return(smartObj);
+      boost::shared_ptr<T> smart_obj(obj, boost::bind(&(ClassLoader::onPluginDeletion<T>), this, _1));
+      return(smart_obj);
     }
 
     /**
