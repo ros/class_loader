@@ -21,6 +21,58 @@ class MultiLibraryClassLoader
      *
      */
     template <class Base>
+    boost::shared_ptr<Base> createInstance(const std::string& class_name)
+    {
+      ClassLoaderVector active_loaders = getAllAvailableClassLoaders();
+      for(unsigned int c = 0; c < active_loaders.size(); c++)
+      {
+        ClassLoader* current = active_loaders.at(c);
+        if(current->isClassAvailable<Base>(class_name))
+          return(current->createInstance<Base>(class_name));
+      }
+
+      throw(plugins::CreateClassException("MultiLibraryClassLoader: Could not create class of type " + class_name));
+    }
+
+    /**
+     *
+     */
+    template <class Base>
+    boost::shared_ptr<Base> createInstance(const std::string& class_name, const std::string& library_path)
+    {
+      return(getClassLoaderForLibrary(library_path)->createInstance<Base>(class_name));
+    }
+
+    /**
+     *
+     */
+    template <class Base>
+    Base* createUnmanagedInstance(const std::string& class_name)
+    {
+      ClassLoaderVector active_loaders = getAllAvailableClassLoaders();
+      for(unsigned int c = 0; c < active_loaders.size(); c++)
+      {
+        ClassLoader* current = active_loaders.at(c);
+        if(current->isClassAvailable<Base>(class_name))
+          return(current->createUnmanagedInstance<Base>(class_name));
+      }
+
+      throw(plugins::CreateClassException("MultiLibraryClassLoader: Could not create class of type " + class_name));
+    }
+
+    /**
+     *
+     */
+    template <class Base>
+    Base* createUnmanagedInstance(const std::string& class_name, const std::string& library_path)
+    {
+      return(getClassLoaderForLibrary(library_path)->createUnmanagedInstance<Base>(class_name));
+    }
+
+    /**
+     *
+     */
+    template <class Base>
     bool isClassAvailable(const std::string& class_name)
     {
       std::vector<std::string> available_classes = getAvailableClasses<Base>();
@@ -52,16 +104,20 @@ class MultiLibraryClassLoader
     /**
      *
      */
-    std::vector<std::string> getRegisteredLibraries();
+    template <class Base>
+    std::vector<std::string> getAvailableClassesForLibrary(const std::string& library_path)
+    {
+      ClassLoader* loader = getClassLoaderForLibrary(library_path);
+      std::vector<std::string> available_classes;
+      if(loader)
+        available_classes = loader->getAvailableClasses<Base>();
+      return(available_classes);
+    }
 
     /**
      *
      */
-    template <class Base>
-    boost::shared_ptr<Base> createInstance(const std::string& class_name, const std::string& library_path)
-    {
-      return(getClassLoaderForLibrary(library_path)->createInstance<Base>(class_name));
-    }
+    std::vector<std::string> getRegisteredLibraries();
 
     /**
      *

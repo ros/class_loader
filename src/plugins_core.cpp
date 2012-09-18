@@ -290,6 +290,10 @@ void loadLibrary(const std::string& library_path, ClassLoader* loader)
   {
     throw(plugins::LibraryLoadException("Library already loaded (Poco exception = " + std::string(e.name()) + ")"));
   }
+  catch(const Poco::NotFoundException& e)
+  {
+    throw(plugins::LibraryLoadException("Library not found (Poco exception = " + std::string(e.name()) + ")"));
+  }
 }
 
 void unloadLibrary(const std::string& library_path, ClassLoader* loader)

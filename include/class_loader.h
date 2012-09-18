@@ -52,10 +52,7 @@ class ClassLoader
     template <class T>    
     boost::shared_ptr<T> createInstance(const std::string& derived_class_name)
     {
-      if(!isLibraryLoaded())
-        loadLibrary();
-
-      T* obj = plugins::plugins_private::createInstance<T>(derived_class_name, this);
+      T* obj = createUnmanagedInstance<T>(derived_class_name);
 
       boost::mutex::scoped_lock lock(plugin_ref_count_mutex_);
       if(obj)
@@ -63,6 +60,32 @@ class ClassLoader
 
       boost::shared_ptr<T> smart_obj(obj, boost::bind(&(ClassLoader::onPluginDeletion<T>), this, _1));
       return(smart_obj);
+    }
+
+    /**
+     * @brief  Generates an instance of loadable classes (i.e. plugins). It is not necessary for the user to call loadLibrary() as it will be invoked automatically if the library is not yet loaded (which typically happens when in "On Demand Load/Unload" mode).
+     * @param derived_class_name The name of the class we want to create (@see getAvailableClasses())
+     * @return An unmanaged (i.e. not a shared_ptr) Base* to newly created plugin object.
+     */
+    template <class Base>
+    Base* createUnmanagedInstance(const std::string& derived_class_name)
+    {
+      if(!isLibraryLoaded())
+        loadLibrary();
+
+      Base* obj = plugins::plugins_private::createInstance<Base>(derived_class_name, this);
+
+      return(obj);
+    }
+
+    /**
+     *
+     */
+    template <class Base>
+    bool isClassAvailable(const std::string& class_name)
+    {
+      std::vector<std::string> available_classes = getAvailableClasses<Base>();
+      return(std::find(available_classes.begin(), available_classes.end(), class_name) != available_classes.end());
     }
 
     /**
