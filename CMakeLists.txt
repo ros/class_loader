@@ -23,7 +23,6 @@ set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
 
 #common commands for building c++ executables and libraries
 
-
 find_package(console_bridge REQUIRED)
 include_directories(${console_bridge_INCLUDE_DIRS})
 
