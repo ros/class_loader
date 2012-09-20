@@ -169,6 +169,9 @@ Base* createInstance(const std::string& derived_class_name, ClassLoader* loader)
       obj = factory->create();
   }
 
+  if(obj == NULL) //Was never created
+    throw(plugins::CreateClassException("Could not create instance of type " + derived_class_name));
+
   return(obj);
 }
 

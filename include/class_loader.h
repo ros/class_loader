@@ -82,10 +82,10 @@ class ClassLoader
     boost::shared_ptr<T> createInstance(const std::string& derived_class_name)
     {
       T* obj = createUnmanagedInstance<T>(derived_class_name);
+      assert(obj != NULL);  //Unreachable assertion if createUnmanagedInstance() throws on failure
 
       boost::mutex::scoped_lock lock(plugin_ref_count_mutex_);
-      if(obj)
-        plugin_ref_count_ = plugin_ref_count_ + 1;
+      plugin_ref_count_ = plugin_ref_count_ + 1;
 
       boost::shared_ptr<T> smart_obj(obj, boost::bind(&(ClassLoader::onPluginDeletion<T>), this, _1));
       return(smart_obj);
@@ -103,12 +103,16 @@ class ClassLoader
         loadLibrary();
 
       Base* obj = plugins::plugins_private::createInstance<Base>(derived_class_name, this);
+      assert(obj != NULL); //Unreachable assertion if createInstance() throws on failure
 
       return(obj);
     }
 
     /**
-     *
+     * @brief Indicates if a plugin class is available
+     * @param Base - polymorphic type indicating base class
+     * @param class_name - the name of the plugin class
+     * @return true if yes it is available, false otherwise
      */
     template <class Base>
     bool isClassAvailable(const std::string& class_name)
@@ -131,7 +135,7 @@ class ClassLoader
     bool isLibraryLoadedByAnyClassloader();
 
     /**
-     * @brief 
+     * @brief Indicates if the library is to be loaded/unloaded on demand...meaning that only to load a lib when the first plugin is created and automatically shut it down when last active plugin is destroyed.
      */
     bool isOnDemandLoadUnloadEnabled(){return(enable_ondemand_loadunload_);}
 
@@ -181,7 +185,7 @@ class ClassLoader
     boost::mutex plugin_ref_count_mutex_;
 };
 
-};
+}
 
 
 #endif
