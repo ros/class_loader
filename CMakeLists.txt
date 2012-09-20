@@ -34,6 +34,10 @@ rosbuild_add_library(TestPlugins2 test/plugins2.cpp)
 rosbuild_add_executable(tester test/driver.cpp)
 target_link_libraries(tester plugins dl tinyxml PocoFoundation ${console_bridge_LIBRARIES})
 
+rosbuild_add_gtest(plugins_utest test/utest.cpp)
+target_link_libraries(plugins_utest plugins dl tinyxml PocoFoundation ${console_bridge_LIBRARIES})
+
+
 #rosbuild_add_boost_directories()
 #rosbuild_link_boost(${PROJECT_NAME} thread)
 #rosbuild_add_executable(example examples/example.cpp)
