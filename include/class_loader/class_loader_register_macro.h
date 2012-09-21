@@ -27,16 +27,31 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "plugins.h"
-#include <Poco/SharedLibrary.h>
+#ifndef CLASS_LOADER_REGISTER_MACRO_H_DEFINED
+#define CLASS_LOADER_REGISTER_MACRO_H_DEFINED
 
-namespace plugins
-{
+#include "class_loader_core.h"
 
-std::string systemLibrarySuffix()
-{
-  return(Poco::SharedLibrary::suffix());
-}
+#define CLASS_LOADER_REGISTER_CLASS_INTERNAL(Derived, Base, UniqueID) \
+  struct ProxyExec##UniqueID \
+  { \
+     typedef  Derived _derived; \
+     typedef  Base    _base; \
+     ProxyExec##UniqueID() \
+     { \
+       class_loader::class_loader_private::registerPlugin<_derived, _base>(#Derived); \
+     } \
+  }; \
+  static ProxyExec##UniqueID g_register_plugin_##UniqueID;
 
-};
+#define CLASS_LOADER_REGISTER_CLASS_INTERNAL_HOP1(Derived, Base, UniqueID) CLASS_LOADER_REGISTER_CLASS_INTERNAL(Derived, Base, UniqueID)
+
+/**
+* @brief This is the PLUGINS_REGISTER_CLASS macro which must be declared within the source (.cpp) file for each class that is to be exported as plugin.
+* The macro utilizes a trick where a new struct is generated along with a declaration of static global variable of same type after it. The struct's constructor invokes a registration function with the plugin system. When the plugin system loads a library with registered classes in it, the initialization of static variables forces the invocation of the struct constructors, and all class_loader are automatically registerd.
+*/
+#define CLASS_LOADER_REGISTER_CLASS(Derived, Base)  CLASS_LOADER_REGISTER_CLASS_INTERNAL_HOP1(Derived, Base, __COUNTER__)
+
+
+#endif
 

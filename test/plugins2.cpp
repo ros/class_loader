@@ -1,6 +1,6 @@
 #include "base.h"
 #include <iostream>
-#include <plugins.h>
+#include <class_loader/class_loader.h>
 
 class Robot : public Base
 {
@@ -27,8 +27,8 @@ class Zombie : public Base
 };
 
 
-PLUGINS_REGISTER_CLASS(Robot, Base);
-PLUGINS_REGISTER_CLASS(Alien, Base);
-PLUGINS_REGISTER_CLASS(Monster, Base);
-PLUGINS_REGISTER_CLASS(Zombie, Base);
+CLASS_LOADER_REGISTER_CLASS(Robot, Base);
+CLASS_LOADER_REGISTER_CLASS(Alien, Base);
+CLASS_LOADER_REGISTER_CLASS(Monster, Base);
+CLASS_LOADER_REGISTER_CLASS(Zombie, Base);
 

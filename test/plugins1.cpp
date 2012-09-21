@@ -1,6 +1,6 @@
 #include "base.h"
 #include <iostream>
-#include <plugins.h>
+#include <class_loader/class_loader.h>
 
 class Dog : public Base
 {
@@ -32,8 +32,8 @@ class Sheep : public Base
     virtual void saySomething(){std::cout << "Baaah" << std::endl;}
 };
 
-PLUGINS_REGISTER_CLASS(Dog, Base);
-PLUGINS_REGISTER_CLASS(Cat, Base);
-PLUGINS_REGISTER_CLASS(Duck, Base);
-PLUGINS_REGISTER_CLASS(Cow, Base);
-PLUGINS_REGISTER_CLASS(Sheep, Base);
+CLASS_LOADER_REGISTER_CLASS(Dog, Base);
+CLASS_LOADER_REGISTER_CLASS(Cat, Base);
+CLASS_LOADER_REGISTER_CLASS(Duck, Base);
+CLASS_LOADER_REGISTER_CLASS(Cow, Base);
+CLASS_LOADER_REGISTER_CLASS(Sheep, Base);

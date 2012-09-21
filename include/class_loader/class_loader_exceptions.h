@@ -29,12 +29,12 @@
 
 #include <exception>
 
-namespace plugins
+namespace class_loader
 {
 
 /**
- * @class pluginsException
- * @brief A base class for all plugins exceptions that inherits from std::runtime_exception
+ * @class class_loaderException
+ * @brief A base class for all class_loader exceptions that inherits from std::runtime_exception
  */
 class PluginException: public std::runtime_error
 {
@@ -44,7 +44,7 @@ class PluginException: public std::runtime_error
 
 /**
  * @class LibraryLoadException
- * @brief An exception class thrown when plugins is unable to load the library associated with a given plugin
+ * @brief An exception class thrown when class_loader is unable to load the library associated with a given plugin
  */
 class LibraryLoadException: public PluginException
 {
@@ -54,7 +54,7 @@ class LibraryLoadException: public PluginException
 
 /**
  * @class LibraryUnloadException
- * @brief An exception class thrown when plugins is unable to unload the library associated with a given plugin
+ * @brief An exception class thrown when class_loader is unable to unload the library associated with a given plugin
  */
 class LibraryUnloadException: public PluginException
 {
@@ -64,7 +64,7 @@ class LibraryUnloadException: public PluginException
 
 /**
  * @class CreateClassException
- * @brief An exception class thrown when plugins is unable to create the class associated with a given plugin
+ * @brief An exception class thrown when class_loader is unable to create the class associated with a given plugin
  */
 class CreateClassException: public PluginException
 {

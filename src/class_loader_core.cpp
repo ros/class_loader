@@ -27,12 +27,12 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "plugins_core.h"
+#include "class_loader/class_loader_core.h"
 #include <cassert>
 
-namespace plugins
+namespace class_loader
 {
-namespace plugins_private
+namespace class_loader_private
 {
 
 //Global data 
@@ -198,7 +198,7 @@ void destroyMetaObjectsForLibrary(const std::string& library_path, const ClassLo
 /*****************************************************************************/
 {
   //Note: Called within scope of unloadLibrary so no need for critical section
-  logDebug("plugins::plugins_core: Purging MetaObjects associated with library %s and class loader %p.\n", library_path.c_str(), loader);
+  logDebug("class_loader::class_loader_core: Purging MetaObjects associated with library %s and class loader %p.\n", library_path.c_str(), loader);
 
   //We have to walk through all FactoryMaps to be sure
   BaseToFactoryMapMap& factory_map_map = getGlobalPluginBaseToFactoryMapMap();
@@ -206,7 +206,7 @@ void destroyMetaObjectsForLibrary(const std::string& library_path, const ClassLo
   for(itr = factory_map_map.begin(); itr != factory_map_map.end(); itr++)
     destroyMetaObjectsForLibrary(library_path, itr->second, loader);
 
-  logDebug("plugins::plugins_core: Metaobjects removed.\n");
+  logDebug("class_loader::class_loader_core: Metaobjects removed.\n");
 }
 
 bool areThereAnyExistingMetaObjectsForLibrary(const std::string& library_path)
@@ -281,7 +281,7 @@ void addClassLoaderOwnerForAllExistingMetaObjectsForLibrary(const std::string& l
   MetaObjectVector all_meta_objs = allMetaObjectsForLibrary(library_path);
   for(unsigned int c = 0; c < all_meta_objs.size(); c++)
   {
-    logDebug("plugins::plugins_core: Tagging existing MetaObject %p with class loader %p.\n", all_meta_objs.at(c), loader);
+    logDebug("class_loader::class_loader_core: Tagging existing MetaObject %p with class loader %p.\n", all_meta_objs.at(c), loader);
     all_meta_objs.at(c)->addOwningClassLoader(loader);
   }
 }
@@ -289,11 +289,11 @@ void addClassLoaderOwnerForAllExistingMetaObjectsForLibrary(const std::string& l
 void loadLibrary(const std::string& library_path, ClassLoader* loader)
 /*****************************************************************************/
 {
-  logDebug("plugins::plugins_core: Attempting to load library %s...\n", library_path.c_str());
+  logDebug("class_loader::class_loader_core: Attempting to load library %s...\n", library_path.c_str());
 
   if(isLibraryLoadedByAnybody(library_path))
   {
-    logDebug("plugins::plugins_core: Library already in memory, but binding existing MetaObjects to loader if necesesary.\n");
+    logDebug("class_loader::class_loader_core: Library already in memory, but binding existing MetaObjects to loader if necesesary.\n");
     addClassLoaderOwnerForAllExistingMetaObjectsForLibrary(library_path, loader);
     return;
   }
@@ -313,15 +313,15 @@ void loadLibrary(const std::string& library_path, ClassLoader* loader)
   }
   catch(const Poco::LibraryLoadException& e)
   {
-    throw(plugins::LibraryLoadException("Could not load library (Poco exception = " + std::string(e.name()) + ")"));
+    throw(class_loader::LibraryLoadException("Could not load library (Poco exception = " + std::string(e.name()) + ")"));
   }
   catch(const Poco::LibraryAlreadyLoadedException& e)
   {
-    throw(plugins::LibraryLoadException("Library already loaded (Poco exception = " + std::string(e.name()) + ")"));
+    throw(class_loader::LibraryLoadException("Library already loaded (Poco exception = " + std::string(e.name()) + ")"));
   }
   catch(const Poco::NotFoundException& e)
   {
-    throw(plugins::LibraryLoadException("Library not found (Poco exception = " + std::string(e.name()) + ")"));
+    throw(class_loader::LibraryLoadException("Library not found (Poco exception = " + std::string(e.name()) + ")"));
   }
 }
 
@@ -343,7 +343,7 @@ void unloadLibrary(const std::string& library_path, ClassLoader* loader)
       //Remove from loaded library list as well if no more factories associated with said library
       if(!areThereAnyExistingMetaObjectsForLibrary(library_path))
       {
-        logDebug("plugins::plugins_core: There are no more MetaObjects left for %s so unloading library and removing from loaded library vector.\n", library_path.c_str());
+        logDebug("class_loader::class_loader_core: There are no more MetaObjects left for %s so unloading library and removing from loaded library vector.\n", library_path.c_str());
         library->unload();
         delete(library);
         itr = open_libraries.erase(itr);
@@ -352,10 +352,10 @@ void unloadLibrary(const std::string& library_path, ClassLoader* loader)
     catch(const Poco::RuntimeException& e)
     {
       delete(library);
-      throw(plugins::LibraryUnloadException("Could not unload library (Poco exception = " + std::string(e.name()) + ")"));
+      throw(class_loader::LibraryUnloadException("Could not unload library (Poco exception = " + std::string(e.name()) + ")"));
     }
   }
 }
 
-} //End namespace plugins_private
-} //End namespace plugins
+} //End namespace class_loader_private
+} //End namespace class_loader

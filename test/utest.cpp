@@ -1,7 +1,7 @@
 #include <boost/thread.hpp>
 #include <boost/bind.hpp>
 #include <iostream>
-#include <class_loader.h>
+#include <class_loader/class_loader.h>
 #include "base.h"
 #include <gtest/gtest.h>
 
@@ -9,14 +9,14 @@ const std::string LIBRARY_1 = "libclass_loader_TestPlugins1.so";
 const std::string LIBRARY_2 = "libclass_loader_TestPlugins2.so";
 
 /*****************************************************************************/
-TEST(PluginsTest, basicLoad)
+TEST(ClassLoaderTest, basicLoad)
 {
   try
   {
-    plugins::ClassLoader loader1(LIBRARY_1, false);
+    class_loader::ClassLoader loader1(LIBRARY_1, false);
     loader1.createInstance<Base>("Cat")->saySomething(); //See if lazy load works
   }
-  catch(plugins::PluginException& e)
+  catch(class_loader::PluginException& e)
   {
     FAIL() << "PluginException: " << e.what() << "\n";
   }
@@ -25,20 +25,20 @@ TEST(PluginsTest, basicLoad)
 }
 
 /*****************************************************************************/
-TEST(PluginsTest, correctNonLazyLoadUnload)
+TEST(ClassLoaderTest, correctNonLazyLoadUnload)
 {
   try
   {
-  ASSERT_FALSE(plugins::plugins_private::isLibraryLoadedByAnybody(LIBRARY_1));
-    plugins::ClassLoader loader1(LIBRARY_1, false);
-    ASSERT_TRUE(plugins::plugins_private::isLibraryLoadedByAnybody(LIBRARY_1));
+  ASSERT_FALSE(class_loader::class_loader_private::isLibraryLoadedByAnybody(LIBRARY_1));
+    class_loader::ClassLoader loader1(LIBRARY_1, false);
+    ASSERT_TRUE(class_loader::class_loader_private::isLibraryLoadedByAnybody(LIBRARY_1));
     ASSERT_TRUE(loader1.isLibraryLoaded());
     loader1.unloadLibrary();
-    ASSERT_FALSE(plugins::plugins_private::isLibraryLoadedByAnybody(LIBRARY_1));
+    ASSERT_FALSE(class_loader::class_loader_private::isLibraryLoadedByAnybody(LIBRARY_1));
     ASSERT_FALSE(loader1.isLibraryLoaded());
     return;
   }
-  catch(plugins::PluginException& e)
+  catch(class_loader::PluginException& e)
   {
     FAIL() << "PluginException: " << e.what() << "\n";
   }
@@ -49,26 +49,26 @@ TEST(PluginsTest, correctNonLazyLoadUnload)
 }
 
 /*****************************************************************************/
-TEST(PluginsTest, correctLazyLoadUnload)
+TEST(ClassLoaderTest, correctLazyLoadUnload)
 {
   try
   {
-    ASSERT_FALSE(plugins::plugins_private::isLibraryLoadedByAnybody(LIBRARY_1));
-    plugins::ClassLoader loader1(LIBRARY_1, true);
-    ASSERT_FALSE(plugins::plugins_private::isLibraryLoadedByAnybody(LIBRARY_1));
+    ASSERT_FALSE(class_loader::class_loader_private::isLibraryLoadedByAnybody(LIBRARY_1));
+    class_loader::ClassLoader loader1(LIBRARY_1, true);
+    ASSERT_FALSE(class_loader::class_loader_private::isLibraryLoadedByAnybody(LIBRARY_1));
     ASSERT_FALSE(loader1.isLibraryLoaded());
 
     {
       boost::shared_ptr<Base> obj = loader1.createInstance<Base>("Cat");
-      ASSERT_TRUE(plugins::plugins_private::isLibraryLoadedByAnybody(LIBRARY_1));
+      ASSERT_TRUE(class_loader::class_loader_private::isLibraryLoadedByAnybody(LIBRARY_1));
       ASSERT_TRUE(loader1.isLibraryLoaded());
     }
 
     //The library will unload automatically when the only plugin object left is destroyed
-    ASSERT_FALSE(plugins::plugins_private::isLibraryLoadedByAnybody(LIBRARY_1));
+    ASSERT_FALSE(class_loader::class_loader_private::isLibraryLoadedByAnybody(LIBRARY_1));
     return;
   }
-  catch(plugins::PluginException& e)
+  catch(class_loader::PluginException& e)
   {
     FAIL() << "PluginException: " << e.what() << "\n";
   }
@@ -80,9 +80,9 @@ TEST(PluginsTest, correctLazyLoadUnload)
 
 /*****************************************************************************/
 
-TEST(PluginsTest, nonExistentPlugin)
+TEST(ClassLoaderTest, nonExistentPlugin)
 {
-  plugins::ClassLoader loader1(LIBRARY_1, false);
+  class_loader::ClassLoader loader1(LIBRARY_1, false);
 
   try
   {
@@ -92,7 +92,7 @@ TEST(PluginsTest, nonExistentPlugin)
 
     obj->saySomething();
   }
-  catch(const plugins::CreateClassException& e)
+  catch(const class_loader::CreateClassException& e)
   {
     SUCCEED();
     return;
@@ -106,13 +106,13 @@ TEST(PluginsTest, nonExistentPlugin)
 }
 
 /*****************************************************************************/
-TEST(PluginsTest, nonExistentLibrary)
+TEST(ClassLoaderTest, nonExistentLibrary)
 {
   try
   {
-    plugins::ClassLoader loader1("libDoesNotExist.so", false);
+    class_loader::ClassLoader loader1("libDoesNotExist.so", false);
   }
-  catch(const plugins::LibraryLoadException& e)
+  catch(const class_loader::LibraryLoadException& e)
   {
     SUCCEED();
     return;
@@ -131,11 +131,11 @@ class InvalidBase
 {
 };
 
-TEST(PluginsTest, invalidBase)
+TEST(ClassLoaderTest, invalidBase)
 {
   try
   {
-    plugins::ClassLoader loader1(LIBRARY_1, false);
+    class_loader::ClassLoader loader1(LIBRARY_1, false);
     if(loader1.isClassAvailable<InvalidBase>("Cat"))
     {
       FAIL() << "Cat should not be available for InvalidBase";
@@ -148,7 +148,7 @@ TEST(PluginsTest, invalidBase)
     else
       FAIL() << "Class not available for correct base class.";
   }
-  catch(const plugins::LibraryLoadException& e)
+  catch(const class_loader::LibraryLoadException& e)
   {
     FAIL() << "Unexpected exception";
   }
@@ -165,7 +165,7 @@ void wait(int seconds)
   boost::this_thread::sleep(boost::posix_time::seconds(seconds));
 }
 
-void run(plugins::ClassLoader* loader)
+void run(class_loader::ClassLoader* loader)
 {
   std::vector<std::string> classes = loader->getAvailableClasses<Base>();
   for(unsigned int c = 0; c < classes.size(); c++)
@@ -174,9 +174,9 @@ void run(plugins::ClassLoader* loader)
   }
 }
 
-TEST(PluginsTest, threadSafety)
+TEST(ClassLoaderTest, threadSafety)
 {
-  plugins::ClassLoader loader1(LIBRARY_1);
+  class_loader::ClassLoader loader1(LIBRARY_1);
   ASSERT_TRUE(loader1.isLibraryLoaded());
 
   //Note: Hard to test thread safety to make sure memory isn't corrupted. The hope is this test is hard enough that once in a while it'll segfault or something if there's some implementation error.
@@ -197,7 +197,7 @@ TEST(PluginsTest, threadSafety)
     ASSERT_FALSE(loader1.isLibraryLoaded());
 
   }
-  catch(const plugins::PluginException& ex)
+  catch(const class_loader::PluginException& ex)
   {
     FAIL() << "Unexpected PluginException.";
   }

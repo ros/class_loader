@@ -26,13 +26,10 @@ set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
 find_package(console_bridge REQUIRED)
 include_directories(${console_bridge_INCLUDE_DIRS})
 
-rosbuild_add_library(${PROJECT_NAME} src/class_loader.cpp src/meta_object.cpp src/plugins_core.cpp src/plugins.cpp src/multi_library_class_loader.cpp)
+rosbuild_add_library(${PROJECT_NAME} src/class_loader.cpp src/meta_object.cpp src/class_loader_core.cpp src/multi_library_class_loader.cpp)
 
 rosbuild_add_library(${PROJECT_NAME}_TestPlugins1 test/plugins1.cpp)
 rosbuild_add_library(${PROJECT_NAME}_TestPlugins2 test/plugins2.cpp)
-
-rosbuild_add_executable(tester test/driver.cpp)
-target_link_libraries(tester ${PROJECT_NAME} dl tinyxml PocoFoundation ${console_bridge_LIBRARIES})
 
 rosbuild_add_gtest(${PROJECT_NAME}_utest test/utest.cpp)
 target_link_libraries(${PROJECT_NAME}_utest ${PROJECT_NAME} boost_thread dl tinyxml PocoFoundation ${console_bridge_LIBRARIES})

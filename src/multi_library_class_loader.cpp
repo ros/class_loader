@@ -27,9 +27,9 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "multi_library_class_loader.h"
+#include "class_loader/multi_library_class_loader.h"
 
-namespace plugins
+namespace class_loader
 {
 
 MultiLibraryClassLoader::MultiLibraryClassLoader(bool enable_ondemand_loadunload) :
@@ -72,7 +72,7 @@ bool MultiLibraryClassLoader::isLibraryAvailable(const std::string& library_name
 void MultiLibraryClassLoader::loadLibrary(const std::string& library_path)
 {
   if(!isLibraryAvailable(library_path))
-    active_class_loaders_[library_path] = new plugins::ClassLoader(library_path, isOnDemandLoadUnloadEnabled());
+    active_class_loaders_[library_path] = new class_loader::ClassLoader(library_path, isOnDemandLoadUnloadEnabled());
 }
 
 void MultiLibraryClassLoader::shutdownAllClassLoaders()

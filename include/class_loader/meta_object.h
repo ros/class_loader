@@ -35,12 +35,12 @@
 #include <console_bridge/console.h>
 #include <vector>
 
-namespace plugins
+namespace class_loader
 {
 
 class ClassLoader; //Forward declaration
 
-namespace plugins_private 
+namespace class_loader_private 
 {
 
 /**
@@ -49,7 +49,7 @@ namespace plugins_private
  */
 class AbstractMetaObjectBase
 {
-  typedef std::vector<plugins::ClassLoader*> ClassLoaderVector;
+  typedef std::vector<class_loader::ClassLoader*> ClassLoaderVector;
 
   public:
 
@@ -175,7 +175,7 @@ class MetaObject: public AbstractMetaObject<B>
      */
     virtual ~MetaObject()
     {
-      logDebug("plugins::MetaObject: Destructor for factory for class type = %s.\n",(this->name()));
+      logDebug("class_loader::MetaObject: Destructor for factory for class type = %s.\n",(this->name()));
     }
 
     /**
@@ -188,7 +188,7 @@ class MetaObject: public AbstractMetaObject<B>
     }
 };
 
-} // End namespace plugins_private
-} // End namespace plugins
+} // End namespace class_loader_private
+} // End namespace class_loader
 
 #endif 

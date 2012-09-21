@@ -27,12 +27,12 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "meta_object.h"
-#include "class_loader.h"
+#include "class_loader/meta_object.h"
+#include "class_loader/class_loader.h"
 
-namespace plugins
+namespace class_loader
 {
-namespace plugins_private
+namespace class_loader_private
 {
 
 void AbstractMetaObjectBase::addOwningClassLoader(ClassLoader* loader)

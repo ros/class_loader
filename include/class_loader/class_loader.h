@@ -27,8 +27,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef PLUGINS_CLASS_LOADER_H_DEFINED
-#define PLUGINS_CLASS_LOADER_H_DEFINED
+#ifndef CLASS_LOADER_CLASS_LOADER_H_DEFINED
+#define CLASS_LOADER_CLASS_LOADER_H_DEFINED
 
 #include <boost/shared_ptr.hpp>
 #include <boost/thread/mutex.hpp>
@@ -36,14 +36,22 @@
 #include <vector>
 #include <string>
 #include <console_bridge/console.h>
-#include "plugins_core.h"
+#include "class_loader/class_loader_register_macro.h"
+#include "class_loader/class_loader_core.h"
 
-namespace plugins
+namespace class_loader
 {
 
 /**
+* returns runtime library extension for native os
+*/
+std::string systemLibrarySuffix();
+
+
+
+/**
  * @class ClassLoader
- * @brief This class allows loading and unloading of dynamically linked libraries which contain class definitions from which objects can be created/destroyed during runtime (i.e. plugins). Libraries loaded by a ClassLoader are only accessible within scope of that ClassLoader object.
+ * @brief This class allows loading and unloading of dynamically linked libraries which contain class definitions from which objects can be created/destroyed during runtime (i.e. class_loader). Libraries loaded by a ClassLoader are only accessible within scope of that ClassLoader object.
  */
 class ClassLoader
 {
@@ -59,13 +67,13 @@ class ClassLoader
     virtual ~ClassLoader();
 
     /**
-     * @brief  Indicates which classes (i.e. plugins) that can be loaded by this object
+     * @brief  Indicates which classes (i.e. class_loader) that can be loaded by this object
      * @return vector of strings indicating names of instantiable classes derived from <Base>
      */
     template <class Base>
     std::vector<std::string> getAvailableClasses()
     {
-      return(plugins::plugins_private::getAvailableClasses<Base>(this));
+      return(class_loader::class_loader_private::getAvailableClasses<Base>(this));
     }
 
     /**
@@ -74,7 +82,7 @@ class ClassLoader
     std::string getLibraryPath(){return(library_path_);}
 
     /**
-     * @brief  Generates an instance of loadable classes (i.e. plugins). It is not necessary for the user to call loadLibrary() as it will be invoked automatically if the library is not yet loaded (which typically happens when in "On Demand Load/Unload" mode).
+     * @brief  Generates an instance of loadable classes (i.e. class_loader). It is not necessary for the user to call loadLibrary() as it will be invoked automatically if the library is not yet loaded (which typically happens when in "On Demand Load/Unload" mode).
      * @param  derived_class_name The name of the class we want to create (@see getAvailableClasses())
      * @return A boost::shared_ptr<Base> to newly created plugin object
      */
@@ -92,7 +100,7 @@ class ClassLoader
     }
 
     /**
-     * @brief  Generates an instance of loadable classes (i.e. plugins). It is not necessary for the user to call loadLibrary() as it will be invoked automatically if the library is not yet loaded (which typically happens when in "On Demand Load/Unload" mode).
+     * @brief  Generates an instance of loadable classes (i.e. class_loader). It is not necessary for the user to call loadLibrary() as it will be invoked automatically if the library is not yet loaded (which typically happens when in "On Demand Load/Unload" mode).
      * @param derived_class_name The name of the class we want to create (@see getAvailableClasses())
      * @return An unmanaged (i.e. not a shared_ptr) Base* to newly created plugin object.
      */
@@ -102,7 +110,7 @@ class ClassLoader
       if(!isLibraryLoaded())
         loadLibrary();
 
-      Base* obj = plugins::plugins_private::createInstance<Base>(derived_class_name, this);
+      Base* obj = class_loader::class_loader_private::createInstance<Base>(derived_class_name, this);
       assert(obj != NULL); //Unreachable assertion if createInstance() throws on failure
 
       return(obj);
@@ -146,7 +154,7 @@ class ClassLoader
     void loadLibrary();
 
      /**
-     * @brief  Attempts to unload a library loaded within scope of the ClassLoader. If the library is not opened, this method has no effect. If the library is opened by other entities (i.e. another ClassLoader or global interface), the library will NOT be unloaded internally -- however this ClassLoader will no longer be able to instantiate plugins bound to that library. If there are plugin objects that exist in memory created by this classloader, a warning message will appear and the library will not be unloaded. If loadLibrary() was called multiple times (e.g. in the case of multiple threads or purposefully in a single thread), the user is responsible for calling unloadLibrary() the same number of times. The library will not be unloaded within the context of this classloader until the number of unload calls matches the number of loads.
+     * @brief  Attempts to unload a library loaded within scope of the ClassLoader. If the library is not opened, this method has no effect. If the library is opened by other entities (i.e. another ClassLoader or global interface), the library will NOT be unloaded internally -- however this ClassLoader will no longer be able to instantiate class_loader bound to that library. If there are plugin objects that exist in memory created by this classloader, a warning message will appear and the library will not be unloaded. If loadLibrary() was called multiple times (e.g. in the case of multiple threads or purposefully in a single thread), the user is responsible for calling unloadLibrary() the same number of times. The library will not be unloaded within the context of this classloader until the number of unload calls matches the number of loads.
      */
     void unloadLibrary();
 
@@ -158,7 +166,7 @@ class ClassLoader
     template <class Base>    
     void onPluginDeletion(Base* obj)
     {
-      logDebug("plugins::ClassLoader: Calling onPluginDeletion() for obj ptr = %p.\n", obj);
+      logDebug("class_loader::ClassLoader: Calling onPluginDeletion() for obj ptr = %p.\n", obj);
       if(obj)
       {
         boost::mutex::scoped_lock lock(plugin_ref_count_mutex_);

@@ -33,11 +33,11 @@
 #include "class_loader.h"
 #include <boost/thread.hpp>
 
-namespace plugins
+namespace class_loader
 {
 
 typedef std::string LibraryPath;
-typedef std::map<LibraryPath, plugins::ClassLoader*> LibraryToClassLoaderMap;
+typedef std::map<LibraryPath, class_loader::ClassLoader*> LibraryToClassLoaderMap;
 typedef std::vector<ClassLoader*> ClassLoaderVector;
 
 class MultiLibraryClassLoader
@@ -45,7 +45,7 @@ class MultiLibraryClassLoader
   public:
     /**
      * @brief Constructor for the class
-     * @param enable_ondemand_loadunload - Flag indicates if classes are to be loaded/unloaded automatically as plugins are created and destroyed
+     * @param enable_ondemand_loadunload - Flag indicates if classes are to be loaded/unloaded automatically as class_loader are created and destroyed
      */
     MultiLibraryClassLoader(bool enable_ondemand_loadunload);
 
@@ -72,7 +72,7 @@ class MultiLibraryClassLoader
           return(current->createInstance<Base>(class_name));
       }
 
-      throw(plugins::CreateClassException("MultiLibraryClassLoader: Could not create class of type " + class_name + " as no class loader exists."));
+      throw(class_loader::CreateClassException("MultiLibraryClassLoader: Could not create class of type " + class_name + " as no class loader exists."));
     }
 
     /**
@@ -108,7 +108,7 @@ class MultiLibraryClassLoader
           return(current->createUnmanagedInstance<Base>(class_name));
       }
 
-      throw(plugins::CreateClassException("MultiLibraryClassLoader: Could not create class of type " + class_name));
+      throw(class_loader::CreateClassException("MultiLibraryClassLoader: Could not create class of type " + class_name));
     }
 
     /**

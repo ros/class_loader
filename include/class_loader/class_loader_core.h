@@ -27,8 +27,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef PLUGINS_PRIVATE_PLUGIN_PROXY_H_DEFINED
-#define PLUGINS_PRIVATE_PLUGIN_PROXY_H_DEFINED
+#ifndef CLASS_LOADER_CORE_H_DEFINED
+#define CLASS_LOADER_CORE_H_DEFINED
 
 #include <Poco/SharedLibrary.h>
 #include <boost/thread/mutex.hpp>
@@ -36,18 +36,18 @@
 #include <map>
 #include <typeinfo>
 #include <string>
-#include "meta_object.h"
-#include "plugin_exceptions.h"
+#include "class_loader/meta_object.h"
+#include "class_loader/class_loader_exceptions.h"
 
 /* Note: This header file is the internal implementation of the plugin system which is exposed via the ClassLoader class
 */
 
-namespace plugins
+namespace class_loader
 {
 
 class ClassLoader; //Forward declaration
 
-namespace plugins_private
+namespace class_loader_private
 {
 
 //Typedefs
@@ -55,7 +55,7 @@ namespace plugins_private
 typedef std::string LibraryPath;
 typedef std::string ClassName;
 typedef std::string BaseClassName;
-typedef std::map<ClassName, plugins_private::AbstractMetaObjectBase*> FactoryMap;
+typedef std::map<ClassName, class_loader_private::AbstractMetaObjectBase*> FactoryMap;
 typedef std::map<BaseClassName, FactoryMap> BaseToFactoryMapMap;
 typedef std::pair<LibraryPath, Poco::SharedLibrary*> LibraryPair;
 typedef std::vector<LibraryPair> LibraryVector;
@@ -135,18 +135,18 @@ template <typename Derived, typename Base>
 void registerPlugin(const std::string& class_name)
 {
   //Note: Critical section not necessary as registerPlugin is called within scope of loadLibrary which is protected
-  logDebug("plugins::plugins_core: Registering plugin class %s.\n", class_name.c_str());
+  logDebug("class_loader::class_loader_core: Registering plugin class %s.\n", class_name.c_str());
 
-  plugins_private::AbstractMetaObject<Base>* new_factory = new plugins_private::MetaObject<Derived, Base>(class_name.c_str());
+  class_loader_private::AbstractMetaObject<Base>* new_factory = new class_loader_private::MetaObject<Derived, Base>(class_name.c_str());
 
-  logDebug("plugins::plugins_core: Registering with class loader = %p and library name %s.\n", getCurrentlyActiveClassLoader(), getCurrentlyLoadingLibraryName().c_str());
+  logDebug("class_loader::class_loader_core: Registering with class loader = %p and library name %s.\n", getCurrentlyActiveClassLoader(), getCurrentlyLoadingLibraryName().c_str());
   new_factory->addOwningClassLoader(getCurrentlyActiveClassLoader());
   new_factory->setAssociatedLibraryPath(getCurrentlyLoadingLibraryName());
 
   FactoryMap& factoryMap = getFactoryMapForBaseClass<Base>();
   factoryMap[class_name] = new_factory;
 
-  logDebug("plugins::plugins_core: Registration of %s complete.\n", class_name.c_str());
+  logDebug("class_loader::class_loader_core: Registration of %s complete.\n", class_name.c_str());
 }
 
 /**
@@ -164,19 +164,19 @@ Base* createInstance(const std::string& derived_class_name, ClassLoader* loader)
   FactoryMap& factoryMap = getFactoryMapForBaseClass<Base>();
   if(factoryMap.find(derived_class_name) != factoryMap.end())
   {
-    AbstractMetaObject<Base>* factory = dynamic_cast<plugins_private::AbstractMetaObject<Base>*>(factoryMap[derived_class_name]);
+    AbstractMetaObject<Base>* factory = dynamic_cast<class_loader_private::AbstractMetaObject<Base>*>(factoryMap[derived_class_name]);
     if(factory->isOwnedBy(loader))
       obj = factory->create();
   }
 
   if(obj == NULL) //Was never created
-    throw(plugins::CreateClassException("Could not create instance of type " + derived_class_name));
+    throw(class_loader::CreateClassException("Could not create instance of type " + derived_class_name));
 
   return(obj);
 }
 
 /**
- * @brief This function returns all the available plugins in the plugin system that are derived from Base and within scope of the passed ClassLoader.
+ * @brief This function returns all the available class_loader in the plugin system that are derived from Base and within scope of the passed ClassLoader.
  * @param loader - The pointer to the ClassLoader whose scope we are within,
  * @return A vector of strings where each string is a plugin we can create
  */
@@ -235,7 +235,7 @@ void loadLibrary(const std::string& library_path, ClassLoader* loader);
 void unloadLibrary(const std::string& library_path, ClassLoader* loader);
 
 
-} //End namespace plugins_private
-} //End namespace plugins
+} //End namespace class_loader_private
+} //End namespace class_loader
 
 #endif
