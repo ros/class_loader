@@ -28,14 +28,14 @@ include_directories(${console_bridge_INCLUDE_DIRS})
 
 rosbuild_add_library(${PROJECT_NAME} src/class_loader.cpp src/meta_object.cpp src/plugins_core.cpp src/plugins.cpp src/multi_library_class_loader.cpp)
 
-rosbuild_add_library(TestPlugins1 test/plugins1.cpp)
-rosbuild_add_library(TestPlugins2 test/plugins2.cpp)
+rosbuild_add_library(${PROJECT_NAME}_TestPlugins1 test/plugins1.cpp)
+rosbuild_add_library(${PROJECT_NAME}_TestPlugins2 test/plugins2.cpp)
 
 rosbuild_add_executable(tester test/driver.cpp)
-target_link_libraries(tester plugins dl tinyxml PocoFoundation ${console_bridge_LIBRARIES})
+target_link_libraries(tester ${PROJECT_NAME} dl tinyxml PocoFoundation ${console_bridge_LIBRARIES})
 
-rosbuild_add_gtest(plugins_utest test/utest.cpp)
-target_link_libraries(plugins_utest plugins dl tinyxml PocoFoundation ${console_bridge_LIBRARIES})
+rosbuild_add_gtest(${PROJECT_NAME}_utest test/utest.cpp)
+target_link_libraries(${PROJECT_NAME}_utest ${PROJECT_NAME} boost_thread dl tinyxml PocoFoundation ${console_bridge_LIBRARIES})
 
 
 #rosbuild_add_boost_directories()

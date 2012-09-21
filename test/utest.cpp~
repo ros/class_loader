@@ -51,21 +51,22 @@ TEST(PluginsTest, correctNonLazyLoadUnload)
 /*****************************************************************************/
 TEST(PluginsTest, correctLazyLoadUnload)
 {
+  const std::string library_name = "libTestPlugins1.so";
   try
   {
-    ASSERT_FALSE(plugins::plugins_private::isLibraryLoadedByAnybody(LIBRARY_1));
-    plugins::ClassLoader loader1(LIBRARY_1, true);
-    ASSERT_FALSE(plugins::plugins_private::isLibraryLoadedByAnybody(LIBRARY_1));
+    ASSERT_FALSE(plugins::plugins_private::isLibraryLoadedByAnybody(library_name));
+    plugins::ClassLoader loader1(library_name, true);
+    ASSERT_FALSE(plugins::plugins_private::isLibraryLoadedByAnybody(library_name));
     ASSERT_FALSE(loader1.isLibraryLoaded());
 
     {
       boost::shared_ptr<Base> obj = loader1.createInstance<Base>("Cat");
-      ASSERT_TRUE(plugins::plugins_private::isLibraryLoadedByAnybody(LIBRARY_1));
+      ASSERT_TRUE(plugins::plugins_private::isLibraryLoadedByAnybody(library_name));
       ASSERT_TRUE(loader1.isLibraryLoaded());
     }
 
     //The library will unload automatically when the only plugin object left is destroyed
-    ASSERT_FALSE(plugins::plugins_private::isLibraryLoadedByAnybody(LIBRARY_1));
+    ASSERT_FALSE(plugins::plugins_private::isLibraryLoadedByAnybody(library_name));
     return;
   }
   catch(plugins::PluginException& e)
