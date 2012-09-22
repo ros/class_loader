@@ -209,7 +209,7 @@ TEST(ClassLoaderTest, threadSafety)
 
 /*****************************************************************************/
 
-TEST(ClassLoaderTest, loadRefCounting)
+TEST(ClassLoaderTest, loadRefCountingNonLazy)
 {
   try
   {
@@ -248,6 +248,55 @@ TEST(ClassLoaderTest, loadRefCounting)
 
   FAIL() << "Did not throw exception as expected.\n";
 }
+
+/*****************************************************************************/
+
+TEST(ClassLoaderTest, loadRefCountingLazy)
+{
+  try
+  {
+    class_loader::ClassLoader loader1(LIBRARY_1, true);
+    ASSERT_FALSE(loader1.isLibraryLoaded());
+
+    {
+      boost::shared_ptr<Base> obj = loader1.createInstance<Base>("Dog");
+      ASSERT_TRUE(loader1.isLibraryLoaded());
+    }
+    
+    ASSERT_FALSE(loader1.isLibraryLoaded());
+    
+    loader1.loadLibrary();
+    ASSERT_TRUE(loader1.isLibraryLoaded());
+    
+    loader1.loadLibrary();
+    ASSERT_TRUE(loader1.isLibraryLoaded());
+
+    loader1.unloadLibrary();
+    ASSERT_TRUE(loader1.isLibraryLoaded());
+    
+    loader1.unloadLibrary();
+    ASSERT_FALSE(loader1.isLibraryLoaded());
+
+    loader1.unloadLibrary();
+    ASSERT_FALSE(loader1.isLibraryLoaded());
+
+    loader1.loadLibrary();
+    ASSERT_TRUE(loader1.isLibraryLoaded());
+
+    return;
+  }
+  catch(const class_loader::ClassLoaderException& e)
+  {
+    FAIL() << "Unexpected exception.\n";
+  }
+  catch(...)
+  {
+    FAIL() << "Unknown exception caught.\n";
+  }
+
+  FAIL() << "Did not throw exception as expected.\n";
+}
+
 /*****************************************************************************/
 
 
