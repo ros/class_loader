@@ -33,43 +33,43 @@ namespace class_loader
 {
 
 /**
- * @class class_loaderException
+ * @class ClassLoader sException
  * @brief A base class for all class_loader exceptions that inherits from std::runtime_exception
  */
-class PluginException: public std::runtime_error
+class ClassLoaderException: public std::runtime_error
 {
   public:
-    PluginException(const std::string error_desc) : std::runtime_error(error_desc) {}
+    ClassLoaderException(const std::string error_desc) : std::runtime_error(error_desc) {}
 };
 
 /**
  * @class LibraryLoadException
- * @brief An exception class thrown when class_loader is unable to load the library associated with a given plugin
+ * @brief An exception class thrown when class_loader is unable to load a runtime library
  */
-class LibraryLoadException: public PluginException
+class LibraryLoadException: public ClassLoaderException
 {
   public:
-    LibraryLoadException(const std::string error_desc) : PluginException(error_desc) {}
+    LibraryLoadException(const std::string error_desc) : ClassLoaderException(error_desc) {}
 };
 
 /**
  * @class LibraryUnloadException
- * @brief An exception class thrown when class_loader is unable to unload the library associated with a given plugin
+ * @brief An exception class thrown when class_loader is unable to unload a runtime library
  */
-class LibraryUnloadException: public PluginException
+class LibraryUnloadException: public ClassLoaderException
 {
   public:
-    LibraryUnloadException(const std::string error_desc) : PluginException(error_desc) {}
+    LibraryUnloadException(const std::string error_desc) : ClassLoaderException(error_desc) {}
 };
 
 /**
  * @class CreateClassException
- * @brief An exception class thrown when class_loader is unable to create the class associated with a given plugin
+ * @brief An exception class thrown when class_loader is unable to create a plugin
  */
-class CreateClassException: public PluginException
+class CreateClassException: public ClassLoaderException
 {
   public:
-    CreateClassException(const std::string error_desc) : PluginException(error_desc) {}
+    CreateClassException(const std::string error_desc) : ClassLoaderException(error_desc) {}
 };
 
 }

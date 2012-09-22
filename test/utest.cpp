@@ -16,9 +16,9 @@ TEST(ClassLoaderTest, basicLoad)
     class_loader::ClassLoader loader1(LIBRARY_1, false);
     loader1.createInstance<Base>("Cat")->saySomething(); //See if lazy load works
   }
-  catch(class_loader::PluginException& e)
+  catch(class_loader::ClassLoaderException& e)
   {
-    FAIL() << "PluginException: " << e.what() << "\n";
+    FAIL() << "ClassLoaderException: " << e.what() << "\n";
   }
 
   SUCCEED();
@@ -38,9 +38,9 @@ TEST(ClassLoaderTest, correctNonLazyLoadUnload)
     ASSERT_FALSE(loader1.isLibraryLoaded());
     return;
   }
-  catch(class_loader::PluginException& e)
+  catch(class_loader::ClassLoaderException& e)
   {
-    FAIL() << "PluginException: " << e.what() << "\n";
+    FAIL() << "ClassLoaderException: " << e.what() << "\n";
   }
   catch(...)
   {
@@ -68,9 +68,9 @@ TEST(ClassLoaderTest, correctLazyLoadUnload)
     ASSERT_FALSE(class_loader::class_loader_private::isLibraryLoadedByAnybody(LIBRARY_1));
     return;
   }
-  catch(class_loader::PluginException& e)
+  catch(class_loader::ClassLoaderException& e)
   {
-    FAIL() << "PluginException: " << e.what() << "\n";
+    FAIL() << "ClassLoaderException: " << e.what() << "\n";
   }
   catch(...)
   {
@@ -197,9 +197,9 @@ TEST(ClassLoaderTest, threadSafety)
     ASSERT_FALSE(loader1.isLibraryLoaded());
 
   }
-  catch(const class_loader::PluginException& ex)
+  catch(const class_loader::ClassLoaderException& ex)
   {
-    FAIL() << "Unexpected PluginException.";
+    FAIL() << "Unexpected ClassLoaderException.";
   }
   catch(...)
   {
@@ -208,6 +208,48 @@ TEST(ClassLoaderTest, threadSafety)
 }
 
 /*****************************************************************************/
+
+TEST(ClassLoaderTest, loadRefCounting)
+{
+  try
+  {
+    class_loader::ClassLoader loader1(LIBRARY_1, false);
+    ASSERT_TRUE(loader1.isLibraryLoaded());
+
+    loader1.loadLibrary();
+    loader1.loadLibrary();
+    ASSERT_TRUE(loader1.isLibraryLoaded());
+
+    loader1.unloadLibrary();
+    ASSERT_TRUE(loader1.isLibraryLoaded());
+    
+    loader1.unloadLibrary();
+    ASSERT_TRUE(loader1.isLibraryLoaded());
+
+    loader1.unloadLibrary();
+    ASSERT_FALSE(loader1.isLibraryLoaded());
+
+    loader1.unloadLibrary();
+    ASSERT_FALSE(loader1.isLibraryLoaded());
+
+    loader1.loadLibrary();
+    ASSERT_TRUE(loader1.isLibraryLoaded());
+
+    return;
+  }
+  catch(const class_loader::ClassLoaderException& e)
+  {
+    FAIL() << "Unexpected exception.\n";
+  }
+  catch(...)
+  {
+    FAIL() << "Unknown exception caught.\n";
+  }
+
+  FAIL() << "Did not throw exception as expected.\n";
+}
+/*****************************************************************************/
+
 
 // Run all the tests that were declared with TEST()
 int main(int argc, char **argv){
