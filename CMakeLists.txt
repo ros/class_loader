@@ -1,41 +1,42 @@
-cmake_minimum_required(VERSION 2.4.6)
-include($ENV{ROS_ROOT}/core/rosbuild/rosbuild.cmake)
+cmake_minimum_required(VERSION 2.8)
+project(class_loader)
 
-# Set the build type.  Options are:
-#  Coverage       : w/ debug symbols, w/o optimization, w/ code-coverage
-#  Debug          : w/ debug symbols, w/o optimization
-#  Release        : w/o debug symbols, w/ optimization
-#  RelWithDebInfo : w/ debug symbols, w/ optimization
-#  MinSizeRel     : w/o debug symbols, w/ optimization, stripped binaries
-#set(ROS_BUILD_TYPE RelWithDebInfo)
+find_package(catkin REQUIRED)
+catkin_package()
 
-rosbuild_init()
-
-#set the default path for built executables to the "bin" directory
-set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
-#set the default path for built libraries to the "lib" directory
-set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
-
-#uncomment if you have defined messages
-#rosbuild_genmsg()
-#uncomment if you have defined services
-#rosbuild_gensrv()
-
-#common commands for building c++ executables and libraries
-
+find_package(Boost REQUIRED COMPONENTS thread)
 find_package(console_bridge REQUIRED)
-include_directories(${console_bridge_INCLUDE_DIRS})
 
-rosbuild_add_library(${PROJECT_NAME} src/class_loader.cpp src/meta_object.cpp src/class_loader_core.cpp src/multi_library_class_loader.cpp)
+catkin_package_export(
+  INCLUDE_DIRS include
+  LIBRARIES poco_lite boost_fs_wrapper tinyxml
+  DEPENDS console_bridge
+)
 
-rosbuild_add_library(${PROJECT_NAME}_TestPlugins1 test/plugins1.cpp)
-rosbuild_add_library(${PROJECT_NAME}_TestPlugins2 test/plugins2.cpp)
+include_directories(include ${catkin_INCLUDE_DIRS} ${console_bridge_INCLUDE_DIRS})
 
-rosbuild_add_gtest(${PROJECT_NAME}_utest test/utest.cpp)
-target_link_libraries(${PROJECT_NAME}_utest ${PROJECT_NAME} boost_thread dl tinyxml PocoFoundation ${console_bridge_LIBRARIES})
+set(${PROJECT_NAME}_SRCS
+  src/class_loader.cpp
+  src/class_loader_core.cpp
+  src/meta_object.cpp
+  src/multi_library_class_loader.cpp
+)
+add_library(${PROJECT_NAME} SHARED ${${PROJECT_NAME}_SRCS})
+target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES} ${console_bridge_LIBRARIES} dl PocoFoundation tinyxml)
 
+install(FILES cmake/hide_plugin_symbols.cmake
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/cmake)
+install(TARGETS ${PROJECT_NAME}
+  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION})
+install(DIRECTORY include/class_loader/
+  DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION})
 
-#rosbuild_add_boost_directories()
-#rosbuild_link_boost(${PROJECT_NAME} thread)
-#rosbuild_add_executable(example examples/example.cpp)
-#target_link_libraries(example ${PROJECT_NAME})
+add_library(${PROJECT_NAME}_TestPlugins1 EXCLUDE_FROM_ALL test/plugins1.cpp)
+target_link_libraries(${PROJECT_NAME}_TestPlugins1 ${PROJECT_NAME})
+add_library(${PROJECT_NAME}_TestPlugins2 EXCLUDE_FROM_ALL test/plugins2.cpp)
+target_link_libraries(${PROJECT_NAME}_TestPlugins2 ${PROJECT_NAME})
+
+catkin_add_gtest(${PROJECT_NAME}_utest test/utest.cpp)
+target_link_libraries(${PROJECT_NAME}_utest ${PROJECT_NAME} ${Boost_LIBRARIES} ${console_bridge_LIBRARIES} dl PocoFoundation tinyxml)
+add_dependencies(${PROJECT_NAME}_utest ${PROJECT_NAME}_TestPlugins1 ${PROJECT_NAME}_TestPlugins2)
