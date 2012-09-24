@@ -72,7 +72,7 @@ class MultiLibraryClassLoader
           return(current->createInstance<Base>(class_name));
       }
 
-      throw(class_loader::CreateClassException("MultiLibraryClassLoader: Could not create class of type " + class_name + " as no class loader exists."));
+      throw(class_loader::CreateClassException("MultiLibraryClassLoader: Could not create object of class type " + class_name + " as no class loader exists."));
     }
 
     /**
