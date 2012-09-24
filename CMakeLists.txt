@@ -1,13 +1,11 @@
 cmake_minimum_required(VERSION 2.8)
 project(class_loader)
 
-find_package(catkin REQUIRED)
-catkin_package()
-
 find_package(Boost REQUIRED COMPONENTS thread)
+find_package(catkin REQUIRED)
 find_package(console_bridge REQUIRED)
 
-catkin_package_export(
+catkin_package(
   INCLUDE_DIRS include
   LIBRARIES poco_lite boost_fs_wrapper tinyxml
   DEPENDS console_bridge
