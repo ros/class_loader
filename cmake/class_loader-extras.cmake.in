@@ -1,0 +1,19 @@
+# hides all symbols of a library
+# except the functions for finding the registered classes
+function(class_loader_hide_library_symbols target)
+  set(version_script class_loader_hide_library_symbols.script)
+  file(WRITE "${CMAKE_BINARY_DIR}/${version_script}"
+    "    {
+#      global:
+#        functionWhichMustBeGlobal;
+      local:
+        *;
+    };"
+  )
+  # checks if the linker supports version script
+  include(TestCXXAcceptsFlag)
+  check_cxx_accepts_flag("-Wl,--version-script,\"${CMAKE_BINARY_DIR}/${version_script}\"" LD_ACCEPTS_VERSION_SCRIPT)
+  if(LD_ACCEPTS_VERSION_SCRIPT)
+    set_target_properties(${target} PROPERTIES LINK_FLAGS "-Wl,-version-script=\"${CMAKE_BINARY_DIR}/${version_script}\"")
+  endif()
+function()

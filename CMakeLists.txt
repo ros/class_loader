@@ -9,6 +9,7 @@ catkin_package(
   INCLUDE_DIRS include
   LIBRARIES poco_lite boost_fs_wrapper tinyxml
   DEPENDS console_bridge
+  CFG_EXTRAS class_loader-extras.cmake
 )
 
 include_directories(include ${catkin_INCLUDE_DIRS} ${console_bridge_INCLUDE_DIRS})
@@ -22,8 +23,6 @@ set(${PROJECT_NAME}_SRCS
 add_library(${PROJECT_NAME} SHARED ${${PROJECT_NAME}_SRCS})
 target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES} ${console_bridge_LIBRARIES} dl PocoFoundation tinyxml)
 
-install(FILES cmake/hide_plugin_symbols.cmake
-  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/cmake)
 install(TARGETS ${PROJECT_NAME}
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION})
