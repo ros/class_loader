@@ -7,7 +7,7 @@ find_package(console_bridge REQUIRED)
 
 catkin_package(
   INCLUDE_DIRS include
-  LIBRARIES dl PocoFoundation
+  LIBRARIES ${PROJECT_NAME} dl PocoFoundation
   DEPENDS console_bridge
   CFG_EXTRAS class_loader-extras.cmake
 )

@@ -82,14 +82,19 @@ void MultiLibraryClassLoader::shutdownAllClassLoaders()
     unloadLibrary(available_libraries.at(c));
 }
 
-void MultiLibraryClassLoader::unloadLibrary(const std::string& library_path)
+int MultiLibraryClassLoader::unloadLibrary(const std::string& library_path)
 {
+  int remaining_unloads = 0;
   if(isLibraryAvailable(library_path))
   {
     ClassLoader* loader = getClassLoaderForLibrary(library_path);
-    active_class_loaders_[library_path] = NULL;
-    delete(loader);
+    if((remaining_unloads = loader->unloadLibrary()) == 0)
+    {
+      active_class_loaders_[library_path] = NULL;
+      delete(loader);
+    }
   }
+  return(remaining_unloads);
 }
 
 }

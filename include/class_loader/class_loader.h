@@ -154,9 +154,10 @@ class ClassLoader
     void loadLibrary();
 
      /**
-     * @brief  Attempts to unload a library loaded within scope of the ClassLoader. If the library is not opened, this method has no effect. If the library is opened by other entities (i.e. another ClassLoader or global interface), the library will NOT be unloaded internally -- however this ClassLoader will no longer be able to instantiate class_loader bound to that library. If there are plugin objects that exist in memory created by this classloader, a warning message will appear and the library will not be unloaded. If loadLibrary() was called multiple times (e.g. in the case of multiple threads or purposefully in a single thread), the user is responsible for calling unloadLibrary() the same number of times. The library will not be unloaded within the context of this classloader until the number of unload calls matches the number of loads.
+     * @brief  Attempts to unload a library loaded within scope of the ClassLoader. If the library is not opened, this method has no effect. If the library is opened by other another ClassLoader, the library will NOT be unloaded internally -- however this ClassLoader will no longer be able to instantiate class_loader bound to that library. If there are plugin objects that exist in memory created by this classloader, a warning message will appear and the library will not be unloaded. If loadLibrary() was called multiple times (e.g. in the case of multiple threads or purposefully in a single thread), the user is responsible for calling unloadLibrary() the same number of times. The library will not be unloaded within the context of this classloader until the number of unload calls matches the number of loads.
+     * @return The number of times more unloadLibrary() has to be called for it to be unbound from this ClassLoader
      */
-    void unloadLibrary();
+    int unloadLibrary();
 
   private:
     /**
@@ -181,8 +182,9 @@ class ClassLoader
   /**
    * @brief As the library may be unloaded in "on-demand load/unload" mode, unload maybe called from createInstance(). The problem is that createInstance() locks the plugin_ref_count as does unloadLibrary(). This method is the implementation of unloadLibrary but with a parameter to decide if plugin_ref_mutex_ should be locked
    * @param lock_plugin_ref_count - Set to true if plugin_ref_count_mutex_ should be locked, else false
+   * @return The number of times unloadLibraryInternal has to be called again for it to be unbound from this ClassLoader
    */
-  void unloadLibraryInternal(bool lock_plugin_ref_count);
+  int unloadLibraryInternal(bool lock_plugin_ref_count);
 
   private:
     bool enable_ondemand_loadunload_;

@@ -194,7 +194,7 @@ class MultiLibraryClassLoader
      * @brief Unloads a library for this class loader
      * @param library_path - the fully qualified path to the runtime library
      */
-    void unloadLibrary(const std::string& library_path);
+    int unloadLibrary(const std::string& library_path);
 
 
   private:

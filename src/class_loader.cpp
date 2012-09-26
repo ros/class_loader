@@ -50,7 +50,7 @@ plugin_ref_count_(0)
 ClassLoader::~ClassLoader()
 {
   logDebug("class_loader::ClassLoader: Destroying class loader, unloading associated library...\n");
-  unloadLibrary();
+  unloadLibrary(); //TODO: while(unloadLibrary() > 0){} ??
 }
 
 bool ClassLoader::isLibraryLoaded()
@@ -70,12 +70,12 @@ void ClassLoader::loadLibrary()
   class_loader::class_loader_private::loadLibrary(getLibraryPath(), this);
 }
 
-void ClassLoader::unloadLibrary()
+int ClassLoader::unloadLibrary()
 {
-  unloadLibraryInternal(true);
+  return(unloadLibraryInternal(true));
 }
 
-void ClassLoader::unloadLibraryInternal(bool lock_plugin_ref_count)
+int ClassLoader::unloadLibraryInternal(bool lock_plugin_ref_count)
 {
   boost::mutex::scoped_lock load_ref_lock(load_ref_count_mutex_);
   boost::mutex::scoped_lock plugin_ref_lock;
@@ -92,6 +92,7 @@ void ClassLoader::unloadLibraryInternal(bool lock_plugin_ref_count)
     else if(load_ref_count_ < 0)
       load_ref_count_ = 0;
   }
+  return(load_ref_count_);
 }
 
 }
