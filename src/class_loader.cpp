@@ -37,8 +37,8 @@ std::string systemLibrarySuffix()
   return(Poco::SharedLibrary::suffix());
 }
 
-ClassLoader::ClassLoader(const std::string& library_path, bool enable_ondemand_loadunload) :
-enable_ondemand_loadunload_(enable_ondemand_loadunload),
+ClassLoader::ClassLoader(const std::string& library_path, bool ondemand_load_unload) :
+ondemand_load_unload_(ondemand_load_unload),
 library_path_(library_path),
 load_ref_count_(0),
 plugin_ref_count_(0)

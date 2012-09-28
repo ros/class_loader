@@ -58,8 +58,10 @@ class ClassLoader
   public:
     /**
      * @brief  Constructor for ClassLoader
+     * @param library_path - The path of the runtime library to load
+     * @param ondemand_load_unload - Indicates if on-demand (lazy) unloading/loading of libraries occurs as plugins are created/destroyed
      */
-    ClassLoader(const std::string& library_path, bool enable_ondemand_loadunload = false);
+    ClassLoader(const std::string& library_path, bool ondemand_load_unload = false);
 
     /**
      * @brief  Destructor for ClassLoader. All libraries opened by this ClassLoader are unloaded automatically.
@@ -145,7 +147,7 @@ class ClassLoader
     /**
      * @brief Indicates if the library is to be loaded/unloaded on demand...meaning that only to load a lib when the first plugin is created and automatically shut it down when last active plugin is destroyed.
      */
-    bool isOnDemandLoadUnloadEnabled(){return(enable_ondemand_loadunload_);}
+    bool isOnDemandLoadUnloadEnabled(){return(ondemand_load_unload_);}
 
      /**
      * @brief  Attempts to load a library on behalf of the ClassLoader. If the library is already opened, this method has no effect. If the library has been already opened by some other entity (i.e. another ClassLoader or global interface), this object is given permissions to access any plugin classes loaded by that other entity. This is
@@ -187,7 +189,7 @@ class ClassLoader
   int unloadLibraryInternal(bool lock_plugin_ref_count);
 
   private:
-    bool enable_ondemand_loadunload_;
+    bool ondemand_load_unload_;
     std::string library_path_;
     int load_ref_count_;  
     boost::mutex load_ref_count_mutex_;
