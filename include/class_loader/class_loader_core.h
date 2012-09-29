@@ -39,8 +39,9 @@
 #include "class_loader/meta_object.h"
 #include "class_loader/class_loader_exceptions.h"
 
-/* Note: This header file is the internal implementation of the plugin system which is exposed via the ClassLoader class
-*/
+/**
+ * @note This header file is the internal implementation of the plugin system which is exposed via the ClassLoader class
+ */
 
 namespace class_loader
 {
@@ -126,7 +127,8 @@ boost::mutex& getCriticalSectionMutex();
 /*****************************************************************************/
 
 /**
- * @brief This function is called by the REGISTER_CLASS macro in plugin_register_macro.h. Classes that use that macro will cause this function to be invoked when the library is loaded. The function will create a MetaObject (i.e. factory) for the corresponding Derived class and insert it into the appropriate FactoryMap in the global Base-to-FactoryMap map. Note that the passed class_name is the literal class name and not the mangled version.
+ * @brief This function is called by the CLASS_LOADER_REGISTER_CLASS macro in plugin_register_macro.h to register factories.
+ * Classes that use that macro will cause this function to be invoked when the library is loaded. The function will create a MetaObject (i.e. factory) for the corresponding Derived class and insert it into the appropriate FactoryMap in the global Base-to-FactoryMap map. Note that the passed class_name is the literal class name and not the mangled version.
  * @param Derived - parameteric type indicating concrete type of plugin
  * @param Base - parameteric type indicating base type of plugin
  * @param class_name - the literal name of the class being registered (NOT MANGLED)

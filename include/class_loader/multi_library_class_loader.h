@@ -40,6 +40,10 @@ typedef std::string LibraryPath;
 typedef std::map<LibraryPath, class_loader::ClassLoader*> LibraryToClassLoaderMap;
 typedef std::vector<ClassLoader*> ClassLoaderVector;
 
+/**
+* @class MultiLibraryClassLoader
+* @brief A ClassLoader that can bind more than one runtime library
+*/
 class MultiLibraryClassLoader
 {
   public:
@@ -165,6 +169,7 @@ class MultiLibraryClassLoader
     }
 
     /**
+     * @brief Gets a list of all classes loaded for a particular library
      * @param Base - polymorphic type indicating Base class
      * @return A vector<string> of the available classes in the passed library
      */
@@ -214,6 +219,10 @@ class MultiLibraryClassLoader
      * @brief Gets all class loaders loaded within scope
      */
     ClassLoaderVector getAllAvailableClassLoaders();
+
+    /**
+     * @brief Destroys all ClassLoaders
+     */
     void shutdownAllClassLoaders();
 
   private:
