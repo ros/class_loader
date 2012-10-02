@@ -16,8 +16,10 @@
  
   <build_depend>catkin</build_depend>
   <build_depend>libpoco-dev</build_depend>
+  <build_depend>console_bridge</build_depend>
 
   <run_depend>libpocofoundation9</run_depend>
+  <run_depend>console_bridge</run_depend>
 
   <test_depend>gtest</test_depend>
 
