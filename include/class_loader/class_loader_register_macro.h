@@ -33,6 +33,8 @@
 #include "class_loader_core.h"
 
 #define CLASS_LOADER_REGISTER_CLASS_INTERNAL(Derived, Base, UniqueID) \
+namespace \
+{\
   struct ProxyExec##UniqueID \
   { \
      typedef  Derived _derived; \
@@ -42,7 +44,8 @@
        class_loader::class_loader_private::registerPlugin<_derived, _base>(#Derived); \
      } \
   }; \
-  static ProxyExec##UniqueID g_register_plugin_##UniqueID;
+  static ProxyExec##UniqueID g_register_plugin_##UniqueID;\
+}
 
 #define CLASS_LOADER_REGISTER_CLASS_INTERNAL_HOP1(Derived, Base, UniqueID) CLASS_LOADER_REGISTER_CLASS_INTERNAL(Derived, Base, UniqueID)
 
