@@ -83,7 +83,7 @@ int ClassLoader::unloadLibraryInternal(bool lock_plugin_ref_count)
     plugin_ref_lock = boost::mutex::scoped_lock(plugin_ref_count_mutex_);
 
   if(plugin_ref_count_ > 0)
-    logWarn("class_loader::ClassLoader: MAJOR WARNING!!! Attempting to unload library while objects created by this loader exist in the heap! You should delete your objects before attempting to unload the library or destroying the ClassLoader. The library will NOT be unloaded.\n");
+    logWarn("class_loader::ClassLoader: SEVERE WARNING!!! Attempting to unload library while objects created by this loader exist in the heap! You should delete your objects before attempting to unload the library or destroying the ClassLoader. The library will NOT be unloaded.\n");
   else
   {
     load_ref_count_ = load_ref_count_ - 1;

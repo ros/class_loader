@@ -142,6 +142,11 @@ void registerPlugin(const std::string& class_name)
   class_loader_private::AbstractMetaObject<Base>* new_factory = new class_loader_private::MetaObject<Derived, Base>(class_name.c_str());
 
   logDebug("class_loader::class_loader_core: Registering with class loader = %p and library name %s.\n", getCurrentlyActiveClassLoader(), getCurrentlyLoadingLibraryName().c_str());
+
+  if(getCurrentlyActiveClassLoader() == NULL)
+    logWarn("class_loader::class_loader_core: SEVERE WARNING: A library containing plugins has been opened through a means other than through the class_loader or pluginlib package. This can happen if you build plugin libraries that contain more than just plugins (i.e. normal code your app links against). This intrinsically will trigger a dlopen() and causes problems as class_loader is not aware of plugin factories that autoregister under the hood. The class_loader package can compensate, but you may run into namespace collision problems (e.g. if you have the same plugin class in two different libraries and you load them both at the same time). Though this is a rare situation, you should still isolate your plugins into their own library to get rid of this warning.");
+  
+
   new_factory->addOwningClassLoader(getCurrentlyActiveClassLoader());
   new_factory->setAssociatedLibraryPath(getCurrentlyLoadingLibraryName());
 
@@ -163,16 +168,26 @@ Base* createInstance(const std::string& derived_class_name, ClassLoader* loader)
   boost::mutex::scoped_lock lock(getCriticalSectionMutex());
 
   Base* obj = NULL;
+  AbstractMetaObject<Base>* factory = NULL;
   FactoryMap& factoryMap = getFactoryMapForBaseClass<Base>();
   if(factoryMap.find(derived_class_name) != factoryMap.end())
   {
-    AbstractMetaObject<Base>* factory = dynamic_cast<class_loader_private::AbstractMetaObject<Base>*>(factoryMap[derived_class_name]);
+    factory = dynamic_cast<class_loader_private::AbstractMetaObject<Base>*>(factoryMap[derived_class_name]);
     if(factory->isOwnedBy(loader))
       obj = factory->create();
   }
 
   if(obj == NULL) //Was never created
-    throw(class_loader::CreateClassException("Could not create instance of type " + derived_class_name));
+  {
+    if(factory && factory->isOwnedBy(NULL))
+    {
+      logWarn("class_loader::class_loader_core: DANGER!!! A metaobject (i.e. factory) exists for desired class, but has no owner. This implies that the library containing the class was dlopen()ed by means other than through the class_loader interface. This can happen if you build plugin libraries that contain more than just plugins (i.e. normal code your app links against). This intrinsically will trigger a dlopen(). You should isolate your plugins into their own library if possible to get rid of this warning!");
+
+      obj = factory->create();
+    }
+    else
+      throw(class_loader::CreateClassException("Could not create instance of type " + derived_class_name));
+  }
 
   return(obj);
 }
@@ -189,14 +204,20 @@ std::vector<std::string> getAvailableClasses(ClassLoader* loader)
 
   FactoryMap& factory_map = getFactoryMapForBaseClass<Base>();
   std::vector<std::string> classes;
+  std::vector<std::string> classes_with_no_owner;
 
   for(FactoryMap::const_iterator itr = factory_map.begin(); itr != factory_map.end(); ++itr)
   {
     AbstractMetaObjectBase* factory = itr->second;
     if(factory->isOwnedBy(loader))
       classes.push_back(itr->first);
+    else if(factory->isOwnedBy(NULL))
+      classes_with_no_owner.push_back(itr->first);
   }
 
+  //Added classes not associated with a class loader (Which can happen through
+  //an unexpected dlopen() to the library)
+  classes.insert(classes.end(), classes_with_no_owner.begin(),  classes_with_no_owner.end());
   return(classes);
 }
 

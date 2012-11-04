@@ -51,7 +51,7 @@ namespace \
 
 /**
 * @macro This is the macro which must be declared within the source (.cpp) file for each class that is to be exported as plugin.
-* The macro utilizes a trick where a new struct is generated along with a declaration of static global variable of same type after it. The struct's constructor invokes a registration function with the plugin system. When the plugin system loads a library with registered classes in it, the initialization of static variables forces the invocation of the struct constructors, and all class_loader are automatically registerd.
+* The macro utilizes a trick where a new struct is generated along with a declaration of static global variable of same type after it. The struct's constructor invokes a registration function with the plugin system. When the plugin system loads a library with registered classes in it, the initialization of static variables forces the invocation of the struct constructors, and all exported classes are automatically registerd.
 */
 #define CLASS_LOADER_REGISTER_CLASS(Derived, Base)  CLASS_LOADER_REGISTER_CLASS_INTERNAL_HOP1(Derived, Base, __COUNTER__)
 
