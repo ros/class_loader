@@ -148,7 +148,7 @@ void registerPlugin(const std::string& class_name)
 
   if(getCurrentlyActiveClassLoader() == NULL)
   {
-    logWarn("class_loader::class_loader_core: SEVERE WARNING: A library containing plugins has been opened through a means other than through the class_loader or pluginlib package. This can happen if you build plugin libraries that contain more than just plugins (i.e. normal code your app links against). This intrinsically will trigger a dlopen() and causes problems as class_loader is not aware of plugin factories that autoregister under the hood. The class_loader package can compensate, but you may run into namespace collision problems (e.g. if you have the same plugin class in two different libraries and you load them both at the same time). The biggest problem is that library can now no longer be safely unloaded as the ClassLoader does not know when non-plugin code is still in use. In fact, no ClassLoader instance in your application will be unable to unload any library once a non-pure one has been opened. Please refactor your code to isolate plugins into their own libraries.");
+    logWarn("class_loader::class_loader_core: SEVERE WARNING: A library containing plugins has been opened through a means other than through the class_loader or pluginlib package. This can happen if you build plugin libraries that contain more than just plugins (i.e. normal code your app links against). This inherently will trigger a dlopen() prior to main() and cause problems as class_loader is not aware of plugin factories that autoregister under the hood. The class_loader package can compensate, but you may run into namespace collision problems (e.g. if you have the same plugin class in two different libraries and you load them both at the same time). The biggest problem is that library can now no longer be safely unloaded as the ClassLoader does not know when non-plugin code is still in use. In fact, no ClassLoader instance in your application will be unable to unload any library once a non-pure one has been opened. Please refactor your code to isolate plugins into their own libraries.");
     
     hasANonPurePluginLibraryBeenOpened(true);
     
@@ -189,7 +189,7 @@ Base* createInstance(const std::string& derived_class_name, ClassLoader* loader)
   {
     if(factory && factory->isOwnedBy(NULL))
     {
-      logWarn("class_loader::class_loader_core: DANGER!!! A metaobject (i.e. factory) exists for desired class, but has no owner. This implies that the library containing the class was dlopen()ed by means other than through the class_loader interface. This can happen if you build plugin libraries that contain more than just plugins (i.e. normal code your app links against). This intrinsically will trigger a dlopen(). You should isolate your plugins into their own library if possible to get rid of this warning!");
+      logWarn("class_loader::class_loader_core: SEVERE WARNING!!! A metaobject (i.e. factory) exists for desired class, but has no owner. This implies that the library containing the class was dlopen()ed by means other than through the class_loader interface. This can happen if you build plugin libraries that contain more than just plugins (i.e. normal code your app links against) -- that intrinsically will trigger a dlopen() prior to main(). You should isolate your plugins into their own library, otherwise it will not be possible to shutdown the library!");
 
       obj = factory->create();
     }
