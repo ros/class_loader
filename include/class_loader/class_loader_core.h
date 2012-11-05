@@ -123,6 +123,9 @@ FactoryMap& getFactoryMapForBaseClass()
  */
 boost::mutex& getCriticalSectionMutex();
 
+bool hasANonPurePluginLibraryBeenOpened();
+void hasANonPurePluginLibraryBeenOpened(bool hasIt);
+
 //Plugin Functions
 /*****************************************************************************/
 
@@ -144,7 +147,12 @@ void registerPlugin(const std::string& class_name)
   logDebug("class_loader::class_loader_core: Registering with class loader = %p and library name %s.\n", getCurrentlyActiveClassLoader(), getCurrentlyLoadingLibraryName().c_str());
 
   if(getCurrentlyActiveClassLoader() == NULL)
-    logWarn("class_loader::class_loader_core: SEVERE WARNING: A library containing plugins has been opened through a means other than through the class_loader or pluginlib package. This can happen if you build plugin libraries that contain more than just plugins (i.e. normal code your app links against). This intrinsically will trigger a dlopen() and causes problems as class_loader is not aware of plugin factories that autoregister under the hood. The class_loader package can compensate, but you may run into namespace collision problems (e.g. if you have the same plugin class in two different libraries and you load them both at the same time). Though this is a rare situation, you should still isolate your plugins into their own library to get rid of this warning.");
+  {
+    logWarn("class_loader::class_loader_core: SEVERE WARNING: A library containing plugins has been opened through a means other than through the class_loader or pluginlib package. This can happen if you build plugin libraries that contain more than just plugins (i.e. normal code your app links against). This intrinsically will trigger a dlopen() and causes problems as class_loader is not aware of plugin factories that autoregister under the hood. The class_loader package can compensate, but you may run into namespace collision problems (e.g. if you have the same plugin class in two different libraries and you load them both at the same time). The biggest problem is that library can now no longer be safely unloaded as the ClassLoader does not know when non-plugin code is still in use. In fact, no ClassLoader instance in your application will be unable to unload any library once a non-pure one has been opened. Please refactor your code to isolate plugins into their own libraries.");
+    
+    hasANonPurePluginLibraryBeenOpened(true);
+    
+  }
   
 
   new_factory->addOwningClassLoader(getCurrentlyActiveClassLoader());
