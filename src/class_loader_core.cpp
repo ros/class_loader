@@ -105,6 +105,7 @@ bool& hasANonPurePluginLibraryBeenOpenedReference()
 /*****************************************************************************/
 {
   static bool hasANonPurePluginLibraryBeenOpenedReference = false;
+  return hasANonPurePluginLibraryBeenOpenedReference;
 }
 
 bool hasANonPurePluginLibraryBeenOpened()
