@@ -68,6 +68,7 @@ class MultiLibraryClassLoader
     template <class Base>
     boost::shared_ptr<Base> createInstance(const std::string& class_name)
     {
+      logDebug("class_loader::MultiLibraryClassLoader: Attempting to create instance of class type %s.", class_name.c_str());
       ClassLoaderVector active_loaders = getAllAvailableClassLoaders();
       for(unsigned int c = 0; c < active_loaders.size(); c++)
       {
