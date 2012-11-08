@@ -40,7 +40,14 @@ namespace class_loader_private
 /*****************************************************************************/
 /*****************************************************************************/
 
-boost::mutex& getCriticalSectionMutex()
+boost::mutex& getLoadedLibraryVectorMutex()
+/*****************************************************************************/
+{
+  static boost::mutex m;
+  return m;
+}
+
+boost::mutex& getPluginBaseToFactoryMapMapMutex()
 /*****************************************************************************/
 {
   static boost::mutex m;
@@ -139,9 +146,12 @@ MetaObjectVector allMetaObjects(const FactoryMap& factories)
 MetaObjectVector allMetaObjects()
 /*****************************************************************************/
 {
+  boost::mutex::scoped_lock lock(getPluginBaseToFactoryMapMapMutex());
+
   MetaObjectVector all_meta_objs;
   BaseToFactoryMapMap& factory_map_map = getGlobalPluginBaseToFactoryMapMap();
   BaseToFactoryMapMap::iterator itr;
+
   for(itr = factory_map_map.begin(); itr != factory_map_map.end(); itr++)
   {
     MetaObjectVector objs = allMetaObjects(itr->second);
@@ -216,7 +226,8 @@ void destroyMetaObjectsForLibrary(const std::string& library_path, FactoryMap& f
 void destroyMetaObjectsForLibrary(const std::string& library_path, const ClassLoader* loader)
 /*****************************************************************************/
 {
-  //Note: Called within scope of unloadLibrary so no need for critical section
+  boost::mutex::scoped_lock lock(getPluginBaseToFactoryMapMapMutex());
+
   logDebug("class_loader::class_loader_core: Purging MetaObjects associated with library %s and class loader %p.\n", library_path.c_str(), loader);
 
   //We have to walk through all FactoryMaps to be sure
@@ -254,7 +265,7 @@ LibraryVector::iterator findLoadedLibrary(const std::string& library_path)
 bool isLibraryLoadedByAnybody(const std::string& library_path)
 /*****************************************************************************/
 {
-  boost::mutex::scoped_lock lock(getCriticalSectionMutex());
+  boost::mutex::scoped_lock lock(getLoadedLibraryVectorMutex());
 
   LibraryVector& open_libraries =  getLoadedLibraryVector();
   LibraryVector::iterator itr = findLoadedLibrary(library_path);
@@ -317,18 +328,13 @@ void loadLibrary(const std::string& library_path, ClassLoader* loader)
     return;
   }
   
-  boost::mutex::scoped_lock lock(getCriticalSectionMutex()); //Note: We start critical section here as isLibraryLoaded() call above locks CS as well
-  
+  Poco::SharedLibrary* library_handle = NULL;
+
   try
   {
     setCurrentlyActiveClassLoader(loader);
     setCurrentlyLoadingLibraryName(library_path);
-
-    LibraryVector& open_libraries =  getLoadedLibraryVector();
-    open_libraries.push_back(LibraryPair(library_path, new Poco::SharedLibrary(library_path))); //Note: Poco::SharedLibrary automatically calls load() when library passed to constructor
-    
-    setCurrentlyLoadingLibraryName("");
-    setCurrentlyActiveClassLoader(loader);
+    library_handle = new Poco::SharedLibrary(library_path);
   }
   catch(const Poco::LibraryLoadException& e)
   {
@@ -342,19 +348,25 @@ void loadLibrary(const std::string& library_path, ClassLoader* loader)
   {
     throw(class_loader::LibraryLoadException("Library not found (Poco exception = " + std::string(e.name()) + ")"));
   }
+
+  setCurrentlyLoadingLibraryName("");
+  setCurrentlyActiveClassLoader(loader);
+  assert(library_handle != NULL);
+  boost::mutex::scoped_lock lock(getLoadedLibraryVectorMutex());
+  LibraryVector& open_libraries =  getLoadedLibraryVector();
+  open_libraries.push_back(LibraryPair(library_path, library_handle)); //Note: Poco::SharedLibrary automatically calls load() when library passed to constructor
 }
 
 void unloadLibrary(const std::string& library_path, ClassLoader* loader)
 /*****************************************************************************/
 { 
-  boost::mutex::scoped_lock lock(getCriticalSectionMutex());
-
   if(hasANonPurePluginLibraryBeenOpened())
   {
     logError("class_loader::class_loader_core: Cannot unload %s or ANY other library as a non-pure plugin library was opened. As class_loader has no idea which libraries class factories were exported from, it can safely close any library without potentially unlinking symbols that are still actively being used. You must refactor your plugin libraries to be made exclusively of plugins in order for this error to stop happening.", library_path.c_str());
   }
   else
   { 
+    boost::mutex::scoped_lock lock(getLoadedLibraryVectorMutex());
     LibraryVector& open_libraries =  getLoadedLibraryVector();
     LibraryVector::iterator itr = findLoadedLibrary(library_path);
     if(itr != open_libraries.end())

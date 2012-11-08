@@ -121,9 +121,18 @@ FactoryMap& getFactoryMapForBaseClass()
  * @brief To provide thread safety, all exposed plugin functions can only be run serially by multiple threads. This is implemented by using critical sections enforced by a single mutex which is locked and released with the following two functions
  * @return A reference to the global mutex
  */
-boost::mutex& getCriticalSectionMutex();
-
+boost::mutex& getLoadedLibraryVectorMutex();
+boost::mutex& getPluginBaseToFactoryMapMapMutex();
+/**
+ * @brief Indicates if a library containing more than just plugins has been opened by the running process
+ * @return True if a non-pure plugin library has been opened, otherwise false
+ */
 bool hasANonPurePluginLibraryBeenOpened();
+
+/**
+ * @brief Sets a flag indicating if a library containing more than just plugins has been opened by the running process
+ * @param hasIt - The flag
+ */
 void hasANonPurePluginLibraryBeenOpened(bool hasIt);
 
 //Plugin Functions
@@ -173,17 +182,21 @@ void registerPlugin(const std::string& class_name)
 template <typename Base> 
 Base* createInstance(const std::string& derived_class_name, ClassLoader* loader)
 {
-  boost::mutex::scoped_lock lock(getCriticalSectionMutex());
-
-  Base* obj = NULL;
   AbstractMetaObject<Base>* factory = NULL;
+  
+  getPluginBaseToFactoryMapMapMutex().lock();
   FactoryMap& factoryMap = getFactoryMapForBaseClass<Base>();
   if(factoryMap.find(derived_class_name) != factoryMap.end())
-  {
     factory = dynamic_cast<class_loader_private::AbstractMetaObject<Base>*>(factoryMap[derived_class_name]);
-    if(factory->isOwnedBy(loader))
-      obj = factory->create();
+  else
+  {
+    logError("class_loader::class_loader_core: No metaobject exists for class type %s.", derived_class_name.c_str());
   }
+  getPluginBaseToFactoryMapMapMutex().unlock();
+
+  Base* obj = NULL;
+  if(factory != NULL && factory->isOwnedBy(loader))
+    obj = factory->create();
 
   if(obj == NULL) //Was never created
   {
@@ -208,7 +221,7 @@ Base* createInstance(const std::string& derived_class_name, ClassLoader* loader)
 template <typename Base> 
 std::vector<std::string> getAvailableClasses(ClassLoader* loader)
 {
-  boost::mutex::scoped_lock lock(getCriticalSectionMutex());
+  boost::mutex::scoped_lock lock(getPluginBaseToFactoryMapMapMutex());
 
   FactoryMap& factory_map = getFactoryMapForBaseClass<Base>();
   std::vector<std::string> classes;
