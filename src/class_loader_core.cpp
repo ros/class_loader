@@ -338,15 +338,15 @@ void loadLibrary(const std::string& library_path, ClassLoader* loader)
   }
   catch(const Poco::LibraryLoadException& e)
   {
-    throw(class_loader::LibraryLoadException("Could not load library (Poco exception = " + std::string(e.name()) + ")"));
+    throw(class_loader::LibraryLoadException("Could not load library (Poco exception = " + std::string(e.message()) + ")"));
   }
   catch(const Poco::LibraryAlreadyLoadedException& e)
   {
-    throw(class_loader::LibraryLoadException("Library already loaded (Poco exception = " + std::string(e.name()) + ")"));
+    throw(class_loader::LibraryLoadException("Library already loaded (Poco exception = " + std::string(e.message()) + ")"));
   }
   catch(const Poco::NotFoundException& e)
   {
-    throw(class_loader::LibraryLoadException("Library not found (Poco exception = " + std::string(e.name()) + ")"));
+    throw(class_loader::LibraryLoadException("Library not found (Poco exception = " + std::string(e.message()) + ")"));
   }
 
   setCurrentlyLoadingLibraryName("");
@@ -389,7 +389,7 @@ void unloadLibrary(const std::string& library_path, ClassLoader* loader)
       catch(const Poco::RuntimeException& e)
       {
         delete(library);
-        throw(class_loader::LibraryUnloadException("Could not unload library (Poco exception = " + std::string(e.name()) + ")"));
+        throw(class_loader::LibraryUnloadException("Could not unload library (Poco exception = " + std::string(e.message()) + ")"));
       }
     }
   }
