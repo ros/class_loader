@@ -38,7 +38,8 @@
 #include <string>
 #include "class_loader/meta_object.h"
 #include "class_loader/class_loader_exceptions.h"
-
+#include <cstdio>
+ 
 /**
  * @note This header file is the internal implementation of the plugin system which is exposed via the ClassLoader class
  */
@@ -148,27 +149,31 @@ void hasANonPurePluginLibraryBeenOpened(bool hasIt);
 template <typename Derived, typename Base> 
 void registerPlugin(const std::string& class_name)
 {
-  //Note: Critical section not necessary as registerPlugin is called within scope of loadLibrary which is protected
-  logDebug("class_loader::class_loader_core: Registering plugin class %s.\n", class_name.c_str());
+  //Note: This function will be automatically invoked when a dlopen() call
+  //opens a library. Normally it will happen within the scope of loadLibrary(),
+  //but that may not be guaranteed.
 
-  class_loader_private::AbstractMetaObject<Base>* new_factory = new class_loader_private::MetaObject<Derived, Base>(class_name.c_str());
-
-  logDebug("class_loader::class_loader_core: Registering with class loader = %p and library name %s.\n", getCurrentlyActiveClassLoader(), getCurrentlyLoadingLibraryName().c_str());
+  logDebug("class_loader::class_loader_core: Registering plugin factory for class = %s, ClassLoader* = %p and library name %s.\n", class_name.c_str(), getCurrentlyActiveClassLoader(), getCurrentlyLoadingLibraryName().c_str());
 
   if(getCurrentlyActiveClassLoader() == NULL)
   {
-    logWarn("class_loader::class_loader_core: SEVERE WARNING: A library containing plugins has been opened through a means other than through the class_loader or pluginlib package. This can happen if you build plugin libraries that contain more than just plugins (i.e. normal code your app links against). This inherently will trigger a dlopen() prior to main() and cause problems as class_loader is not aware of plugin factories that autoregister under the hood. The class_loader package can compensate, but you may run into namespace collision problems (e.g. if you have the same plugin class in two different libraries and you load them both at the same time). The biggest problem is that library can now no longer be safely unloaded as the ClassLoader does not know when non-plugin code is still in use. In fact, no ClassLoader instance in your application will be unable to unload any library once a non-pure one has been opened. Please refactor your code to isolate plugins into their own libraries.");
-    
-    hasANonPurePluginLibraryBeenOpened(true);
-    
+    logDebug("class_loader::class_loader_core: ALERT!!! A library containing plugins has been opened through a means other than through the class_loader or pluginlib package. This can happen if you build plugin libraries that contain more than just plugins (i.e. normal code your app links against). This inherently will trigger a dlopen() prior to main() and cause problems as class_loader is not aware of plugin factories that autoregister under the hood. The class_loader package can compensate, but you may run into namespace collision problems (e.g. if you have the same plugin class in two different libraries and you load them both at the same time). The biggest problem is that library can now no longer be safely unloaded as the ClassLoader does not know when non-plugin code is still in use. In fact, no ClassLoader instance in your application will be unable to unload any library once a non-pure one has been opened. Please refactor your code to isolate plugins into their own libraries.");
+    hasANonPurePluginLibraryBeenOpened(true);    
   }
-  
 
+  //Create factory
+  class_loader_private::AbstractMetaObject<Base>* new_factory = new class_loader_private::MetaObject<Derived, Base>(class_name.c_str());
   new_factory->addOwningClassLoader(getCurrentlyActiveClassLoader());
   new_factory->setAssociatedLibraryPath(getCurrentlyLoadingLibraryName());
 
+
+  //Add it to global factory map map
+  getPluginBaseToFactoryMapMapMutex().lock();
   FactoryMap& factoryMap = getFactoryMapForBaseClass<Base>();
+  if(factoryMap.find(class_name) != factoryMap.end())
+    logWarn("class_loader::class_loader_core: SEVERE WARNING!!! A namespace collision has occured with plugin factory for class %s. New factory will OVERWRITE existing one. This situation occurs when libraries containing plugins are directly linked against an executable (the one running right now generating this message). Please separate plugins out into their own library or just don't link against the library and use either class_loader::ClassLoader/MultiLibraryClassLoader to open.");
   factoryMap[class_name] = new_factory;
+  getPluginBaseToFactoryMapMapMutex().unlock();
 
   logDebug("class_loader::class_loader_core: Registration of %s complete.\n", class_name.c_str());
 }
