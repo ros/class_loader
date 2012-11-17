@@ -207,7 +207,7 @@ Base* createInstance(const std::string& derived_class_name, ClassLoader* loader)
   {
     if(factory && factory->isOwnedBy(NULL))
     {
-      logWarn("class_loader::class_loader_core: SEVERE WARNING!!! A metaobject (i.e. factory) exists for desired class, but has no owner. This implies that the library containing the class was dlopen()ed by means other than through the class_loader interface. This can happen if you build plugin libraries that contain more than just plugins (i.e. normal code your app links against) -- that intrinsically will trigger a dlopen() prior to main(). You should isolate your plugins into their own library, otherwise it will not be possible to shutdown the library!");
+      logDebug("class_loader::class_loader_core: ALERT!!! A metaobject (i.e. factory) exists for desired class, but has no owner. This implies that the library containing the class was dlopen()ed by means other than through the class_loader interface. This can happen if you build plugin libraries that contain more than just plugins (i.e. normal code your app links against) -- that intrinsically will trigger a dlopen() prior to main(). You should isolate your plugins into their own library, otherwise it will not be possible to shutdown the library!");
 
       obj = factory->create();
     }
