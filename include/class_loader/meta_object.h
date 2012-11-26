@@ -43,14 +43,14 @@ class ClassLoader; //Forward declaration
 namespace class_loader_private 
 {
 
+typedef std::vector<class_loader::ClassLoader*> ClassLoaderVector;
+
 /**
  * @class AbstractMetaObjectBase
  * @brief A base class for MetaObjects that excludes a polymorphic type parameter. Subclasses are class templates though.
  */
 class AbstractMetaObjectBase
-{
-  typedef std::vector<class_loader::ClassLoader*> ClassLoaderVector;
-
+{  
   public:
 
     /**
@@ -101,6 +101,11 @@ class AbstractMetaObjectBase
      * @brief Indicates if the factory is within the usable scope of any ClassLoader
      */
     bool isOwnedByAnybody();
+
+    /**
+     * A vector of class loaders that own this metaobject
+     */
+    ClassLoaderVector getAssociatedClassLoaders(){return(associated_class_loaders_);}
 
   private:
     ClassLoaderVector associated_class_loaders_;    

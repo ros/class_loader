@@ -62,6 +62,10 @@ typedef std::map<BaseClassName, FactoryMap> BaseToFactoryMapMap;
 typedef std::pair<LibraryPath, Poco::SharedLibrary*> LibraryPair;
 typedef std::vector<LibraryPair> LibraryVector;
 
+//Debug 
+/*****************************************************************************/
+void printDebugInfoToScreen();
+
 //Global storage
 /*****************************************************************************/
 

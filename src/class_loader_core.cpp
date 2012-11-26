@@ -35,6 +35,7 @@ namespace class_loader
 namespace class_loader_private
 {
 
+
 //Global data 
 /*****************************************************************************/
 /*****************************************************************************/
@@ -338,19 +339,25 @@ void loadLibrary(const std::string& library_path, ClassLoader* loader)
   }
   catch(const Poco::LibraryLoadException& e)
   {
+    setCurrentlyLoadingLibraryName("");
+    setCurrentlyActiveClassLoader(NULL);
     throw(class_loader::LibraryLoadException("Could not load library (Poco exception = " + std::string(e.message()) + ")"));
   }
   catch(const Poco::LibraryAlreadyLoadedException& e)
   {
+    setCurrentlyLoadingLibraryName("");
+    setCurrentlyActiveClassLoader(NULL);
     throw(class_loader::LibraryLoadException("Library already loaded (Poco exception = " + std::string(e.message()) + ")"));
   }
   catch(const Poco::NotFoundException& e)
   {
+    setCurrentlyLoadingLibraryName("");
+    setCurrentlyActiveClassLoader(NULL);
     throw(class_loader::LibraryLoadException("Library not found (Poco exception = " + std::string(e.message()) + ")"));
   }
 
   setCurrentlyLoadingLibraryName("");
-  setCurrentlyActiveClassLoader(loader);
+  setCurrentlyActiveClassLoader(NULL);
   assert(library_handle != NULL);
   boost::mutex::scoped_lock lock(getLoadedLibraryVectorMutex());
   LibraryVector& open_libraries =  getLoadedLibraryVector();
@@ -394,6 +401,37 @@ void unloadLibrary(const std::string& library_path, ClassLoader* loader)
     }
   }
 }
+
+
+//Other
+/*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/
+
+void printDebugInfoToScreen()
+/*****************************************************************************/
+{
+  printf("class_loader_core DEBUG INFO\n");
+  printf("*******************************************\n");
+  MetaObjectVector meta_objs = allMetaObjects();
+  for(unsigned int c = 0; c < meta_objs.size(); c++)
+  {
+    AbstractMetaObjectBase* obj = meta_objs.at(c);
+    printf("Metaobject %i (ptr = %p): TypeId = %s, Associated Library = %s\n", 
+           c, 
+           obj, 
+           (typeid(*obj).name()), 
+           obj->getAssociatedLibraryPath().c_str());
+    ClassLoaderVector loaders = obj->getAssociatedClassLoaders();
+    for(unsigned int i = 0; i < loaders.size(); i++)
+      printf("Associated Loader %i = %p\n", i, loaders.at(i));
+
+  }
+  printf("**********************\n\n");
+}
+
+
+
 
 } //End namespace class_loader_private
 } //End namespace class_loader
