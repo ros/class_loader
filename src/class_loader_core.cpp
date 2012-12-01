@@ -320,7 +320,7 @@ void addClassLoaderOwnerForAllExistingMetaObjectsForLibrary(const std::string& l
 void loadLibrary(const std::string& library_path, ClassLoader* loader)
 /*****************************************************************************/
 {
-  logDebug("class_loader::class_loader_core: Attempting to load library %s...\n", library_path.c_str());
+  logDebug("class_loader::class_loader_core: Attempting to load library %s on behalf of ClassLoader handle %p...\n", library_path.c_str(), loader);
 
   if(isLibraryLoadedByAnybody(library_path))
   {
@@ -359,6 +359,7 @@ void loadLibrary(const std::string& library_path, ClassLoader* loader)
   setCurrentlyLoadingLibraryName("");
   setCurrentlyActiveClassLoader(NULL);
   assert(library_handle != NULL);
+  logDebug("class_loader::class_loader_core: Successfully loaded library %s into memory (Poco::SharedLibrary handle = %p).", library_path.c_str(), library_handle);
   boost::mutex::scoped_lock lock(getLoadedLibraryVectorMutex());
   LibraryVector& open_libraries =  getLoadedLibraryVector();
   open_libraries.push_back(LibraryPair(library_path, library_handle)); //Note: Poco::SharedLibrary automatically calls load() when library passed to constructor
@@ -388,7 +389,8 @@ void unloadLibrary(const std::string& library_path, ClassLoader* loader)
         if(!areThereAnyExistingMetaObjectsForLibrary(library_path))
         {
           logDebug("class_loader::class_loader_core: There are no more MetaObjects left for %s so unloading library and removing from loaded library vector.\n", library_path.c_str());
-          library->unload();
+          library->unload();          
+          assert(library->isLoaded() == false);
           delete(library);
           itr = open_libraries.erase(itr);
         }
@@ -411,23 +413,37 @@ void unloadLibrary(const std::string& library_path, ClassLoader* loader)
 void printDebugInfoToScreen()
 /*****************************************************************************/
 {
-  printf("class_loader_core DEBUG INFO\n");
-  printf("*******************************************\n");
+  printf("*******************************************************************************\n");
+  printf("*****               class_loader_core DEBUG INFORMATION                   *****\n");
+  printf("*******************************************************************************\n");
+
+  printf("OPEN LIBRARIES IN MEMORY:\n");
+  printf("--------------------------------------------------------------------------------\n");
+  boost::mutex::scoped_lock lock(getLoadedLibraryVectorMutex());
+  LibraryVector libs = getLoadedLibraryVector();
+  for(unsigned int c = 0; c < libs.size(); c++)
+    printf("Open library %i = %s (Poco SharedLibrary handle = %p)\n", c, (libs.at(c)).first.c_str(), (libs.at(c)).second);
+
+  printf("METAOBJECTS (i.e. FACTORIES) IN MEMORY:\n");
+  printf("--------------------------------------------------------------------------------\n");
   MetaObjectVector meta_objs = allMetaObjects();
   for(unsigned int c = 0; c < meta_objs.size(); c++)
   {
     AbstractMetaObjectBase* obj = meta_objs.at(c);
-    printf("Metaobject %i (ptr = %p): TypeId = %s, Associated Library = %s\n", 
+    printf("Metaobject %i (ptr = %p):\n TypeId = %s\n Associated Library = %s\n", 
            c, 
            obj, 
            (typeid(*obj).name()), 
            obj->getAssociatedLibraryPath().c_str());
+  
     ClassLoaderVector loaders = obj->getAssociatedClassLoaders();
     for(unsigned int i = 0; i < loaders.size(); i++)
-      printf("Associated Loader %i = %p\n", i, loaders.at(i));
-
+      printf(" Associated Loader %i = %p\n", i, loaders.at(i));
+    printf("--------------------------------------------------------------------------------\n");
   }
-  printf("**********************\n\n");
+
+  printf("********************************** END DEBUG **********************************\n");
+  printf("*******************************************************************************\n\n");
 }
 
 

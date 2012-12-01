@@ -157,7 +157,7 @@ void registerPlugin(const std::string& class_name)
   //opens a library. Normally it will happen within the scope of loadLibrary(),
   //but that may not be guaranteed.
 
-  logDebug("class_loader::class_loader_core: Registering plugin factory for class = %s, ClassLoader* = %p and library name %s.\n", class_name.c_str(), getCurrentlyActiveClassLoader(), getCurrentlyLoadingLibraryName().c_str());
+  logDebug("class_loader::class_loader_core: Registering plugin factory for class = %s, ClassLoader* = %p and library name %s.", class_name.c_str(), getCurrentlyActiveClassLoader(), getCurrentlyLoadingLibraryName().c_str());
 
   if(getCurrentlyActiveClassLoader() == NULL)
   {
@@ -179,7 +179,7 @@ void registerPlugin(const std::string& class_name)
   factoryMap[class_name] = new_factory;
   getPluginBaseToFactoryMapMapMutex().unlock();
 
-  logDebug("class_loader::class_loader_core: Registration of %s complete.\n", class_name.c_str());
+  logDebug("class_loader::class_loader_core: Registration of %s complete.", class_name.c_str());
 }
 
 /**
@@ -218,6 +218,8 @@ Base* createInstance(const std::string& derived_class_name, ClassLoader* loader)
     else
       throw(class_loader::CreateClassException("Could not create instance of type " + derived_class_name));
   }
+
+  logDebug("class_loader::class_loader_core: Created instance of type %s and object pointer = %p", (typeid(obj).name()), obj);
 
   return(obj);
 }
