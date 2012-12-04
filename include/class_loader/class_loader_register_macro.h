@@ -41,7 +41,7 @@ namespace \
      typedef  Base    _base; \
      ProxyExec##UniqueID() \
      { \
-       class_loader::class_loader_private::registerPlugin<_derived, _base>(#Derived); \
+       class_loader::class_loader_private::registerPlugin<_derived, _base>(#Derived, #Base); \
      } \
   }; \
   static ProxyExec##UniqueID g_register_plugin_##UniqueID;\

@@ -151,7 +151,7 @@ void hasANonPurePluginLibraryBeenOpened(bool hasIt);
  * @param class_name - the literal name of the class being registered (NOT MANGLED)
  */
 template <typename Derived, typename Base> 
-void registerPlugin(const std::string& class_name)
+void registerPlugin(const std::string& class_name, const std::string& base_class_name)
 {
   //Note: This function will be automatically invoked when a dlopen() call
   //opens a library. Normally it will happen within the scope of loadLibrary(),
@@ -166,7 +166,7 @@ void registerPlugin(const std::string& class_name)
   }
 
   //Create factory
-  class_loader_private::AbstractMetaObject<Base>* new_factory = new class_loader_private::MetaObject<Derived, Base>(class_name.c_str());
+  class_loader_private::AbstractMetaObject<Base>* new_factory = new class_loader_private::MetaObject<Derived, Base>(class_name, base_class_name);
   new_factory->addOwningClassLoader(getCurrentlyActiveClassLoader());
   new_factory->setAssociatedLibraryPath(getCurrentlyLoadingLibraryName());
 

@@ -62,6 +62,14 @@ BaseToFactoryMapMap& getGlobalPluginBaseToFactoryMapMap()
   return instance;
 }
 
+
+MetaObjectVector& getMetaObjectGraveyard()
+/*****************************************************************************/
+{
+  static MetaObjectVector instance;
+  return instance;
+}
+
 LibraryVector& getLoadedLibraryVector()
 /*****************************************************************************/
 {
@@ -199,6 +207,12 @@ MetaObjectVector allMetaObjectsForLibraryOwnedBy(const std::string& library_path
   return(filterAllMetaObjectsOwnedBy(allMetaObjectsForLibrary(library_path), owner));
 }
 
+void insertMetaObjectToGraveyard(AbstractMetaObjectBase* meta_obj)
+/*****************************************************************************/
+{
+  getMetaObjectGraveyard().push_back(meta_obj);
+}
+
 void destroyMetaObjectsForLibrary(const std::string& library_path, FactoryMap& factories, const ClassLoader* loader)
 /*****************************************************************************/
 {
@@ -211,10 +225,20 @@ void destroyMetaObjectsForLibrary(const std::string& library_path, FactoryMap& f
       meta_obj->removeOwningClassLoader(loader);
       if(!meta_obj->isOwnedByAnybody())
       {
-        delete(meta_obj);
-        FactoryMap::iterator factory_itr_copy= factory_itr;
+        //We removev the metaobject from its factory map, but we don't destroy it...instead it saved to
+        //a "graveyard" to the side. This is due to our static global variable initialization problem
+        //that causes factories to not be registered when a library is closed and then reopened. This is
+        //because it's truly not closed due to the use of global symbol binding i.e. calling dlopen 
+        //with RTLD_GLOBAL instead of RTLD_LOCAL. We require using the former as the which is required to support
+        //RTTI 
+
+        //delete(meta_obj);        
+        FactoryMap::iterator factory_itr_copy = factory_itr;
         factory_itr++;
         factories.erase(factory_itr_copy); //Note: map::erase does not return iterator like vector::erase does. Hence the ugliness of this code and a need for copy. Should be fixed in next C++ revision
+
+        //Insert into graveyard
+        insertMetaObjectIntoGraveyard(meta_obj);
       }
       else
         factory_itr++;      
@@ -317,11 +341,30 @@ void addClassLoaderOwnerForAllExistingMetaObjectsForLibrary(const std::string& l
   }
 }
 
+void revivePreviouslyCreateMetaobjectsFromGraveyard(const std::string& library_path)
+/*****************************************************************************/
+{
+  MetaObjectVector& graveyard = getMetaObjectGraveyard();
+
+  for(MetaObjectVector::iterator itr = graveyard.begin(); itr != graveyard.end(); itr++)
+  {    
+    AbstractMetaObjectBase* obj = *itr;
+    if(obj->getAssociatedLibraryPath() == library_path)
+    {
+      logDebug("class_loader::class_loader_core: Resurrected factory metaobject from graveyard, class = %s, base_class = %s ptr = %p.", obj->className(), obj->baseClassName(), obj);
+      (getGlobalPluginBaseToFactoryMapMap()[obj->baseClassName()])[obj->className()] = obj;
+      itr = graveyard.erase(itr);
+    }
+
+  }
+}
+
 void loadLibrary(const std::string& library_path, ClassLoader* loader)
 /*****************************************************************************/
 {
   logDebug("class_loader::class_loader_core: Attempting to load library %s on behalf of ClassLoader handle %p...\n", library_path.c_str(), loader);
 
+  //If it's already open, just update existing metaobjects to have an additional owner.
   if(isLibraryLoadedByAnybody(library_path))
   {
     logDebug("class_loader::class_loader_core: Library already in memory, but binding existing MetaObjects to loader if necesesary.\n");
@@ -360,7 +403,18 @@ void loadLibrary(const std::string& library_path, ClassLoader* loader)
   setCurrentlyActiveClassLoader(NULL);
   assert(library_handle != NULL);
   logDebug("class_loader::class_loader_core: Successfully loaded library %s into memory (Poco::SharedLibrary handle = %p).", library_path.c_str(), library_handle);
-  boost::mutex::scoped_lock lock(getLoadedLibraryVectorMutex());
+
+  //Graveyard scenario
+  unsigned int num_lib_objs = allMetaObjectsForLibrary(library_path).size();
+  boost::mutex::scoped_lock b2fmm_lock(getPluginBaseToFactoryMapMapMutex()); //Note: Lock must happen after call to allMetaObjectsForLibrary as that will lock
+  if(num_lib_objs == 0)
+  {
+    logDebug("class_loader::class_loader_core: Though the library %s was just loaded, it seems no factory metaobjects were registered. Checking factory graveyard for previously loaded metaobjects...", library_path.c_str());
+    revivePreviouslyCreateMetaobjectsFromGraveyard(library_path);
+  }
+
+  //Insert library into global loaded library vectory
+  boost::mutex::scoped_lock llv_lock(getLoadedLibraryVectorMutex());
   LibraryVector& open_libraries =  getLoadedLibraryVector();
   open_libraries.push_back(LibraryPair(library_path, library_handle)); //Note: Poco::SharedLibrary automatically calls load() when library passed to constructor
 }
