@@ -35,7 +35,6 @@ namespace class_loader
 MultiLibraryClassLoader::MultiLibraryClassLoader(bool enable_ondemand_loadunload) :
 enable_ondemand_loadunload_(enable_ondemand_loadunload)
 {
-  printf("!!!!!!!!!MAS!!!! THIS CONFIRMS WET OVERLAY RUNTIME WORKS");
 }
 
 MultiLibraryClassLoader::~MultiLibraryClassLoader()

@@ -208,6 +208,7 @@ MetaObjectVector allMetaObjectsForLibraryOwnedBy(const std::string& library_path
 void insertMetaObjectIntoGraveyard(AbstractMetaObjectBase* meta_obj)
 /*****************************************************************************/
 {
+  logDebug("class_loader::class_loader_core: Inserting MetaObject (class = %s, base_class = %s, ptr = %p) into graveyard", meta_obj->className().c_str(), meta_obj->baseClassName().c_str(), meta_obj);
   getMetaObjectGraveyard().push_back(meta_obj);
 }
 
@@ -223,19 +224,17 @@ void destroyMetaObjectsForLibrary(const std::string& library_path, FactoryMap& f
       meta_obj->removeOwningClassLoader(loader);
       if(!meta_obj->isOwnedByAnybody())
       {
-        //We removev the metaobject from its factory map, but we don't destroy it...instead it saved to
+        FactoryMap::iterator factory_itr_copy = factory_itr;
+        factory_itr++;
+        factories.erase(factory_itr_copy); //Note: map::erase does not return iterator like vector::erase does. Hence the ugliness of this code and a need for copy. Should be fixed in next C++ revision
+
+        //Insert into graveyard 
+        //We remove the metaobject from its factory map, but we don't destroy it...instead it saved to
         //a "graveyard" to the side. This is due to our static global variable initialization problem
         //that causes factories to not be registered when a library is closed and then reopened. This is
         //because it's truly not closed due to the use of global symbol binding i.e. calling dlopen 
         //with RTLD_GLOBAL instead of RTLD_LOCAL. We require using the former as the which is required to support
         //RTTI 
-
-        //delete(meta_obj);        
-        FactoryMap::iterator factory_itr_copy = factory_itr;
-        factory_itr++;
-        factories.erase(factory_itr_copy); //Note: map::erase does not return iterator like vector::erase does. Hence the ugliness of this code and a need for copy. Should be fixed in next C++ revision
-
-        //Insert into graveyard
         insertMetaObjectIntoGraveyard(meta_obj);
       }
       else
@@ -251,7 +250,7 @@ void destroyMetaObjectsForLibrary(const std::string& library_path, const ClassLo
 {
   boost::mutex::scoped_lock lock(getPluginBaseToFactoryMapMapMutex());
 
-  logDebug("class_loader::class_loader_core: Purging MetaObjects associated with library %s and class loader %p.\n", library_path.c_str(), loader);
+  logDebug("class_loader::class_loader_core: Removing MetaObjects associated with library %s and class loader %p from global plugin-to-factorymap map.\n", library_path.c_str(), loader);
 
   //We have to walk through all FactoryMaps to be sure
   BaseToFactoryMapMap& factory_map_map = getGlobalPluginBaseToFactoryMapMap();
@@ -305,7 +304,12 @@ bool isLibraryLoadedByAnybody(const std::string& library_path)
 bool isLibraryLoaded(const std::string& library_path, ClassLoader* loader)
 /*****************************************************************************/
 {
-  return(isLibraryLoadedByAnybody(library_path) && (allMetaObjectsForLibraryOwnedBy(library_path,loader).size() > 0));
+  bool is_lib_loaded_by_anyone = isLibraryLoadedByAnybody(library_path);
+  int num_meta_objs_for_lib = allMetaObjectsForLibrary(library_path).size();
+  int num_meta_objs_for_lib_bound_to_loader = allMetaObjectsForLibraryOwnedBy(library_path,loader).size();
+  bool are_meta_objs_bound_to_loader = (num_meta_objs_for_lib == 0) ? true : (num_meta_objs_for_lib_bound_to_loader <= num_meta_objs_for_lib);
+
+  return(is_lib_loaded_by_anyone && are_meta_objs_bound_to_loader);
 }
 
 std::vector<std::string> getAllLibrariesUsedByClassLoader(const ClassLoader* loader)
@@ -339,7 +343,7 @@ void addClassLoaderOwnerForAllExistingMetaObjectsForLibrary(const std::string& l
   }
 }
 
-void revivePreviouslyCreateMetaobjectsFromGraveyard(const std::string& library_path)
+void revivePreviouslyCreateMetaobjectsFromGraveyard(const std::string& library_path, ClassLoader* loader)
 /*****************************************************************************/
 {
   MetaObjectVector& graveyard = getMetaObjectGraveyard();
@@ -349,11 +353,36 @@ void revivePreviouslyCreateMetaobjectsFromGraveyard(const std::string& library_p
     AbstractMetaObjectBase* obj = *itr;
     if(obj->getAssociatedLibraryPath() == library_path)
     {
-      logDebug("class_loader::class_loader_core: Resurrected factory metaobject from graveyard, class = %s, base_class = %s ptr = %p.", obj->className().c_str(), obj->baseClassName().c_str(), obj);
-      (getGlobalPluginBaseToFactoryMapMap()[obj->baseClassName()])[obj->className()] = obj;
-      itr = graveyard.erase(itr);
-    }
+      logDebug("class_loader::class_loader_core: Resurrected factory metaobject from graveyard, class = %s, base_class = %s ptr = %p...bound to ClassLoader %p", obj->className().c_str(), obj->baseClassName().c_str(), obj, loader);
 
+      obj->addOwningClassLoader(loader);
+      (getGlobalPluginBaseToFactoryMapMap()[obj->baseClassName()])[obj->className()] = obj;
+    }
+  }
+}
+
+void purgeGraveyardOfMetaobjects(const std::string& library_path, ClassLoader* loader, bool delete_objs)
+/*****************************************************************************/
+{
+  MetaObjectVector& graveyard = getMetaObjectGraveyard();
+  
+  MetaObjectVector::iterator itr = graveyard.begin();
+
+  while(itr != graveyard.end())
+  {    
+    AbstractMetaObjectBase* obj = *itr;
+    if(obj->getAssociatedLibraryPath() == library_path)
+    {
+      logDebug("class_loader::class_loader_core: Purging factory metaobject from graveyard, class = %s, base_class = %s ptr = %p...bound to ClassLoader %p", obj->className().c_str(), obj->baseClassName().c_str(), obj, loader);      
+      itr = graveyard.erase(itr);
+      if(delete_objs)
+      {
+        logDebug("class_loader::class_loader_core: Also destroying metaobject %p in addition to purging it from graveyard.", obj);      
+        delete(obj); //Note: This is the only place where metaobjects can be destroyed
+      }
+    }
+    else
+      itr++;
   }
 }
 
@@ -408,7 +437,13 @@ void loadLibrary(const std::string& library_path, ClassLoader* loader)
   if(num_lib_objs == 0)
   {
     logDebug("class_loader::class_loader_core: Though the library %s was just loaded, it seems no factory metaobjects were registered. Checking factory graveyard for previously loaded metaobjects...", library_path.c_str());
-    revivePreviouslyCreateMetaobjectsFromGraveyard(library_path);
+    revivePreviouslyCreateMetaobjectsFromGraveyard(library_path, loader);
+    purgeGraveyardOfMetaobjects(library_path, loader, false); //Note: The 'false' indicates we don't want to invoke delete on the metaobject
+  }
+  else
+  {
+    logDebug("class_loader::class_loader_core: Library %s generated new factory metaobjects on load. Destroying graveyarded objects from previous loads...", library_path.c_str());
+    purgeGraveyardOfMetaobjects(library_path, loader, true);
   }
 
   //Insert library into global loaded library vectory

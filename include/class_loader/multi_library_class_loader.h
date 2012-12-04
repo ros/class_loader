@@ -109,12 +109,6 @@ class MultiLibraryClassLoader
     template <class Base>
     Base* createUnmanagedInstance(const std::string& class_name)
     {
-      printf("Mas OVERLAY Test WHOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO\n");
-      printf("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n");
-      printf("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
-      printf("***************************************************************\n");
-
-
       ClassLoaderVector active_loaders = getAllAvailableClassLoaders();
       for(unsigned int c = 0; c < active_loaders.size(); c++)
       {
