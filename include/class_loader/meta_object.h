@@ -189,7 +189,7 @@ class MetaObject: public AbstractMetaObject<B>
      */
     virtual ~MetaObject()
     {
-      logDebug("class_loader::MetaObject: Destructor for factory for class type = %s.\n",(this->name()));
+      logDebug("class_loader::MetaObject: Destructor for factory for class type = %s.\n", (this->className().c_str()));
     }
 
     /**

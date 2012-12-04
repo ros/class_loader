@@ -141,8 +141,6 @@ void hasANonPurePluginLibraryBeenOpened(bool hasIt)
 /*****************************************************************************/
 /*****************************************************************************/
 
-typedef std::vector<AbstractMetaObjectBase*> MetaObjectVector;
-
 MetaObjectVector allMetaObjects(const FactoryMap& factories)
 /*****************************************************************************/
 {
@@ -207,7 +205,7 @@ MetaObjectVector allMetaObjectsForLibraryOwnedBy(const std::string& library_path
   return(filterAllMetaObjectsOwnedBy(allMetaObjectsForLibrary(library_path), owner));
 }
 
-void insertMetaObjectToGraveyard(AbstractMetaObjectBase* meta_obj)
+void insertMetaObjectIntoGraveyard(AbstractMetaObjectBase* meta_obj)
 /*****************************************************************************/
 {
   getMetaObjectGraveyard().push_back(meta_obj);
@@ -351,7 +349,7 @@ void revivePreviouslyCreateMetaobjectsFromGraveyard(const std::string& library_p
     AbstractMetaObjectBase* obj = *itr;
     if(obj->getAssociatedLibraryPath() == library_path)
     {
-      logDebug("class_loader::class_loader_core: Resurrected factory metaobject from graveyard, class = %s, base_class = %s ptr = %p.", obj->className(), obj->baseClassName(), obj);
+      logDebug("class_loader::class_loader_core: Resurrected factory metaobject from graveyard, class = %s, base_class = %s ptr = %p.", obj->className().c_str(), obj->baseClassName().c_str(), obj);
       (getGlobalPluginBaseToFactoryMapMap()[obj->baseClassName()])[obj->className()] = obj;
       itr = graveyard.erase(itr);
     }

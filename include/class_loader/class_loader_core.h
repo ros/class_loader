@@ -61,6 +61,7 @@ typedef std::map<ClassName, class_loader_private::AbstractMetaObjectBase*> Facto
 typedef std::map<BaseClassName, FactoryMap> BaseToFactoryMapMap;
 typedef std::pair<LibraryPath, Poco::SharedLibrary*> LibraryPair;
 typedef std::vector<LibraryPair> LibraryVector;
+typedef std::vector<AbstractMetaObjectBase*> MetaObjectVector;
 
 //Debug 
 /*****************************************************************************/

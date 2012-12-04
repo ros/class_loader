@@ -72,4 +72,14 @@ class CreateClassException: public ClassLoaderException
     CreateClassException(const std::string error_desc) : ClassLoaderException(error_desc) {}
 };
 
+/**
+ * @class NoClassLoaderExistsException
+ * @brief An exception class thrown when a multilibrary class loader does not have a ClassLoader bound to it
+ */
+class NoClassLoaderExistsException: public ClassLoaderException
+{
+  public:
+    NoClassLoaderExistsException(const std::string error_desc) : ClassLoaderException(error_desc) {}
+};
+
 }

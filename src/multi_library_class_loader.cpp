@@ -35,6 +35,7 @@ namespace class_loader
 MultiLibraryClassLoader::MultiLibraryClassLoader(bool enable_ondemand_loadunload) :
 enable_ondemand_loadunload_(enable_ondemand_loadunload)
 {
+  printf("!!!!!!!!!MAS!!!! THIS CONFIRMS WET OVERLAY RUNTIME WORKS");
 }
 
 MultiLibraryClassLoader::~MultiLibraryClassLoader()
@@ -46,7 +47,10 @@ std::vector<std::string> MultiLibraryClassLoader::getRegisteredLibraries()
 {
   std::vector<std::string> libraries;
   for(LibraryToClassLoaderMap::iterator itr = active_class_loaders_.begin(); itr != active_class_loaders_.end(); itr++)
-    libraries.push_back(itr->first);
+  {
+    if(itr->second != NULL)
+      libraries.push_back(itr->first);
+  }
   return(libraries);
 }
 
