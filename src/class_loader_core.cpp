@@ -62,6 +62,16 @@ BaseToFactoryMapMap& getGlobalPluginBaseToFactoryMapMap()
   return instance;
 }
 
+FactoryMap& getFactoryMapForBaseClass(const std::string& typeid_base_class_name)
+/*****************************************************************************/
+{
+  BaseToFactoryMapMap& factoryMapMap = getGlobalPluginBaseToFactoryMapMap();
+  std::string base_class_name = typeid_base_class_name;
+  if(factoryMapMap.find(base_class_name) == factoryMapMap.end())
+    factoryMapMap[base_class_name] = FactoryMap();
+
+  return(factoryMapMap[base_class_name]);
+}
 
 MetaObjectVector& getMetaObjectGraveyard()
 /*****************************************************************************/
@@ -135,6 +145,7 @@ void hasANonPurePluginLibraryBeenOpened(bool hasIt)
 {
   hasANonPurePluginLibraryBeenOpenedReference() = hasIt;
 }
+
 
 //MetaObject search/insert/removal/query
 /*****************************************************************************/
@@ -356,7 +367,9 @@ void revivePreviouslyCreateMetaobjectsFromGraveyard(const std::string& library_p
       logDebug("class_loader::class_loader_core: Resurrected factory metaobject from graveyard, class = %s, base_class = %s ptr = %p...bound to ClassLoader %p", obj->className().c_str(), obj->baseClassName().c_str(), obj, loader);
 
       obj->addOwningClassLoader(loader);
-      (getGlobalPluginBaseToFactoryMapMap()[obj->baseClassName()])[obj->className()] = obj;
+      assert(obj->typeidBaseClassName() != "UNSET");
+      FactoryMap& factory = getFactoryMapForBaseClass(obj->typeidBaseClassName());
+      factory[obj->className()] = obj;
     }
   }
 }

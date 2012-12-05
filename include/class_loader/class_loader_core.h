@@ -112,16 +112,18 @@ void setCurrentlyActiveClassLoader(ClassLoader* loader);
  * @brief This function extracts a reference to the FactoryMap for appropriate base class out of the global plugin base to factory map. This function should be used by functions in this namespace that need to access the various factories so as to make sure the right key is generated to index into the global map.
  * @return A reference to the FactoryMap contained within the global Base-to-FactoryMap map.
  */
+FactoryMap& getFactoryMapForBaseClass(const std::string& typeid_base_class_name);
+
+/**
+ * @brief Same as above but uses a type parameter instead of string for more safety if info is available.
+ * @return A reference to the FactoryMap contained within the global Base-to-FactoryMap map.
+ */
 template <typename Base>
 FactoryMap& getFactoryMapForBaseClass()
 {
-  BaseToFactoryMapMap& factoryMapMap = getGlobalPluginBaseToFactoryMapMap();
-  std::string base_class_name = typeid(Base).name();
-  if(factoryMapMap.find(base_class_name) == factoryMapMap.end())
-    factoryMapMap[base_class_name] = FactoryMap();
-
-  return(factoryMapMap[base_class_name]);
+    return(getFactoryMapForBaseClass(typeid(Base).name()));
 }
+
 
 /**
  * @brief To provide thread safety, all exposed plugin functions can only be run serially by multiple threads. This is implemented by using critical sections enforced by a single mutex which is locked and released with the following two functions

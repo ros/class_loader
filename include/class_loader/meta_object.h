@@ -34,6 +34,7 @@
 
 #include <console_bridge/console.h>
 #include <vector>
+ #include <typeinfo>
 
 namespace class_loader
 {
@@ -59,7 +60,8 @@ class AbstractMetaObjectBase
     AbstractMetaObjectBase(const std::string& class_name, const std::string& base_class_name) :  
     associated_library_path_("Unknown"),
     class_name_(class_name),
-    base_class_name_(base_class_name)
+    base_class_name_(base_class_name),
+    typeid_base_class_name_("UNSET")
     {
     }
 
@@ -80,6 +82,11 @@ class AbstractMetaObjectBase
      * @brief gets the base class for the class this factory represents
      */
     std::string baseClassName() const{return base_class_name_;}
+
+    /**
+     * @brief Gets the name of the class as typeid(BASE_CLASS).name() would return it
+     */
+    std::string typeidBaseClassName() const {return typeid_base_class_name_;}
 
     /**
      * @brief Gets the path to the library associated with this factory
@@ -120,11 +127,12 @@ class AbstractMetaObjectBase
      */
     ClassLoaderVector getAssociatedClassLoaders(){return(associated_class_loaders_);}
 
-  private:
+  protected:
     ClassLoaderVector associated_class_loaders_;    
     std::string associated_library_path_;
     std::string base_class_name_;
     std::string class_name_;
+    std::string typeid_base_class_name_;
 };
 
 /**
@@ -182,6 +190,7 @@ class MetaObject: public AbstractMetaObject<B>
     MetaObject(const std::string& class_name, const std::string& base_class_name) :
     AbstractMetaObject<B>(class_name, base_class_name)
     {
+        AbstractMetaObjectBase::typeid_base_class_name_ = std::string(typeid(B).name());
     }
 
     /**
