@@ -470,7 +470,7 @@ void unloadLibrary(const std::string& library_path, ClassLoader* loader)
 { 
   if(hasANonPurePluginLibraryBeenOpened())
   {
-    logError("class_loader::class_loader_core: Cannot unload %s or ANY other library as a non-pure plugin library was opened. As class_loader has no idea which libraries class factories were exported from, it can safely close any library without potentially unlinking symbols that are still actively being used. You must refactor your plugin libraries to be made exclusively of plugins in order for this error to stop happening.", library_path.c_str());
+    logDebug("class_loader::class_loader_core: Cannot unload %s or ANY other library as a non-pure plugin library was opened. As class_loader has no idea which libraries class factories were exported from, it can safely close any library without potentially unlinking symbols that are still actively being used. You must refactor your plugin libraries to be made exclusively of plugins in order for this error to stop happening.", library_path.c_str());
   }
   else
   { 
