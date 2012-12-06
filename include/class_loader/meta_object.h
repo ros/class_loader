@@ -59,8 +59,8 @@ class AbstractMetaObjectBase
      */
     AbstractMetaObjectBase(const std::string& class_name, const std::string& base_class_name) :  
     associated_library_path_("Unknown"),
-    class_name_(class_name),
     base_class_name_(base_class_name),
+    class_name_(class_name),
     typeid_base_class_name_("UNSET")
     {
     }
