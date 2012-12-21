@@ -34,7 +34,7 @@
 
 #include <console_bridge/console.h>
 #include <vector>
- #include <typeinfo>
+#include <typeinfo>
 
 namespace class_loader
 {

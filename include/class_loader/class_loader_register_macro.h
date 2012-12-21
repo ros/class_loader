@@ -31,6 +31,7 @@
 #define CLASS_LOADER_REGISTER_MACRO_H_DEFINED
 
 #include "class_loader_core.h"
+ #include <console_bridge/console.h>
 
 #define CLASS_LOADER_REGISTER_CLASS_INTERNAL_WITH_MESSAGE(Derived, Base, UniqueID, Message) \
 namespace \
@@ -42,7 +43,7 @@ namespace \
     ProxyExec##UniqueID() \
     { \
       if(std::string(Message)!="")\
-        printf("%s\n", Message);\
+        logDebug("%s", Message);\
       class_loader::class_loader_private::registerPlugin<_derived, _base>(#Derived, #Base); \
     }\
   };\
