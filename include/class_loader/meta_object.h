@@ -151,6 +151,7 @@ class AbstractMetaObject : public AbstractMetaObjectBase
     AbstractMetaObject(const std::string& class_name, const std::string& base_class_name) : 
     AbstractMetaObjectBase(class_name, base_class_name)
     {
+        AbstractMetaObjectBase::typeid_base_class_name_ = std::string(typeid(B).name());
     }
 
     /**
@@ -190,7 +191,6 @@ class MetaObject: public AbstractMetaObject<B>
     MetaObject(const std::string& class_name, const std::string& base_class_name) :
     AbstractMetaObject<B>(class_name, base_class_name)
     {
-        AbstractMetaObjectBase::typeid_base_class_name_ = std::string(typeid(B).name());
     }
 
     /**
