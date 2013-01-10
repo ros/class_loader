@@ -57,47 +57,37 @@ class AbstractMetaObjectBase
     /**
      * @brief Constructor for the class
      */
-    AbstractMetaObjectBase(const std::string& class_name, const std::string& base_class_name) :  
-    associated_library_path_("Unknown"),
-    base_class_name_(base_class_name),
-    class_name_(class_name),
-    typeid_base_class_name_("UNSET")
-    {
-    }
-
+    AbstractMetaObjectBase(const std::string& class_name, const std::string& base_class_name);
     /**
      * @brief Destructor for the class
      */
-    virtual ~AbstractMetaObjectBase()
-    {
-    } 
+    virtual ~AbstractMetaObjectBase();
 
     /**
      * @brief Gets the literal name of the class.
      * @return The literal name of the class as a C-string.
      */
-    std::string className() const{return class_name_;}
+    std::string className() const;
 
     /**
      * @brief gets the base class for the class this factory represents
      */
-    std::string baseClassName() const{return base_class_name_;}
-
+    std::string baseClassName() const;
     /**
      * @brief Gets the name of the class as typeid(BASE_CLASS).name() would return it
      */
-    std::string typeidBaseClassName() const {return typeid_base_class_name_;}
+    std::string typeidBaseClassName() const;
 
     /**
      * @brief Gets the path to the library associated with this factory
      * @return Library path as a std::string
      */
-    std::string getAssociatedLibraryPath(){return(associated_library_path_);}
+    std::string getAssociatedLibraryPath();
 
     /**
      * @brief Sets the path to the library associated with this factory
      */
-    void setAssociatedLibraryPath(std::string library_path){associated_library_path_ = library_path;}
+    void setAssociatedLibraryPath(std::string library_path);
 
     /**
      * @brief Associates a ClassLoader owner with this factory,
@@ -125,7 +115,7 @@ class AbstractMetaObjectBase
     /**
      * A vector of class loaders that own this metaobject
      */
-    ClassLoaderVector getAssociatedClassLoaders(){return(associated_class_loaders_);}
+    ClassLoaderVector getAssociatedClassLoaders();
 
   protected:
     ClassLoaderVector associated_class_loaders_;    
