@@ -92,7 +92,7 @@ class ClassLoader
     boost::shared_ptr<T> createInstance(const std::string& derived_class_name)
     {
       if(ClassLoader::hasUnmanagedInstanceBeenCreated())
-        logInfo("class_loader::ClassLoader: An attempt is being made to create a managed plugin instance (i.e. boost::shared_ptr), however an unmanaged instance was created within this process address space. This means libraries for the managed instances will not be shutdown automatically on final plugin destruction if on demand (lazy) loading/unloading mode is used.");
+        logInform("class_loader::ClassLoader: An attempt is being made to create a managed plugin instance (i.e. boost::shared_ptr), however an unmanaged instance was created within this process address space. This means libraries for the managed instances will not be shutdown automatically on final plugin destruction if on demand (lazy) loading/unloading mode is used.");
       T* obj = createUnmanagedInstance<T>(derived_class_name);
       assert(obj != NULL);  //Unreachable assertion if createUnmanagedInstance() throws on failure
 
