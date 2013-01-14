@@ -398,7 +398,7 @@ void purgeGraveyardOfMetaobjects(const std::string& library_path, ClassLoader* l
       if(delete_objs)
       {
         if(is_address_in_graveyard_same_as_global_factory_map)
-          logWarn("class_loader::class_loader_private:Newly created metaobject factory in global factory map map has same address as one in graveyard -- metaobject has been purged from graveyard but not deleted.");
+          logDebug("class_loader::class_loader_private:Newly created metaobject factory in global factory map map has same address as one in graveyard -- metaobject has been purged from graveyard but not deleted.");
         else
         {
           assert(hasANonPurePluginLibraryBeenOpened() == false);
