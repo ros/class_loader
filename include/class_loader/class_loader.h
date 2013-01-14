@@ -91,6 +91,8 @@ class ClassLoader
     template <class T>    
     boost::shared_ptr<T> createInstance(const std::string& derived_class_name)
     {
+      if(ClassLoader::hasUnmanagedInstanceBeenCreated())
+        logWarn("class_loader::ClassLoader: An attempt is being made to create a managed plugin instance (i.e. boost::shared_ptr), however an unmanaged instance was created within this process address space. This means libraries for the managed instances will not be shutdown automatically on final plugin destruction if on demand (lazy) loading/unloading mode is used.");
       T* obj = createUnmanagedInstance<T>(derived_class_name);
       assert(obj != NULL);  //Unreachable assertion if createUnmanagedInstance() throws on failure
 
@@ -109,6 +111,7 @@ class ClassLoader
     template <class Base>
     Base* createUnmanagedInstance(const std::string& derived_class_name)
     {
+      ClassLoader::hasUnmanagedInstanceBeenCreated(true);
       if(!isLibraryLoaded())
         loadLibrary();
 
@@ -177,24 +180,41 @@ class ClassLoader
         plugin_ref_count_ = plugin_ref_count_ - 1;
         assert(plugin_ref_count_ >= 0);
         if(plugin_ref_count_ == 0 && isOnDemandLoadUnloadEnabled())
-          unloadLibraryInternal(false);
+        {
+          if(!ClassLoader::hasUnmanagedInstanceBeenCreated())
+            unloadLibraryInternal(false);
+          else
+            logWarn("class_loader::ClassLoader: Cannot unload library %s even though last shared pointer went out of scope. This is because createUnmanagedInstance was used within the scope of this process, perhaps by a different ClassLoader. Library will NOT be closed.", getLibraryPath().c_str());
+        }
       }
     }
 
-  /**
-   * @brief As the library may be unloaded in "on-demand load/unload" mode, unload maybe called from createInstance(). The problem is that createInstance() locks the plugin_ref_count as does unloadLibrary(). This method is the implementation of unloadLibrary but with a parameter to decide if plugin_ref_mutex_ should be locked
-   * @param lock_plugin_ref_count - Set to true if plugin_ref_count_mutex_ should be locked, else false
-   * @return The number of times unloadLibraryInternal has to be called again for it to be unbound from this ClassLoader
-   */
-  int unloadLibraryInternal(bool lock_plugin_ref_count);
+    /**
+    * @brief Getter for if an unmanaged (i.e. unsafe) instance has been created flag
+    */
+    static bool hasUnmanagedInstanceBeenCreated(bool has_it){has_unmananged_instance_been_created_ = has_it;}
+
+    /**
+    * @brief Setter for if an unmanaged (i.e. unsafe) instance has been created flag
+    */
+    static bool hasUnmanagedInstanceBeenCreated(){return has_unmananged_instance_been_created_;}
+
+    /**
+     * @brief As the library may be unloaded in "on-demand load/unload" mode, unload maybe called from createInstance(). The problem is that createInstance() locks the plugin_ref_count as does unloadLibrary(). This method is the implementation of unloadLibrary but with a parameter to decide if plugin_ref_mutex_ should be locked
+     * @param lock_plugin_ref_count - Set to true if plugin_ref_count_mutex_ should be locked, else false
+     * @return The number of times unloadLibraryInternal has to be called again for it to be unbound from this ClassLoader
+     */
+    int unloadLibraryInternal(bool lock_plugin_ref_count);
 
   private:
+
     bool ondemand_load_unload_;
     std::string library_path_;
     int load_ref_count_;  
     boost::mutex load_ref_count_mutex_;
     int plugin_ref_count_;
     boost::mutex plugin_ref_count_mutex_;
+    static bool has_unmananged_instance_been_created_;
 };
 
 }

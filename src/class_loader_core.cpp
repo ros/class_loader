@@ -394,13 +394,17 @@ void purgeGraveyardOfMetaobjects(const std::string& library_path, ClassLoader* l
       logDebug("class_loader::class_loader_private: Purging factory metaobject from graveyard, class = %s, base_class = %s ptr = %p...bound to ClassLoader %p (library path = %s)", obj->className().c_str(), obj->baseClassName().c_str(), obj, loader, loader ? loader->getLibraryPath().c_str() : "NULL");      
 
       bool is_address_in_graveyard_same_as_global_factory_map = std::find(all_meta_objs.begin(), all_meta_objs.end(), *itr) != all_meta_objs.end();
-      assert(!is_address_in_graveyard_same_as_global_factory_map);
       itr = graveyard.erase(itr);
       if(delete_objs)
       {
-        assert(hasANonPurePluginLibraryBeenOpened() == false);
-        logDebug("class_loader::class_loader_private: Also destroying metaobject %p (class = %s, base_class = %s, library_path = %s) in addition to purging it from graveyard.", obj, obj->className().c_str(), obj->baseClassName().c_str(), obj->getAssociatedLibraryPath().c_str());      
-        delete(obj); //Note: This is the only place where metaobjects can be destroyed
+        if(is_address_in_graveyard_same_as_global_factory_map)
+          logWarn("class_loader::class_loader_private:Newly created metaobject factory in global factory map map has same address as one in graveyard -- metaobject has been purged from graveyard but not deleted.");
+        else
+        {
+          assert(hasANonPurePluginLibraryBeenOpened() == false);
+          logDebug("class_loader::class_loader_private: Also destroying metaobject %p (class = %s, base_class = %s, library_path = %s) in addition to purging it from graveyard.", obj, obj->className().c_str(), obj->baseClassName().c_str(), obj->getAssociatedLibraryPath().c_str());
+          delete(obj); //Note: This is the only place where metaobjects can be destroyed
+        }
       }
     }
     else
