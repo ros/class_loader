@@ -59,9 +59,11 @@ class AbstractMetaObjectBase
      */
     AbstractMetaObjectBase(const std::string& class_name, const std::string& base_class_name);
     /**
-     * @brief Destructor for the class
+     * @brief Destructor for the class. THIS MUST NOT BE VIRTUAL AND OVERRIDDEN BY
+     * TEMPLATE SUBCLASSES, OTHERWISE THEY WILL PULL IN A REDUNDANT METAOBJECT
+     * DESTRUCTOR OUTSIDE OF libclass_loader WITHIN THE PLUGIN LIBRARY! T
      */
-    virtual ~AbstractMetaObjectBase();
+    ~AbstractMetaObjectBase();
 
     /**
      * @brief Gets the literal name of the class.
@@ -118,6 +120,12 @@ class AbstractMetaObjectBase
     ClassLoaderVector getAssociatedClassLoaders();
 
   protected:
+    /**
+     * This is needed to make base class polymorphic (i.e. have a vtable)
+     */
+    virtual void dummyMethod(){}
+
+  protected:
     ClassLoaderVector associated_class_loaders_;    
     std::string associated_library_path_;
     std::string base_class_name_;
@@ -142,13 +150,6 @@ class AbstractMetaObject : public AbstractMetaObjectBase
     AbstractMetaObjectBase(class_name, base_class_name)
     {
         AbstractMetaObjectBase::typeid_base_class_name_ = std::string(typeid(B).name());
-    }
-
-    /**
-     * @brief Desonstructor for this class
-     */
-    virtual ~AbstractMetaObject()
-    {
     }
 
     /**
@@ -181,14 +182,6 @@ class MetaObject: public AbstractMetaObject<B>
     MetaObject(const std::string& class_name, const std::string& base_class_name) :
     AbstractMetaObject<B>(class_name, base_class_name)
     {
-    }
-
-    /**
-     * @brief Destructor for the class
-     */
-    virtual ~MetaObject()
-    {
-      logDebug("class_loader::MetaObject: Destructor for factory for class type = %s.\n", (this->className().c_str()));
     }
 
     /**

@@ -31,8 +31,8 @@
 #define class_loader_private_H_DEFINED
 
 #include <Poco/SharedLibrary.h>
-#include <boost/thread/mutex.hpp>
-#include <vector>
+#include <boost/thread/recursive_mutex.hpp>
+//#include <vector>
 #include <map>
 #include <typeinfo>
 #include <string>
@@ -124,13 +124,13 @@ FactoryMap& getFactoryMapForBaseClass()
     return(getFactoryMapForBaseClass(typeid(Base).name()));
 }
 
-
 /**
  * @brief To provide thread safety, all exposed plugin functions can only be run serially by multiple threads. This is implemented by using critical sections enforced by a single mutex which is locked and released with the following two functions
  * @return A reference to the global mutex
  */
-boost::mutex& getLoadedLibraryVectorMutex();
-boost::mutex& getPluginBaseToFactoryMapMapMutex();
+boost::recursive_mutex& getLoadedLibraryVectorMutex();
+boost::recursive_mutex& getPluginBaseToFactoryMapMapMutex();
+
 /**
  * @brief Indicates if a library containing more than just plugins has been opened by the running process
  * @return True if a non-pure plugin library has been opened, otherwise false
@@ -159,7 +159,6 @@ void registerPlugin(const std::string& class_name, const std::string& base_class
   //Note: This function will be automatically invoked when a dlopen() call
   //opens a library. Normally it will happen within the scope of loadLibrary(),
   //but that may not be guaranteed.
-
   logDebug("class_loader::class_loader_private: Registering plugin factory for class = %s, ClassLoader* = %p and library name %s.", class_name.c_str(), getCurrentlyActiveClassLoader(), getCurrentlyLoadingLibraryName().c_str());
 
   if(getCurrentlyActiveClassLoader() == NULL)
@@ -235,7 +234,7 @@ Base* createInstance(const std::string& derived_class_name, ClassLoader* loader)
 template <typename Base> 
 std::vector<std::string> getAvailableClasses(ClassLoader* loader)
 {
-  boost::mutex::scoped_lock lock(getPluginBaseToFactoryMapMapMutex());
+  boost::recursive_mutex::scoped_lock lock(getPluginBaseToFactoryMapMapMutex());
 
   FactoryMap& factory_map = getFactoryMapForBaseClass<Base>();
   std::vector<std::string> classes;

@@ -42,17 +42,17 @@ namespace class_loader_private
 /*****************************************************************************/
 /*****************************************************************************/
 
-boost::mutex& getLoadedLibraryVectorMutex()
+boost::recursive_mutex& getLoadedLibraryVectorMutex()
 /*****************************************************************************/
 {
-  static boost::mutex m;
+  static boost::recursive_mutex m;
   return m;
 }
 
-boost::mutex& getPluginBaseToFactoryMapMapMutex()
+boost::recursive_mutex& getPluginBaseToFactoryMapMapMutex()
 /*****************************************************************************/
 {
-  static boost::mutex m;
+  static boost::recursive_mutex m;
   return m;
 }
 
@@ -165,7 +165,7 @@ MetaObjectVector allMetaObjects(const FactoryMap& factories)
 MetaObjectVector allMetaObjects()
 /*****************************************************************************/
 {
-  boost::mutex::scoped_lock lock(getPluginBaseToFactoryMapMapMutex());
+  boost::recursive_mutex::scoped_lock lock(getPluginBaseToFactoryMapMapMutex());
 
   MetaObjectVector all_meta_objs;
   BaseToFactoryMapMap& factory_map_map = getGlobalPluginBaseToFactoryMapMap();
@@ -260,7 +260,7 @@ void destroyMetaObjectsForLibrary(const std::string& library_path, FactoryMap& f
 void destroyMetaObjectsForLibrary(const std::string& library_path, const ClassLoader* loader)
 /*****************************************************************************/
 {
-  boost::mutex::scoped_lock lock(getPluginBaseToFactoryMapMapMutex());
+  boost::recursive_mutex::scoped_lock lock(getPluginBaseToFactoryMapMapMutex());
 
   logDebug("class_loader::class_loader_private: Removing MetaObjects associated with library %s and class loader %p from global plugin-to-factorymap map.\n", library_path.c_str(), loader);
 
@@ -299,7 +299,7 @@ LibraryVector::iterator findLoadedLibrary(const std::string& library_path)
 bool isLibraryLoadedByAnybody(const std::string& library_path)
 /*****************************************************************************/
 {
-  boost::mutex::scoped_lock lock(getLoadedLibraryVectorMutex());
+  boost::recursive_mutex::scoped_lock lock(getLoadedLibraryVectorMutex());
 
   LibraryVector& open_libraries =  getLoadedLibraryVector();
   LibraryVector::iterator itr = findLoadedLibrary(library_path);
@@ -359,7 +359,7 @@ void addClassLoaderOwnerForAllExistingMetaObjectsForLibrary(const std::string& l
 void revivePreviouslyCreateMetaobjectsFromGraveyard(const std::string& library_path, ClassLoader* loader)
 /*****************************************************************************/
 {
-  boost::mutex::scoped_lock b2fmm_lock(getPluginBaseToFactoryMapMapMutex());
+  boost::recursive_mutex::scoped_lock b2fmm_lock(getPluginBaseToFactoryMapMapMutex());
   MetaObjectVector& graveyard = getMetaObjectGraveyard();
 
   for(MetaObjectVector::iterator itr = graveyard.begin(); itr != graveyard.end(); itr++)
@@ -381,7 +381,7 @@ void purgeGraveyardOfMetaobjects(const std::string& library_path, ClassLoader* l
 /*****************************************************************************/
 {
   MetaObjectVector all_meta_objs = allMetaObjects();
-  boost::mutex::scoped_lock b2fmm_lock(getPluginBaseToFactoryMapMapMutex()); //Note: Lock must happen after call to allMetaObjects as that will lock
+  boost::recursive_mutex::scoped_lock b2fmm_lock(getPluginBaseToFactoryMapMapMutex()); //Note: Lock must happen after call to allMetaObjects as that will lock
 
   MetaObjectVector& graveyard = getMetaObjectGraveyard();
   MetaObjectVector::iterator itr = graveyard.begin();
@@ -472,7 +472,7 @@ void loadLibrary(const std::string& library_path, ClassLoader* loader)
   }
 
   //Insert library into global loaded library vectory
-  boost::mutex::scoped_lock llv_lock(getLoadedLibraryVectorMutex());
+  boost::recursive_mutex::scoped_lock llv_lock(getLoadedLibraryVectorMutex());
   LibraryVector& open_libraries =  getLoadedLibraryVector();
   open_libraries.push_back(LibraryPair(library_path, library_handle)); //Note: Poco::SharedLibrary automatically calls load() when library passed to constructor
 }
@@ -487,7 +487,7 @@ void unloadLibrary(const std::string& library_path, ClassLoader* loader)
   else
   { 
     logDebug("class_loader::class_loader_private: Unloading library %s on behalf of ClassLoader %p...", library_path.c_str(), loader);
-    boost::mutex::scoped_lock lock(getLoadedLibraryVectorMutex());
+    boost::recursive_mutex::scoped_lock lock(getLoadedLibraryVectorMutex());
     LibraryVector& open_libraries =  getLoadedLibraryVector();
     LibraryVector::iterator itr = findLoadedLibrary(library_path);
     if(itr != open_libraries.end())
@@ -536,7 +536,7 @@ void printDebugInfoToScreen()
 
   printf("OPEN LIBRARIES IN MEMORY:\n");
   printf("--------------------------------------------------------------------------------\n");
-  boost::mutex::scoped_lock lock(getLoadedLibraryVectorMutex());
+  boost::recursive_mutex::scoped_lock lock(getLoadedLibraryVectorMutex());
   LibraryVector libs = getLoadedLibraryVector();
   for(unsigned int c = 0; c < libs.size(); c++)
     printf("Open library %i = %s (Poco SharedLibrary handle = %p)\n", c, (libs.at(c)).first.c_str(), (libs.at(c)).second);

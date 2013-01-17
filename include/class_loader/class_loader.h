@@ -31,7 +31,7 @@
 #define CLASS_LOADER_CLASS_LOADER_H_DEFINED
 
 #include <boost/shared_ptr.hpp>
-#include <boost/thread/mutex.hpp>
+#include <boost/thread/recursive_mutex.hpp>
 #include <boost/bind.hpp>
 #include <vector>
 #include <string>
@@ -96,7 +96,7 @@ class ClassLoader
       T* obj = createUnmanagedInstance<T>(derived_class_name);
       assert(obj != NULL);  //Unreachable assertion if createUnmanagedInstance() throws on failure
 
-      boost::mutex::scoped_lock lock(plugin_ref_count_mutex_);
+      boost::recursive_mutex::scoped_lock lock(plugin_ref_count_mutex_);
       plugin_ref_count_ = plugin_ref_count_ + 1;
 
       boost::shared_ptr<T> smart_obj(obj, boost::bind(&class_loader::ClassLoader::onPluginDeletion<T>, this, _1));
@@ -111,7 +111,7 @@ class ClassLoader
     template <class Base>
     Base* createUnmanagedInstance(const std::string& derived_class_name)
     {
-      ClassLoader::hasUnmanagedInstanceBeenCreated(true);
+      has_unmananged_instance_been_created_ = true;
       if(!isLibraryLoaded())
         loadLibrary();
 
@@ -175,7 +175,7 @@ class ClassLoader
       logDebug("class_loader::ClassLoader: Calling onPluginDeletion() for obj ptr = %p.\n", obj);
       if(obj)
       {
-        boost::mutex::scoped_lock lock(plugin_ref_count_mutex_);
+        boost::recursive_mutex::scoped_lock lock(plugin_ref_count_mutex_);
         delete(obj);
         plugin_ref_count_ = plugin_ref_count_ - 1;
         assert(plugin_ref_count_ >= 0);
@@ -192,11 +192,6 @@ class ClassLoader
     /**
     * @brief Getter for if an unmanaged (i.e. unsafe) instance has been created flag
     */
-    static bool hasUnmanagedInstanceBeenCreated(bool has_it){has_unmananged_instance_been_created_ = has_it;}
-
-    /**
-    * @brief Setter for if an unmanaged (i.e. unsafe) instance has been created flag
-    */
     static bool hasUnmanagedInstanceBeenCreated(){return has_unmananged_instance_been_created_;}
 
     /**
@@ -211,9 +206,9 @@ class ClassLoader
     bool ondemand_load_unload_;
     std::string library_path_;
     int load_ref_count_;  
-    boost::mutex load_ref_count_mutex_;
+    boost::recursive_mutex load_ref_count_mutex_;
     int plugin_ref_count_;
-    boost::mutex plugin_ref_count_mutex_;
+    boost::recursive_mutex plugin_ref_count_mutex_;
     static bool has_unmananged_instance_been_created_;
 };
 

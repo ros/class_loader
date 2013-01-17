@@ -68,7 +68,7 @@ bool ClassLoader::isLibraryLoadedByAnyClassloader()
 
 void ClassLoader::loadLibrary()
 {
-  boost::mutex::scoped_lock lock(load_ref_count_mutex_);
+  boost::recursive_mutex::scoped_lock lock(load_ref_count_mutex_);
   load_ref_count_ = load_ref_count_ + 1;
   class_loader::class_loader_private::loadLibrary(getLibraryPath(), this);
 }
@@ -80,10 +80,10 @@ int ClassLoader::unloadLibrary()
 
 int ClassLoader::unloadLibraryInternal(bool lock_plugin_ref_count)
 {
-  boost::mutex::scoped_lock load_ref_lock(load_ref_count_mutex_);
-  boost::mutex::scoped_lock plugin_ref_lock;
+  boost::recursive_mutex::scoped_lock load_ref_lock(load_ref_count_mutex_);
+  boost::recursive_mutex::scoped_lock plugin_ref_lock;
   if(lock_plugin_ref_count)
-    plugin_ref_lock = boost::mutex::scoped_lock(plugin_ref_count_mutex_);
+    plugin_ref_lock = boost::recursive_mutex::scoped_lock(plugin_ref_count_mutex_);
 
   if(plugin_ref_count_ > 0)
     logWarn("class_loader::ClassLoader: SEVERE WARNING!!! Attempting to unload library while objects created by this loader exist in the heap! You should delete your objects before attempting to unload the library or destroying the ClassLoader. The library will NOT be unloaded.");
