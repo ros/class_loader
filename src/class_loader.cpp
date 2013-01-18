@@ -34,6 +34,11 @@ namespace class_loader
 
 bool ClassLoader::has_unmananged_instance_been_created_ = false;
 
+bool ClassLoader::hasUnmanagedInstanceBeenCreated()
+{
+  return ClassLoader::has_unmananged_instance_been_created_;
+}
+
 std::string systemLibrarySuffix()
 {
   return(Poco::SharedLibrary::suffix());

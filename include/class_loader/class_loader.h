@@ -88,18 +88,22 @@ class ClassLoader
      * @param  derived_class_name The name of the class we want to create (@see getAvailableClasses())
      * @return A boost::shared_ptr<Base> to newly created plugin object
      */
-    template <class T>    
-    boost::shared_ptr<T> createInstance(const std::string& derived_class_name)
+    template <class Base>    
+    boost::shared_ptr<Base> createInstance(const std::string& derived_class_name)
     {
       if(ClassLoader::hasUnmanagedInstanceBeenCreated())
         logInform("class_loader::ClassLoader: An attempt is being made to create a managed plugin instance (i.e. boost::shared_ptr), however an unmanaged instance was created within this process address space. This means libraries for the managed instances will not be shutdown automatically on final plugin destruction if on demand (lazy) loading/unloading mode is used.");
-      T* obj = createUnmanagedInstance<T>(derived_class_name);
-      assert(obj != NULL);  //Unreachable assertion if createUnmanagedInstance() throws on failure
+
+      if(!isLibraryLoaded())
+        loadLibrary();
+
+      Base* obj = class_loader::class_loader_private::createInstance<Base>(derived_class_name, this);
+      assert(obj != NULL); //Unreachable assertion if createInstance() throws on failure
 
       boost::recursive_mutex::scoped_lock lock(plugin_ref_count_mutex_);
       plugin_ref_count_ = plugin_ref_count_ + 1;
 
-      boost::shared_ptr<T> smart_obj(obj, boost::bind(&class_loader::ClassLoader::onPluginDeletion<T>, this, _1));
+      boost::shared_ptr<Base> smart_obj(obj, boost::bind(&class_loader::ClassLoader::onPluginDeletion<Base>, this, _1));
       return(smart_obj);
     }
 
@@ -192,7 +196,7 @@ class ClassLoader
     /**
     * @brief Getter for if an unmanaged (i.e. unsafe) instance has been created flag
     */
-    static bool hasUnmanagedInstanceBeenCreated(){return has_unmananged_instance_been_created_;}
+    static bool hasUnmanagedInstanceBeenCreated();
 
     /**
      * @brief As the library may be unloaded in "on-demand load/unload" mode, unload maybe called from createInstance(). The problem is that createInstance() locks the plugin_ref_count as does unloadLibrary(). This method is the implementation of unloadLibrary but with a parameter to decide if plugin_ref_mutex_ should be locked
