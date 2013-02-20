@@ -196,3 +196,9 @@ ELSE(NOT Poco_FOUND)
   STRING(REPLACE ":," ":" COMPONENT_LSTR ${COMPONENT_STR})
   MESSAGE(STATUS "${COMPONENT_LSTR}.")
 ENDIF(NOT Poco_FOUND)
+
+#I added this in to add "libdl" on non-Windows systems. Technically dl is only neded if the "Foundation" component is used,
+#but i doesn't hurt to add it in anyway - mas
+if(Poco_FOUND AND NOT WIN32)
+  LIST(APPEND Poco_LIBRARIES "dl")
+endif(Poco_FOUND AND NOT WIN32)
