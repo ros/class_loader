@@ -12,7 +12,7 @@ catkin_package(
   INCLUDE_DIRS include
   LIBRARIES ${PROJECT_NAME}
   CATKIN_DEPENDS console_bridge
-  DEPENDS Boost
+  DEPENDS Boost Poco
   CFG_EXTRAS class_loader-extras.cmake
 )
 
