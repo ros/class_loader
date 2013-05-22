@@ -121,7 +121,7 @@ SET(Poco_FOUND 0)
 
 # Now try to get the include and library path.
 IF(Poco_INCLUDE_DIR)
-  IF(EXISTS "${Poco_INCLUDE_DIR}/Foundation")
+  IF(EXISTS "${Poco_INCLUDE_DIR}/Foundation/include/Poco/AbstractCache.h")
     SET(Poco_INCLUDE_DIRS
       ${Poco_INCLUDE_DIR}/CppUnit/include
       ${Poco_INCLUDE_DIR}/Foundation/include
