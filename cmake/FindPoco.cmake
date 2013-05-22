@@ -100,7 +100,7 @@ SET(SUFFIX_FOR_LIBRARY_PATH
 #
 # Look for an installation.
 #
-FIND_PATH(Poco_INCLUDE_DIR NAMES Foundation/include/Poco/AbstractCache.h PATH_SUFFIXES ${SUFFIX_FOR_INCLUDE_PATH} PATHS
+FIND_PATH(Poco_INCLUDE_DIR NAMES Foundation/include/Poco/SharedLibrary.h PATH_SUFFIXES ${SUFFIX_FOR_INCLUDE_PATH} PATHS
 
 # Look in other places.
   ${POCO_DIR_SEARCH}
@@ -121,7 +121,7 @@ SET(Poco_FOUND 0)
 
 # Now try to get the include and library path.
 IF(Poco_INCLUDE_DIR)
-  IF(EXISTS "${Poco_INCLUDE_DIR}/Foundation/include/Poco/AbstractCache.h")
+  IF(EXISTS "${Poco_INCLUDE_DIR}/Foundation/include/Poco/SharedLibrary.h")
     SET(Poco_INCLUDE_DIRS
       ${Poco_INCLUDE_DIR}/CppUnit/include
       ${Poco_INCLUDE_DIR}/Foundation/include
