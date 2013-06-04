@@ -135,7 +135,7 @@ IF(Poco_INCLUDE_DIR)
       ${Poco_INCLUDE_DIR}
     )
     SET(Poco_FOUND 1)
-  ENDIF(EXISTS "${Poco_INCLUDE_DIR}/Foundation")
+  ENDIF()
 
   IF(NOT Poco_LIBRARY_DIR)
 
