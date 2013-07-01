@@ -4,7 +4,7 @@ project(class_loader)
 set(Poco_DIR cmake)
 
 find_package(Poco REQUIRED COMPONENTS Foundation)
-find_package(Boost REQUIRED COMPONENTS thread)
+find_package(Boost REQUIRED COMPONENTS thread system)
 find_package(catkin REQUIRED)
 find_package(console_bridge REQUIRED)
 
