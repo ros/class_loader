@@ -32,4 +32,6 @@ install(TARGETS ${PROJECT_NAME}
 install(DIRECTORY include/class_loader/
   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION})
 
+if(CATKIN_ENABLE_TESTING)
 add_subdirectory(test)
+endif()
