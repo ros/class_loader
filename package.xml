@@ -10,7 +10,7 @@
 
   <url type="website">http://ros.org/wiki/class_loader</url>
  
-  <buildtool_depend>catkin</buildtool_depend>
+  <buildtool_depend version_gte="0.5.68">catkin</buildtool_depend>
 
   <build_depend>console_bridge</build_depend>
   <build_depend>libpoco-dev</build_depend>
