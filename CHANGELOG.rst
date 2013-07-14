@@ -2,6 +2,12 @@
 Changelog for package class_loader
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.1.30 (2013-07-14)
+-------------------
+* check for CATKIN_ENABLE_TESTING (`#10 <https://github.com/ros/class_loader/issues/10>`_)
+* fix find Poco to return full lib path (`#8 <https://github.com/ros/class_loader/issues/8>`_)
+* add missing runtime destination for library under Windows
+
 0.1.29 (2013-06-06)
 -------------------
 * improve check for Poco foundation and headers (`#7 <https://github.com/ros/class_loader/issues/7>`_)
