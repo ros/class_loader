@@ -2,6 +2,10 @@
 Changelog for package class_loader
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.2.3 (2013-08-21)
+------------------
+* fix missing class name in logWarn output
+
 0.2.2 (2013-07-14)
 ------------------
 * check for CATKIN_ENABLE_TESTING (`#10 <https://github.com/ros/class_loader/issues/10>`_)
