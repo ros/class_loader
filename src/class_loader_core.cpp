@@ -426,34 +426,40 @@ void loadLibrary(const std::string& library_path, ClassLoader* loader)
   }
   
   Poco::SharedLibrary* library_handle = NULL;
+  static boost::recursive_mutex loader_mutex;
 
-  try
   {
-    setCurrentlyActiveClassLoader(loader);
-    setCurrentlyLoadingLibraryName(library_path);
-    library_handle = new Poco::SharedLibrary(library_path);
-  }
-  catch(const Poco::LibraryLoadException& e)
-  {
+    boost::recursive_mutex::scoped_lock loader_lock(loader_mutex);
+
+    try
+    {
+      setCurrentlyActiveClassLoader(loader);
+      setCurrentlyLoadingLibraryName(library_path);
+      library_handle = new Poco::SharedLibrary(library_path);
+    }
+    catch(const Poco::LibraryLoadException& e)
+    {
+      setCurrentlyLoadingLibraryName("");
+      setCurrentlyActiveClassLoader(NULL);
+      throw(class_loader::LibraryLoadException("Could not load library (Poco exception = " + std::string(e.message()) + ")"));
+    }
+    catch(const Poco::LibraryAlreadyLoadedException& e)
+    {
+      setCurrentlyLoadingLibraryName("");
+      setCurrentlyActiveClassLoader(NULL);
+      throw(class_loader::LibraryLoadException("Library already loaded (Poco exception = " + std::string(e.message()) + ")"));
+    }
+    catch(const Poco::NotFoundException& e)
+    {
+      setCurrentlyLoadingLibraryName("");
+      setCurrentlyActiveClassLoader(NULL);
+      throw(class_loader::LibraryLoadException("Library not found (Poco exception = " + std::string(e.message()) + ")"));
+    }
+
     setCurrentlyLoadingLibraryName("");
     setCurrentlyActiveClassLoader(NULL);
-    throw(class_loader::LibraryLoadException("Could not load library (Poco exception = " + std::string(e.message()) + ")"));
-  }
-  catch(const Poco::LibraryAlreadyLoadedException& e)
-  {
-    setCurrentlyLoadingLibraryName("");
-    setCurrentlyActiveClassLoader(NULL);
-    throw(class_loader::LibraryLoadException("Library already loaded (Poco exception = " + std::string(e.message()) + ")"));
-  }
-  catch(const Poco::NotFoundException& e)
-  {
-    setCurrentlyLoadingLibraryName("");
-    setCurrentlyActiveClassLoader(NULL);
-    throw(class_loader::LibraryLoadException("Library not found (Poco exception = " + std::string(e.message()) + ")"));
   }
 
-  setCurrentlyLoadingLibraryName("");
-  setCurrentlyActiveClassLoader(NULL);
   assert(library_handle != NULL);
   logDebug("class_loader::class_loader_private: Successfully loaded library %s into memory (Poco::SharedLibrary handle = %p).", library_path.c_str(), library_handle);
 
