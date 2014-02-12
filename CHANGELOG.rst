@@ -2,6 +2,10 @@
 Changelog for package class_loader
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* fix race condition with multi threaded library loading (`#16 <https://github.com/ros/class_loader/issues/16>`_)
+
 0.2.3 (2013-08-21)
 ------------------
 * fix missing class name in logWarn output
