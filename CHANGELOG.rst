@@ -2,6 +2,11 @@
 Changelog for package class_loader
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.2.5 (2014-03-04)
+------------------
+* Changed format of debug messages so that rosconsole_bridge can correctly parse the prefix
+* Improved debug output
+
 0.2.4 (2014-02-12)
 ------------------
 * fix race condition with multi threaded library loading (`#16 <https://github.com/ros/class_loader/issues/16>`_)
