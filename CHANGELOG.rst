@@ -2,6 +2,11 @@
 Changelog for package class_loader
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Use system-provided console-bridge
+* Contributors: Esteve Fernandez
+
 0.2.5 (2014-03-04)
 ------------------
 * Changed format of debug messages so that rosconsole_bridge can correctly parse the prefix
