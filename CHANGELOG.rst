@@ -2,8 +2,8 @@
 Changelog for package class_loader
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.3.0 (2014-06-25)
+------------------
 * Use system-provided console-bridge
 * Contributors: Esteve Fernandez
 
