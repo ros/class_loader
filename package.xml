@@ -12,10 +12,12 @@
  
   <buildtool_depend version_gte="0.5.68">catkin</buildtool_depend>
 
+  <build_depend>boost</build_depend>
   <build_depend>libconsole-bridge-dev</build_depend>
   <build_depend>libpoco-dev</build_depend>
   <build_depend version_gte="0.3.3">cmake_modules</build_depend>
 
+  <run_depend>boost</run_depend>
   <run_depend>libconsole-bridge-dev</run_depend>
   <run_depend>libpoco-dev</run_depend>
 </package>
