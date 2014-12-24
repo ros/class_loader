@@ -2,6 +2,13 @@
 Changelog for package class_loader
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.3.1 (2014-12-23)
+------------------
+* Depend on boost
+* Use FindPoco.cmake from ros/cmake_modules
+*  Honor BUILD_SHARED_LIBS and do not force building shared libraries.
+* Contributors: Esteve Fernandez, Gary Servin, Scott K Logan
+
 0.3.0 (2014-06-25)
 ------------------
 * Use system-provided console-bridge
