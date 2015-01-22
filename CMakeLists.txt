@@ -2,16 +2,27 @@ cmake_minimum_required(VERSION 2.8.3)
 project(class_loader)
 
 find_package(Boost REQUIRED COMPONENTS thread system)
-find_package(catkin REQUIRED cmake_modules)
+find_package(catkin QUIET)
 find_package(console_bridge REQUIRED)
-find_package(Poco REQUIRED COMPONENTS Foundation)
 
-catkin_package(
-  INCLUDE_DIRS include
-  LIBRARIES ${PROJECT_NAME} ${Poco_LIBRARIES}
-  DEPENDS Boost Poco console_bridge
-  CFG_EXTRAS class_loader-extras.cmake
-)
+if(${catkin_FOUND})
+  find_package(catkin REQUIRED COMPONENTS cmake_modules)
+  find_package(Poco REQUIRED COMPONENTS Foundation)
+  catkin_package(
+    INCLUDE_DIRS include
+    LIBRARIES ${PROJECT_NAME} ${Poco_LIBRARIES}
+    DEPENDS Boost Poco console_bridge
+    CFG_EXTRAS class_loader-extras.cmake
+  )
+else()
+  message("-- catkin not found")
+  set(Poco_DIR cmake)
+  find_package(Poco REQUIRED COMPONENTS Foundation)
+  set(CATKIN_PACKAGE_LIB_DESTINATION lib)
+  set(CATKIN_GLOBAL_BIN_DESTINATION bin)
+  set(CATKIN_GLOBAL_BIN_DESTINATION bin)
+  set(CATKIN_PACKAGE_INCLUDE_DESTINATION include/class_loader)
+endif()
 
 include_directories(include ${console_bridge_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${Poco_INCLUDE_DIRS})
 
@@ -33,4 +44,20 @@ install(DIRECTORY include/class_loader/
 
 if(CATKIN_ENABLE_TESTING)
   add_subdirectory(test)
+endif()
+
+if(!${catkin_FOUND})
+  set(TARGET_NAME ${PROJECT_NAME})
+  set(PKGCONFIG_LIBS 
+    ${Boost_LIBRARIES} 
+    ${console_bridge_LIBRARIES} 
+    ${Poco_LIBRARIES}
+  )
+
+  # Prepare and install necessary files to support finding of the library 
+  # using pkg-config
+  configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/${TARGET_NAME}.pc.in
+                 ${CMAKE_CURRENT_BINARY_DIR}/${TARGET_NAME}.pc @ONLY)
+
+  install(FILES ${CMAKE_BINARY_DIR}/${PROJECT_NAME}.pc DESTINATION lib/pkgconfig)
 endif()
