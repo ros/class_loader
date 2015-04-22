@@ -2,6 +2,12 @@
 Changelog for package class_loader
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.3.2 (2015-04-22)
+------------------
+* Fixed wrong handling of false statement (pkg-config was not installed)
+* Make catkin optional again
+* Contributors: Esteve Fernandez, Janosch Machowinski, Matthias Goldhoorn
+
 0.3.1 (2014-12-23)
 ------------------
 * Depend on boost
