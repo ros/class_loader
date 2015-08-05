@@ -2,7 +2,12 @@ cmake_minimum_required(VERSION 2.8.3)
 project(class_loader)
 
 find_package(Boost REQUIRED COMPONENTS thread system)
-find_package(catkin QUIET)
+
+set(CATKIN_DISABLED false CACHE BOOL "Disable the catkin build, useful if catkin is present but a build outside or ros is done" )
+if(NOT CATKIN_DISABLED)
+  find_package(catkin QUIET)
+endif()
+
 find_package(console_bridge REQUIRED)
 
 if(${catkin_FOUND})
