@@ -1,131 +1,103 @@
-#include <boost/thread.hpp>
-#include <boost/bind.hpp>
+#include <chrono>
 #include <iostream>
+#include <thread>
+
 #include <class_loader/class_loader.h>
-#include "base.h"
+
 #include <gtest/gtest.h>
+
+#include "base.h"
 
 const std::string LIBRARY_1 = "libclass_loader_TestPlugins1.so";
 const std::string LIBRARY_2 = "libclass_loader_TestPlugins2.so";
 
-/*****************************************************************************/
 TEST(ClassLoaderTest, basicLoad)
 {
-  try
-  {
+  try {
     class_loader::ClassLoader loader1(LIBRARY_1, false);
-    loader1.createInstance<Base>("Cat")->saySomething(); //See if lazy load works
-  }
-  catch(class_loader::ClassLoaderException& e)
-  {
+    loader1.createInstance<Base>("Cat")->saySomething();  // See if lazy load works
+  } catch (class_loader::ClassLoaderException & e) {
     FAIL() << "ClassLoaderException: " << e.what() << "\n";
   }
 
   SUCCEED();
 }
 
-/*****************************************************************************/
 TEST(ClassLoaderTest, correctNonLazyLoadUnload)
 {
-  try
-  {
-  ASSERT_FALSE(class_loader::class_loader_private::isLibraryLoadedByAnybody(LIBRARY_1));
+  try {
+    ASSERT_FALSE(class_loader::impl::isLibraryLoadedByAnybody(LIBRARY_1));
     class_loader::ClassLoader loader1(LIBRARY_1, false);
-    ASSERT_TRUE(class_loader::class_loader_private::isLibraryLoadedByAnybody(LIBRARY_1));
+    ASSERT_TRUE(class_loader::impl::isLibraryLoadedByAnybody(LIBRARY_1));
     ASSERT_TRUE(loader1.isLibraryLoaded());
     loader1.unloadLibrary();
-    ASSERT_FALSE(class_loader::class_loader_private::isLibraryLoadedByAnybody(LIBRARY_1));
+    ASSERT_FALSE(class_loader::impl::isLibraryLoadedByAnybody(LIBRARY_1));
     ASSERT_FALSE(loader1.isLibraryLoaded());
-    return;
-  }
-  catch(class_loader::ClassLoaderException& e)
-  {
+  } catch (class_loader::ClassLoaderException & e) {
     FAIL() << "ClassLoaderException: " << e.what() << "\n";
-  }
-  catch(...)
-  {
+  } catch (...) {
     FAIL() << "Unhandled exception";
   }
 }
 
-/*****************************************************************************/
 TEST(ClassLoaderTest, correctLazyLoadUnload)
 {
-  try
-  {
-    ASSERT_FALSE(class_loader::class_loader_private::isLibraryLoadedByAnybody(LIBRARY_1));
+  try {
+    ASSERT_FALSE(class_loader::impl::isLibraryLoadedByAnybody(LIBRARY_1));
     class_loader::ClassLoader loader1(LIBRARY_1, true);
-    ASSERT_FALSE(class_loader::class_loader_private::isLibraryLoadedByAnybody(LIBRARY_1));
+    ASSERT_FALSE(class_loader::impl::isLibraryLoadedByAnybody(LIBRARY_1));
     ASSERT_FALSE(loader1.isLibraryLoaded());
 
     {
-      boost::shared_ptr<Base> obj = loader1.createInstance<Base>("Cat");
-      ASSERT_TRUE(class_loader::class_loader_private::isLibraryLoadedByAnybody(LIBRARY_1));
+      std::shared_ptr<Base> obj = loader1.createInstance<Base>("Cat");
+      ASSERT_TRUE(class_loader::impl::isLibraryLoadedByAnybody(LIBRARY_1));
       ASSERT_TRUE(loader1.isLibraryLoaded());
     }
 
-    //The library will unload automatically when the only plugin object left is destroyed
-    ASSERT_FALSE(class_loader::class_loader_private::isLibraryLoadedByAnybody(LIBRARY_1));
-    return;
-  }
-  catch(class_loader::ClassLoaderException& e)
-  {
+    // The library will unload automatically when the only plugin object left is destroyed
+    ASSERT_FALSE(class_loader::impl::isLibraryLoadedByAnybody(LIBRARY_1));
+  } catch (class_loader::ClassLoaderException & e) {
     FAIL() << "ClassLoaderException: " << e.what() << "\n";
-  }
-  catch(...)
-  {
+  } catch (...) {
     FAIL() << "Unhandled exception";
   }
 }
-
-/*****************************************************************************/
 
 TEST(ClassLoaderTest, nonExistentPlugin)
 {
   class_loader::ClassLoader loader1(LIBRARY_1, false);
 
-  try
-  {
-    boost::shared_ptr<Base> obj = loader1.createInstance<Base>("Bear");
-    if(obj == NULL)
+  try {
+    std::shared_ptr<Base> obj = loader1.createInstance<Base>("Bear");
+    if (obj == nullptr) {
       FAIL() << "Null object being returned instead of exception thrown.";
+    }
 
     obj->saySomething();
-  }
-  catch(const class_loader::CreateClassException& e)
-  {
+  } catch (const class_loader::CreateClassException & e) {
     SUCCEED();
     return;
-  }
-  catch(...)
-  {
+  } catch (...) {
     FAIL() << "Unknown exception caught.\n";
   }
 
   FAIL() << "Did not throw exception as expected.\n";
 }
 
-/*****************************************************************************/
 TEST(ClassLoaderTest, nonExistentLibrary)
 {
-  try
-  {
+  try {
     class_loader::ClassLoader loader1("libDoesNotExist.so", false);
-  }
-  catch(const class_loader::LibraryLoadException& e)
-  {
+  } catch (const class_loader::LibraryLoadException & e) {
     SUCCEED();
     return;
-  }
-  catch(...)
-  {
+  } catch (...) {
     FAIL() << "Unknown exception caught.\n";
   }
 
   FAIL() << "Did not throw exception as expected.\n";
 }
 
-/*****************************************************************************/
 
 class InvalidBase
 {
@@ -133,43 +105,32 @@ class InvalidBase
 
 TEST(ClassLoaderTest, invalidBase)
 {
-  try
-  {
+  try {
     class_loader::ClassLoader loader1(LIBRARY_1, false);
-    if(loader1.isClassAvailable<InvalidBase>("Cat"))
-    {
+    if (loader1.isClassAvailable<InvalidBase>("Cat")) {
       FAIL() << "Cat should not be available for InvalidBase";
-    }
-    else if(loader1.isClassAvailable<Base>("Cat"))
-    {
+    } else if (loader1.isClassAvailable<Base>("Cat")) {
       SUCCEED();
       return;
-    }
-    else
+    } else {
       FAIL() << "Class not available for correct base class.";
-  }
-  catch(const class_loader::LibraryLoadException& e)
-  {
+    }
+  } catch (const class_loader::LibraryLoadException & e) {
     FAIL() << "Unexpected exception";
-  }
-  catch(...)
-  {
+  } catch (...) {
     FAIL() << "Unexpected and unknown exception caught.\n";
   }
 }
 
-/*****************************************************************************/
-
 void wait(int seconds)
 {
-  boost::this_thread::sleep(boost::posix_time::seconds(seconds));
+  std::this_thread::sleep_for(std::chrono::seconds(seconds));
 }
 
-void run(class_loader::ClassLoader* loader)
+void run(class_loader::ClassLoader * loader)
 {
   std::vector<std::string> classes = loader->getAvailableClasses<Base>();
-  for(unsigned int c = 0; c < classes.size(); c++)
-  {
+  for (size_t c = 0; c < classes.size(); ++c) {
     loader->createInstance<Base>(classes.at(c))->saySomething();
   }
 }
@@ -179,40 +140,37 @@ TEST(ClassLoaderTest, threadSafety)
   class_loader::ClassLoader loader1(LIBRARY_1);
   ASSERT_TRUE(loader1.isLibraryLoaded());
 
-  //Note: Hard to test thread safety to make sure memory isn't corrupted. The hope is this test is hard enough that once in a while it'll segfault or something if there's some implementation error.
-  try
-  {
-    std::vector<boost::thread*> client_threads;
+  // Note: Hard to test thread safety to make sure memory isn't corrupted.
+  // The hope is this test is hard enough that once in a while it'll segfault
+  // or something if there's some implementation error.
+  try {
+    std::vector<std::thread*> client_threads;
 
-    for(unsigned int c = 0; c < 1000; c++)
-      client_threads.push_back(new boost::thread(boost::bind(&run, &loader1)));
+    for (size_t c = 0; c < 1000; ++c) {
+      client_threads.push_back(new std::thread(std::bind(&run, &loader1)));
+    }
 
-    for(unsigned int c = 0; c < client_threads.size(); c++)
-      client_threads.at(c)->join();
+    for (auto & client_thread : client_threads) {
+      client_thread->join();
+    }
 
-    for(unsigned int c = 0; c < client_threads.size(); c++)
-      delete(client_threads.at(c));
+    for (auto & client_thread : client_threads) {
+      delete(client_thread);
+    }
 
     loader1.unloadLibrary();
     ASSERT_FALSE(loader1.isLibraryLoaded());
 
-  }
-  catch(const class_loader::ClassLoaderException& ex)
-  {
+  } catch (const class_loader::ClassLoaderException & ex) {
     FAIL() << "Unexpected ClassLoaderException.";
-  }
-  catch(...)
-  {
+  } catch (...) {
     FAIL() << "Unknown exception.";
   }
 }
 
-/*****************************************************************************/
-
 TEST(ClassLoaderTest, loadRefCountingNonLazy)
 {
-  try
-  {
+  try {
     class_loader::ClassLoader loader1(LIBRARY_1, false);
     ASSERT_TRUE(loader1.isLibraryLoaded());
 
@@ -222,7 +180,7 @@ TEST(ClassLoaderTest, loadRefCountingNonLazy)
 
     loader1.unloadLibrary();
     ASSERT_TRUE(loader1.isLibraryLoaded());
-    
+
     loader1.unloadLibrary();
     ASSERT_TRUE(loader1.isLibraryLoaded());
 
@@ -236,44 +194,37 @@ TEST(ClassLoaderTest, loadRefCountingNonLazy)
     ASSERT_TRUE(loader1.isLibraryLoaded());
 
     return;
-  }
-  catch(const class_loader::ClassLoaderException& e)
-  {
+  } catch (const class_loader::ClassLoaderException & e) {
     FAIL() << "Unexpected exception.\n";
-  }
-  catch(...)
-  {
+  } catch (...) {
     FAIL() << "Unknown exception caught.\n";
   }
 
   FAIL() << "Did not throw exception as expected.\n";
 }
 
-/*****************************************************************************/
-
 TEST(ClassLoaderTest, loadRefCountingLazy)
 {
-  try
-  {
+  try {
     class_loader::ClassLoader loader1(LIBRARY_1, true);
     ASSERT_FALSE(loader1.isLibraryLoaded());
 
     {
-      boost::shared_ptr<Base> obj = loader1.createInstance<Base>("Dog");
+      std::shared_ptr<Base> obj = loader1.createInstance<Base>("Dog");
       ASSERT_TRUE(loader1.isLibraryLoaded());
     }
-    
+
     ASSERT_FALSE(loader1.isLibraryLoaded());
-    
+
     loader1.loadLibrary();
     ASSERT_TRUE(loader1.isLibraryLoaded());
-    
+
     loader1.loadLibrary();
     ASSERT_TRUE(loader1.isLibraryLoaded());
 
     loader1.unloadLibrary();
     ASSERT_TRUE(loader1.isLibraryLoaded());
-    
+
     loader1.unloadLibrary();
     ASSERT_FALSE(loader1.isLibraryLoaded());
 
@@ -284,26 +235,11 @@ TEST(ClassLoaderTest, loadRefCountingLazy)
     ASSERT_TRUE(loader1.isLibraryLoaded());
 
     return;
-  }
-  catch(const class_loader::ClassLoaderException& e)
-  {
+  } catch (const class_loader::ClassLoaderException & e) {
     FAIL() << "Unexpected exception.\n";
-  }
-  catch(...)
-  {
+  } catch (...) {
     FAIL() << "Unknown exception caught.\n";
   }
 
   FAIL() << "Did not throw exception as expected.\n";
 }
-
-/*****************************************************************************/
-
-
-// Run all the tests that were declared with TEST()
-int main(int argc, char **argv){
-  testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
-}
-
-

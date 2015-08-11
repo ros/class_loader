@@ -32,93 +32,82 @@
 
 namespace class_loader
 {
-namespace class_loader_private
+namespace impl
 {
 
-AbstractMetaObjectBase::AbstractMetaObjectBase(const std::string& class_name, const std::string& base_class_name) :  
+AbstractMetaObjectBase::AbstractMetaObjectBase(const std::string & class_name, const std::string & base_class_name) :
 associated_library_path_("Unknown"),
 base_class_name_(base_class_name),
 class_name_(class_name),
 typeid_base_class_name_("UNSET")
-/*****************************************************************************/
 {
-    logDebug("class_loader.class_loader_private.AbstractMetaObjectBase: Creating MetaObject %p (base = %s, derived = %s, library path = %s)", this, baseClassName().c_str(), className().c_str(), getAssociatedLibraryPath().c_str());
+    logDebug("class_loader.private.AbstractMetaObjectBase: Creating MetaObject %p (base = %s, derived = %s, library path = %s)", this, baseClassName().c_str(), className().c_str(), getAssociatedLibraryPath().c_str());
 }
 
 AbstractMetaObjectBase::~AbstractMetaObjectBase()
-/*****************************************************************************/
 {
-    logDebug("class_loader.class_loader_private.AbstractMetaObjectBase: Destroying MetaObject %p (base = %s, derived = %s, library path = %s)", this, baseClassName().c_str(), className().c_str(), getAssociatedLibraryPath().c_str());
-} 
+    logDebug("class_loader.private.AbstractMetaObjectBase: Destroying MetaObject %p (base = %s, derived = %s, library path = %s)", this, baseClassName().c_str(), className().c_str(), getAssociatedLibraryPath().c_str());
+}
 
-std::string AbstractMetaObjectBase::className() const
-/*****************************************************************************/
+const std::string & AbstractMetaObjectBase::className() const
 {
   return class_name_;
 }
 
-std::string AbstractMetaObjectBase::baseClassName() const
-/*****************************************************************************/
+const std::string & AbstractMetaObjectBase::baseClassName() const
 {
   return base_class_name_;
 }
 
-std::string AbstractMetaObjectBase::typeidBaseClassName() const 
-/*****************************************************************************/
+const std::string & AbstractMetaObjectBase::typeidBaseClassName() const
 {
   return typeid_base_class_name_;
 }
 
-std::string AbstractMetaObjectBase::getAssociatedLibraryPath()
-/*****************************************************************************/
+const std::string & AbstractMetaObjectBase::getAssociatedLibraryPath() const
 {
-  return(associated_library_path_);
+  return associated_library_path_;
 }
 
-void AbstractMetaObjectBase::setAssociatedLibraryPath(std::string library_path)
-/*****************************************************************************/
+void AbstractMetaObjectBase::setAssociatedLibraryPath(const std::string & library_path)
 {
   associated_library_path_ = library_path;
 }
 
-void AbstractMetaObjectBase::addOwningClassLoader(ClassLoader* loader)
-/*****************************************************************************/
+void AbstractMetaObjectBase::addOwningClassLoader(ClassLoader * loader)
 {
   ClassLoaderVector& v = associated_class_loaders_;
-  if(std::find(v.begin(), v.end(), loader) == v.end())
+  if (std::find(v.begin(), v.end(), loader) == v.end()) {
     v.push_back(loader);
+  }
 }
 
-void AbstractMetaObjectBase::removeOwningClassLoader(const ClassLoader* loader)
-/*****************************************************************************/
+void AbstractMetaObjectBase::removeOwningClassLoader(const ClassLoader * loader)
 {
   ClassLoaderVector& v = associated_class_loaders_;
   ClassLoaderVector::iterator itr = std::find(v.begin(), v.end(), loader);
-  if(itr != v.end())
+  if (itr != v.end()) {
     v.erase(itr);
+  }
 }
 
-bool AbstractMetaObjectBase::isOwnedBy(const ClassLoader* loader)
-/*****************************************************************************/
+bool AbstractMetaObjectBase::isOwnedBy(const ClassLoader * loader) const
 {
-  ClassLoaderVector& v = associated_class_loaders_;
-  ClassLoaderVector::iterator itr = std::find(v.begin(), v.end(), loader);
-  return(itr != v.end());
+  const ClassLoaderVector & v = associated_class_loaders_;
+  auto it = std::find(v.begin(), v.end(), loader);
+  return it != v.end();
 }
 
-bool AbstractMetaObjectBase::isOwnedByAnybody()
-/*****************************************************************************/
+bool AbstractMetaObjectBase::isOwnedByAnybody() const
 {
-  return(associated_class_loaders_.size() > 0);
+  return associated_class_loaders_.size() > 0;
 }
 
-ClassLoaderVector AbstractMetaObjectBase::getAssociatedClassLoaders()
-/*****************************************************************************/
+const ClassLoaderVector & AbstractMetaObjectBase::getAssociatedClassLoaders() const
 {
-  return(associated_class_loaders_);
+  return associated_class_loaders_;
 }
 
-}
+}  // namespace impl
 
-
-}
+}  // namespace class_loader

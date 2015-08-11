@@ -32,8 +32,8 @@
 namespace class_loader
 {
 
-MultiLibraryClassLoader::MultiLibraryClassLoader(bool enable_ondemand_loadunload) :
-enable_ondemand_loadunload_(enable_ondemand_loadunload)
+MultiLibraryClassLoader::MultiLibraryClassLoader(bool enable_ondemand_loadunload)
+: enable_ondemand_loadunload_(enable_ondemand_loadunload)
 {
 }
 
@@ -42,62 +42,70 @@ MultiLibraryClassLoader::~MultiLibraryClassLoader()
   shutdownAllClassLoaders();
 }
 
-std::vector<std::string> MultiLibraryClassLoader::getRegisteredLibraries()
+std::vector<std::string> MultiLibraryClassLoader::getRegisteredLibraries() const
 {
   std::vector<std::string> libraries;
-  for(LibraryToClassLoaderMap::iterator itr = active_class_loaders_.begin(); itr != active_class_loaders_.end(); itr++)
-  {
-    if(itr->second != NULL)
-      libraries.push_back(itr->first);
+  for (auto & it : active_class_loaders_) {
+    if (it.second != nullptr) {
+      libraries.push_back(it.first);
+    }
   }
-  return(libraries);
+  return libraries;
 }
 
-ClassLoader* MultiLibraryClassLoader::getClassLoaderForLibrary(const std::string& library_path)
+ClassLoader * MultiLibraryClassLoader::getClassLoaderForLibrary(const std::string & library_path)
 {
-  return(active_class_loaders_[library_path]);
+  return active_class_loaders_[library_path];
 }
 
-ClassLoaderVector MultiLibraryClassLoader::getAllAvailableClassLoaders()
+ClassLoaderVector MultiLibraryClassLoader::getAllAvailableClassLoaders() const
 {
   ClassLoaderVector loaders;
-  for(LibraryToClassLoaderMap::iterator itr = active_class_loaders_.begin(); itr != active_class_loaders_.end(); itr++)
-    loaders.push_back(itr->second);
-  return(loaders);
+  for (auto & it : active_class_loaders_) {
+    loaders.push_back(it.second);
+  }
+  return loaders;
 }
 
-bool MultiLibraryClassLoader::isLibraryAvailable(const std::string& library_name)
+bool MultiLibraryClassLoader::isLibraryAvailable(const std::string & library_name) const
 {
   std::vector<std::string> available_libraries = getRegisteredLibraries();
-  return(available_libraries.end() != std::find(available_libraries.begin(), available_libraries.end(), library_name));
+  return available_libraries.end() != std::find(
+    available_libraries.begin(), available_libraries.end(), library_name);
 }
 
-void MultiLibraryClassLoader::loadLibrary(const std::string& library_path)
+void MultiLibraryClassLoader::loadLibrary(const std::string & library_path)
 {
-  if(!isLibraryAvailable(library_path))
-    active_class_loaders_[library_path] = new class_loader::ClassLoader(library_path, isOnDemandLoadUnloadEnabled());
+  if (!isLibraryAvailable(library_path)) {
+    active_class_loaders_[library_path] =
+      new class_loader::ClassLoader(library_path, isOnDemandLoadUnloadEnabled());
+  }
 }
 
 void MultiLibraryClassLoader::shutdownAllClassLoaders()
 {
-  std::vector<std::string> available_libraries = getRegisteredLibraries();
-  for(unsigned int c = 0; c < available_libraries.size(); c++)
-    unloadLibrary(available_libraries.at(c));
+  for (auto & library_path : getRegisteredLibraries()) {
+    unloadLibrary(library_path);
+  }
 }
 
-int MultiLibraryClassLoader::unloadLibrary(const std::string& library_path)
+int MultiLibraryClassLoader::unloadLibrary(const std::string & library_path)
 {
   int remaining_unloads = 0;
-  if(isLibraryAvailable(library_path))
-  {
-    ClassLoader* loader = getClassLoaderForLibrary(library_path);
-    if((remaining_unloads = loader->unloadLibrary()) == 0)
-    {
-      active_class_loaders_[library_path] = NULL;
+  if (isLibraryAvailable(library_path)) {
+    ClassLoader * loader = getClassLoaderForLibrary(library_path);
+    remaining_unloads = loader->unloadLibrary();
+    if (remaining_unloads == 0) {
+      active_class_loaders_[library_path] = nullptr;
       delete(loader);
     }
   }
-  return(remaining_unloads);
+  return remaining_unloads;
 }
 
+bool MultiLibraryClassLoader::isOnDemandLoadUnloadEnabled() const
+{
+  return enable_ondemand_loadunload_;
 }
+
+}  // namespace class_loader

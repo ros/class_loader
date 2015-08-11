@@ -1,19 +1,23 @@
-cmake_minimum_required(VERSION 2.8)
+find_package(ament_cmake_gtest REQUIRED)
 
-find_package(Boost REQUIRED COMPONENTS thread)
-find_package(catkin REQUIRED COMPONENTS class_loader)
+include("../cmake/class_loader_hide_library_symbols.cmake")
 
-include_directories(${catkin_INCLUDE_DIRS})
-
-add_library(${PROJECT_NAME}_TestPlugins1 EXCLUDE_FROM_ALL plugins1.cpp)
+add_library(${PROJECT_NAME}_TestPlugins1 EXCLUDE_FROM_ALL SHARED plugins1.cpp)
+target_include_directories(${PROJECT_NAME}_TestPlugins1
+  PUBLIC "../include" ${console_bridge_INCLUDE_DIRS} ${Poco_INCLUDE_DIRS})
 target_link_libraries(${PROJECT_NAME}_TestPlugins1 ${PROJECT_NAME})
 class_loader_hide_library_symbols(${PROJECT_NAME}_TestPlugins1)
-add_library(${PROJECT_NAME}_TestPlugins2 EXCLUDE_FROM_ALL plugins2.cpp)
+
+add_library(${PROJECT_NAME}_TestPlugins2 EXCLUDE_FROM_ALL SHARED plugins2.cpp)
+target_include_directories(${PROJECT_NAME}_TestPlugins2
+  PUBLIC "../include" ${console_bridge_INCLUDE_DIRS} ${Poco_INCLUDE_DIRS})
 target_link_libraries(${PROJECT_NAME}_TestPlugins2 ${PROJECT_NAME})
 class_loader_hide_library_symbols(${PROJECT_NAME}_TestPlugins2)
 
-catkin_add_gtest(${PROJECT_NAME}_utest utest.cpp)
+ament_add_gtest(${PROJECT_NAME}_utest utest.cpp)
 if(TARGET ${PROJECT_NAME}_utest)
-  target_link_libraries(${PROJECT_NAME}_utest ${Boost_LIBRARIES} ${class_loader_LIBRARIES})
+  target_include_directories(${PROJECT_NAME}_utest
+    PUBLIC "../include" ${console_bridge_INCLUDE_DIRS} ${Poco_INCLUDE_DIRS})
+  target_link_libraries(${PROJECT_NAME}_utest ${PROJECT_NAME} ${Poco_LIBRARIES})
   add_dependencies(${PROJECT_NAME}_utest ${PROJECT_NAME}_TestPlugins1 ${PROJECT_NAME}_TestPlugins2)
 endif()

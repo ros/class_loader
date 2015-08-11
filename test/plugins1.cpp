@@ -1,35 +1,52 @@
-#include "base.h"
 #include <iostream>
+
 #include <class_loader/class_loader.h>
+
+#include "base.h"
 
 class Dog : public Base
 {
-  public:
-    virtual void saySomething(){std::cout << "Bark" << std::endl;}
+public:
+  void saySomething()
+  {
+    printf("Bark\n");
+  }
 };
 
 class Cat : public Base
 {
-  public:
-    virtual void saySomething(){std::cout << "Meow" << std::endl;}
+public:
+  void saySomething()
+  {
+    printf("Meow\n");
+  }
 };
 
 class Duck : public Base
 {
-  public:
-    virtual void saySomething(){std::cout << "Quack" << std::endl;}
+public:
+  void saySomething()
+  {
+    printf("Quack\n");
+  }
 };
 
 class Cow : public Base
 {
-  public:
-    virtual void saySomething(){std::cout << "Moooo" << std::endl;}
+public:
+  void saySomething()
+  {
+    printf("Moooo\n");
+  }
 };
 
 class Sheep : public Base
 {
-  public:
-    virtual void saySomething(){std::cout << "Baaah" << std::endl;}
+public:
+  void saySomething()
+  {
+    printf("Baaah\n");
+  }
 };
 
 CLASS_LOADER_REGISTER_CLASS(Dog, Base);

@@ -1,10 +1,10 @@
-#ifndef BASE_H
-#define BASE_H
+#ifndef __class_loader__test__base__h__
+#define __class_loader__test__base__h__
 
 class Base
 {
-  public:
-    virtual void saySomething() = 0;
+public:
+  virtual void saySomething() = 0;
 };
 
-#endif
+#endif  // __class_loader__test__base__h__
