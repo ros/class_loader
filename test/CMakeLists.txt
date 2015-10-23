@@ -18,6 +18,6 @@ ament_add_gtest(${PROJECT_NAME}_utest utest.cpp)
 if(TARGET ${PROJECT_NAME}_utest)
   target_include_directories(${PROJECT_NAME}_utest
     PUBLIC "../include" ${console_bridge_INCLUDE_DIRS} ${Poco_INCLUDE_DIRS})
-  target_link_libraries(${PROJECT_NAME}_utest ${PROJECT_NAME} ${Poco_LIBRARIES})
+  target_link_libraries(${PROJECT_NAME}_utest ${PROJECT_NAME} ${Poco_LIBRARIES} pthread)
   add_dependencies(${PROJECT_NAME}_utest ${PROJECT_NAME}_TestPlugins1 ${PROJECT_NAME}_TestPlugins2)
 endif()
