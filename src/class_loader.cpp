@@ -118,6 +118,9 @@ int ClassLoader::unloadLibraryInternal(bool lock_plugin_ref_count)
     }
     throw;
   }
+  if (lock_plugin_ref_count) {
+    plugin_ref_count_mutex_.unlock();
+  }
   return load_ref_count_;
 }
 
