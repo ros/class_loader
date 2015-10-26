@@ -6,6 +6,7 @@
 class Bar : public FvizPluginBase
 {
 public:
+  virtual ~Bar() = default;
   void speak()
   {
     foo("from plugin Bar");
@@ -15,6 +16,7 @@ public:
 class Baz : public FvizPluginBase
 {
 public:
+  virtual ~Baz() = default;
   void speak()
   {
     foo("from plugin Baz");
