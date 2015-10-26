@@ -24,3 +24,5 @@ if(TARGET ${PROJECT_NAME}_utest)
   endif()
   add_dependencies(${PROJECT_NAME}_utest ${PROJECT_NAME}_TestPlugins1 ${PROJECT_NAME}_TestPlugins2)
 endif()
+
+add_subdirectory(fviz_case_study)
