@@ -15,6 +15,7 @@ endif()
 find_package(console_bridge REQUIRED)
 list(INSERT CMAKE_MODULE_PATH 0 "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules")
 find_package(Poco REQUIRED COMPONENTS Foundation)
+link_directories(${Poco_LIBRARY_DIR})
 
 if(ament_cmake_FOUND)
   ament_export_dependencies(console_bridge Poco)
