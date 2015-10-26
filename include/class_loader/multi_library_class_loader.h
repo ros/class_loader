@@ -35,6 +35,7 @@
 #include <console_bridge/console.h>
 
 #include "class_loader.h"
+#include "visibility.h"
 
 namespace class_loader
 {
@@ -47,7 +48,7 @@ typedef std::vector<ClassLoader *> ClassLoaderVector;
 * @class MultiLibraryClassLoader
 * @brief A ClassLoader that can bind more than one runtime library
 */
-class MultiLibraryClassLoader
+class CLASS_LOADER_PUBLIC MultiLibraryClassLoader
 {
 public:
   /**

@@ -33,6 +33,8 @@
 #include <stdexcept>
 #include <string>
 
+#include "visibility.h"
+
 namespace class_loader
 {
 
@@ -40,7 +42,7 @@ namespace class_loader
  * @class ClassLoader sException
  * @brief A base class for all class_loader exceptions that inherits from std::runtime_exception
  */
-class ClassLoaderException
+class CLASS_LOADER_PUBLIC ClassLoaderException
 : public std::runtime_error
 {
 public:
@@ -53,7 +55,7 @@ public:
  * @class LibraryLoadException
  * @brief An exception class thrown when class_loader is unable to load a runtime library
  */
-class LibraryLoadException
+class CLASS_LOADER_PUBLIC LibraryLoadException
 : public ClassLoaderException
 {
 public:
@@ -66,7 +68,7 @@ public:
  * @class LibraryUnloadException
  * @brief An exception class thrown when class_loader is unable to unload a runtime library
  */
-class LibraryUnloadException
+class CLASS_LOADER_PUBLIC LibraryUnloadException
 : public ClassLoaderException
 {
 public:
@@ -79,7 +81,7 @@ public:
  * @class CreateClassException
  * @brief An exception class thrown when class_loader is unable to create a plugin
  */
-class CreateClassException
+class CLASS_LOADER_PUBLIC CreateClassException
 : public ClassLoaderException
 {
 public:
@@ -92,7 +94,7 @@ public:
  * @class NoClassLoaderExistsException
  * @brief An exception class thrown when a multilibrary class loader does not have a ClassLoader bound to it
  */
-class NoClassLoaderExistsException
+class CLASS_LOADER_PUBLIC NoClassLoaderExistsException
 : public ClassLoaderException
 {
 public:

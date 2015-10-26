@@ -33,6 +33,11 @@ add_library(${PROJECT_NAME} SHARED ${${PROJECT_NAME}_SRCS})
 target_include_directories(${PROJECT_NAME}
   PUBLIC include ${console_bridge_INCLUDE_DIRS} ${Poco_INCLUDE_DIRS})
 target_link_libraries(${PROJECT_NAME} ${console_bridge_LIBRARIES} ${Poco_LIBRARIES})
+if(WIN32)
+  # Causes the visibility macros to use dllexport rather than dllimport
+  # which is appropriate when building the dll but not consuming it.
+  target_compile_definitions(${PROJECT_NAME} PRIVATE "CLASS_LOADER_BUILDING_DLL")
+endif()
 
 if(AMENT_ENABLE_TESTING)
   add_subdirectory(test)

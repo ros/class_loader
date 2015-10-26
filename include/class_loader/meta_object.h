@@ -36,6 +36,8 @@
 #include <typeinfo>
 #include <vector>
 
+#include "visibility.h"
+
 namespace class_loader
 {
 
@@ -50,7 +52,7 @@ typedef std::vector<class_loader::ClassLoader *> ClassLoaderVector;
  * @class AbstractMetaObjectBase
  * @brief A base class for MetaObjects that excludes a polymorphic type parameter. Subclasses are class templates though.
  */
-class AbstractMetaObjectBase
+class CLASS_LOADER_PUBLIC AbstractMetaObjectBase
 {
 public:
 
