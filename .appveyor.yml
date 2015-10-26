@@ -27,6 +27,8 @@ install:
   - git clone https://github.com/ament/ament_package.git
   - git clone https://github.com/ament/ament_tools.git
   - git clone https://github.com/osrf/osrf_pycommon.git
+  - git clone https://github.com/ament/gtest_vendor.git
+  - git clone https://github.com/ament/gmock_vendor.git
   - cd ..\..\..
   - '"%VS140COMNTOOLS%\..\..\VC\vcvarsall.bat" x86_amd64'
   - set "PATH=%PATH%;C:\Python34"
