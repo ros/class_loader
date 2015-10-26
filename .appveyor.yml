@@ -20,7 +20,7 @@ install:
   - cd src
   - python -c "import shutil; shutil.copytree('../..', './class_loader', ignore=shutil.ignore_patterns('build'))"
   - git clone https://github.com/ros/console_bridge.git -b ros2
-  - git clone https://github.com/pocoproject/poco.git -b poco-1.6.1-release
+  - git clone --depth 1 https://github.com/pocoproject/poco.git -b poco-1.6.1-release
   - mkdir ament
   - cd ament
   - git clone https://github.com/ament/ament_cmake.git
@@ -35,22 +35,6 @@ install:
 build_script:
   - cd build
   - |
-    python -u src\ament\ament_tools\scripts\ament.py build \
-      --build-tests \
-      --cmake-args \
-      -DENABLE_XML:BOOL=OFF \
-      -DENABLE_JSON:BOOL=OFF \
-      -DENABLE_MONGODB:BOOL=OFF \
-      -DENABLE_UTIL:BOOL=OFF \
-      -DENABLE_NET:BOOL=OFF \
-      -DENABLE_NETSSL:BOOL=OFF \
-      -DENABLE_CRYPTO:BOOL=OFF \
-      -DENABLE_DATA:BOOL=OFF \
-      -DENABLE_DATA_SQLITE:BOOL=OFF \
-      -DENABLE_DATA_MYSQL:BOOL=OFF \
-      -DENABLE_DATA_ODBC:BOOL=OFF \
-      -DENABLE_ZIP:BOOL=OFF \
-      -DENABLE_PAGECOMPILER:BOOL=OFF \
-      -DENABLE_PAGECOMPILER_FILE2PAGE:BOOL=OFF
+    python -u src\ament\ament_tools\scripts\ament.py build --build-tests --cmake-args -DENABLE_XML:BOOL=OFF -DENABLE_JSON:BOOL=OFF -DENABLE_MONGODB:BOOL=OFF -DENABLE_UTIL:BOOL=OFF -DENABLE_NET:BOOL=OFF -DENABLE_NETSSL:BOOL=OFF -DENABLE_CRYPTO:BOOL=OFF -DENABLE_DATA:BOOL=OFF -DENABLE_DATA_SQLITE:BOOL=OFF -DENABLE_DATA_MYSQL:BOOL=OFF -DENABLE_DATA_ODBC:BOOL=OFF -DENABLE_ZIP:BOOL=OFF -DENABLE_PAGECOMPILER:BOOL=OFF -DENABLE_PAGECOMPILER_FILE2PAGE:BOOL=OFF
   - python -u src\ament\ament_tools\scripts\ament.py test --skip-build --skip-install --only class_loader
 deploy: off
