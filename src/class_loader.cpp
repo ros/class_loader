@@ -49,7 +49,13 @@ std::string systemLibraryPrefix()
 
 std::string systemLibrarySuffix()
 {
+#if !defined(WIN32)
   return Poco::SharedLibrary::suffix();
+#else
+  // Return just .dll , as Poco::SharedLibrary::suffix() will return d.dll in debug mode.
+  // This isn't common for our usecase (instead debug libraries are placed in a `Debug` folder).
+  return ".dll";
+#endif
 }
 
 std::string systemLibraryFormat(const std::string & library_name)
