@@ -4,6 +4,7 @@
 class FvizPluginBase
 {
 public:
+  virtual ~FvizPluginBase() {}
   virtual void speak() = 0;
 };
 

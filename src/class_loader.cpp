@@ -39,9 +39,28 @@ bool ClassLoader::hasUnmanagedInstanceBeenCreated()
   return ClassLoader::has_unmananged_instance_been_created_;
 }
 
+std::string systemLibraryPrefix()
+{
+#if !defined(WIN32)
+  return "lib";
+#endif
+  return "";
+}
+
 std::string systemLibrarySuffix()
 {
+#if !defined(WIN32)
   return Poco::SharedLibrary::suffix();
+#else
+  // Return just .dll , as Poco::SharedLibrary::suffix() will return d.dll in debug mode.
+  // This isn't common for our usecase (instead debug libraries are placed in a `Debug` folder).
+  return ".dll";
+#endif
+}
+
+std::string systemLibraryFormat(const std::string & library_name)
+{
+  return systemLibraryPrefix() + library_name + systemLibrarySuffix();
 }
 
 ClassLoader::ClassLoader(const std::string & library_path, bool ondemand_load_unload)

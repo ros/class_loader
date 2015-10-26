@@ -8,13 +8,8 @@
 
 #include "base.h"
 
-#if defined(WIN32)
-const std::string LIBRARY_1 = "class_loader_TestPlugins1";
-const std::string LIBRARY_2 = "class_loader_TestPlugins2";
-#else
-const std::string LIBRARY_1 = "libclass_loader_TestPlugins1" + class_loader::systemLibrarySuffix();
-const std::string LIBRARY_2 = "libclass_loader_TestPlugins2" + class_loader::systemLibrarySuffix();
-#endif
+const std::string LIBRARY_1 = class_loader::systemLibraryFormat("class_loader_TestPlugins1");
+const std::string LIBRARY_2 = class_loader::systemLibraryFormat("class_loader_TestPlugins2");
 
 TEST(ClassLoaderTest, basicLoad)
 {
