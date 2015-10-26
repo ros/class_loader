@@ -6,11 +6,7 @@
 #include "fviz.h"
 #include "fviz_plugin_base.h"
 
-#if defined(WIN32)
-std::string name = "class_loader_Test_FvizDefaultPlugin";
-#else
-std::string name = "libclass_loader_Test_FvizDefaultPlugin" + class_loader::systemLibrarySuffix();
-#endif
+std::string name = class_loader::systemLibraryFormat("class_loader_Test_FvizDefaultPlugin");
 
 int main(void)
 {
