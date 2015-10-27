@@ -25,6 +25,7 @@ script:
   - git clone https://github.com/ament/gmock_vendor.git
   - cd ..
   - git clone https://github.com/ros/console_bridge.git -b ros2
+  - git clone https://github.com/ros2/poco_vendor.git
   - cd ..
   # Link source into workspace's source space
   - ln -s $TRAVIS_BUILD_DIR ./src
