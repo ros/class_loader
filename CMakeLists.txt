@@ -18,7 +18,7 @@ find_package(Poco REQUIRED COMPONENTS Foundation)
 link_directories(${Poco_LIBRARY_DIR})
 
 if(ament_cmake_FOUND)
-  ament_export_dependencies(console_bridge Poco)
+  ament_export_dependencies(console_bridge)
   ament_export_include_directories(include)
   ament_export_libraries(${PROJECT_NAME})
 endif()
