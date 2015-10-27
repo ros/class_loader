@@ -13,7 +13,7 @@ if(NOT CLASS_LOADER_IGNORE_AMENT)
 endif()
 
 find_package(console_bridge REQUIRED)
-list(INSERT CMAKE_MODULE_PATH 0 "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules")
+find_package(poco_vendor REQUIRED)  # Provides FindPoco.cmake and Poco on platforms without it.
 find_package(Poco REQUIRED COMPONENTS Foundation)
 link_directories(${Poco_LIBRARY_DIR})
 
