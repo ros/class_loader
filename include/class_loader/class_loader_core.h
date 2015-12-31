@@ -37,11 +37,18 @@
 #include <typeinfo>
 
 #include <console_bridge/console.h>
-#include <Poco/SharedLibrary.h>
 
 #include "class_loader_exceptions.h"
 #include "meta_object.h"
 #include "visibility.h"
+
+// Forward declaration to avoid including poco headers directly.
+namespace Poco
+{
+
+class SharedLibrary;
+
+}
 
 /**
  * @note This header file is the internal implementation of the plugin system which is exposed via the ClassLoader class
@@ -60,7 +67,7 @@ typedef std::string ClassName;
 typedef std::string BaseClassName;
 typedef std::map<ClassName, impl::AbstractMetaObjectBase *> FactoryMap;
 typedef std::map<BaseClassName, FactoryMap> BaseToFactoryMapMap;
-typedef std::pair<LibraryPath, Poco::SharedLibrary*> LibraryPair;
+typedef std::pair<LibraryPath, Poco::SharedLibrary *> LibraryPair;
 typedef std::vector<LibraryPair> LibraryVector;
 typedef std::vector<AbstractMetaObjectBase *> MetaObjectVector;
 

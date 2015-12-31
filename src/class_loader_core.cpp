@@ -29,7 +29,9 @@
 
 #include "class_loader/class_loader_core.h"
 #include "class_loader/class_loader.h"
+
 #include <cassert>
+#include <Poco/SharedLibrary.h>
 
 namespace class_loader
 {
