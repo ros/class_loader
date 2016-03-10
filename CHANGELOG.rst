@@ -2,8 +2,8 @@
 Changelog for package class_loader
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.3.3 (2016-03-10)
+------------------
 * update maintainer
 * Merge pull request `#26 <https://github.com/ros/class_loader/issues/26>`_ from goldhoorn/indigo-devel
   Added option to disable the catkin build
