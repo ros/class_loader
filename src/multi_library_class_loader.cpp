@@ -39,10 +39,7 @@ enable_ondemand_loadunload_(enable_ondemand_loadunload)
 
 MultiLibraryClassLoader::~MultiLibraryClassLoader()
 {
-  if (!isOnDemandLoadUnloadEnabled())
-    shutdownAllClassLoaders(); // don't unload libs to avoid SEVERE WARNING
-  // TODO: free ClassLoaders in active_class_loaders_
-  // However, we still need them in on-demand-load-unload mode. Otherwise we risk seg-faults.
+  shutdownAllClassLoaders();
 }
 
 std::vector<std::string> MultiLibraryClassLoader::getRegisteredLibraries()
