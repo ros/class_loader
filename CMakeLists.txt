@@ -37,7 +37,8 @@ set(${PROJECT_NAME}_SRCS
   src/meta_object.cpp
   src/multi_library_class_loader.cpp
 )
-add_library(${PROJECT_NAME} ${${PROJECT_NAME}_SRCS})
+file(GLOB ${PROJECT_NAME}_HDRS "include/${PROJECT_NAME}/*.h") # allow headers to be shown in CodeBlocks/QtCreator
+add_library(${PROJECT_NAME} ${${PROJECT_NAME}_SRCS} ${${PROJECT_NAME}_HDRS})
 target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES} ${console_bridge_LIBRARIES} ${Poco_LIBRARIES})
 
 install(TARGETS ${PROJECT_NAME}
