@@ -326,6 +326,10 @@ TEST(MultiClassLoaderTest, lazyLoad)
 {
   testMultiClassLoader(true);
 }
+TEST(MultiClassLoaderTest, lazyLoadSecondTime)
+{
+  testMultiClassLoader(true);
+}
 TEST(MultiClassLoaderTest, nonLazyLoad)
 {
   testMultiClassLoader(false);
