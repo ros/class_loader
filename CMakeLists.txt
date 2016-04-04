@@ -51,7 +51,7 @@ if(CATKIN_ENABLE_TESTING)
   add_subdirectory(test)
 endif()
 
-if(NOT ${catkin_FOUND})
+if(NOT catkin_FOUND)
   set(TARGET_NAME ${PROJECT_NAME})
   set(PKGCONFIG_LIBS 
     ${Boost_LIBRARIES} 
