@@ -73,6 +73,8 @@ class MultiLibraryClassLoader
       for(unsigned int c = 0; c < active_loaders.size(); c++)
       {
         ClassLoader* current = active_loaders.at(c);
+        if (!current->isLibraryLoaded())
+          current->loadLibrary();
         if(current->isClassAvailable<Base>(class_name))
           return(current->createInstance<Base>(class_name));
       }
@@ -113,6 +115,8 @@ class MultiLibraryClassLoader
       for(unsigned int c = 0; c < active_loaders.size(); c++)
       {
         ClassLoader* current = active_loaders.at(c);
+        if (!current->isLibraryLoaded())
+          current->loadLibrary();
         if(current->isClassAvailable<Base>(class_name))
           return(current->createUnmanagedInstance<Base>(class_name));
       }
