@@ -2,6 +2,27 @@
 Changelog for package class_loader
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* cleanup: don't use active_class_loaders\_[library_path] for existence test (`#35 <https://github.com/ros/class_loader/issues/35>`_)
+  * cleanup: don't use active_class_loaders\_[library_path] for existence test
+  - this accumulates map entries with NULL pointer
+  - fixing it, allows some cleanup
+  * list headers in CodeBlocks / QtCreator
+  * explicitly list all headers
+* Merge pull request `#34 <https://github.com/ros/class_loader/issues/34>`_ from rhaschke/fix-on-demand-unloading
+  fix on demand unloading
+* Merge pull request `#32 <https://github.com/ros/class_loader/issues/32>`_ from saarnold/fixed_unset_variable_evaluation
+  fixed evaluation of undefined variable
+* fixed evaluation of undefined variable
+* not unloading the ClassLoaders (to avoid the SEVERE WARNING) doesn't work either
+* bugfix: enable on-demand loading/unloading with MultiClassLoader
+  - enforce loading of library in loadLibrary(), otherwise we cannot know
+  - don't unload libraries in destructor when on-demand-unloading is enabled
+* extra utest: MultiClassLoaderTest.lazyLoad succeeds two times in a row?
+* added MultiLibraryClassLoader unittest
+* Contributors: Mikael Arguedas, Robert Haschke, Sascha Arnold
+
 0.3.3 (2016-03-10)
 ------------------
 * update maintainer
