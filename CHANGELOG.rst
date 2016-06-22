@@ -2,8 +2,8 @@
 Changelog for package class_loader
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.3.4 (2016-06-22)
+------------------
 * cleanup: don't use active_class_loaders\_[library_path] for existence test (`#35 <https://github.com/ros/class_loader/issues/35>`_)
   * cleanup: don't use active_class_loaders\_[library_path] for existence test
   - this accumulates map entries with NULL pointer
