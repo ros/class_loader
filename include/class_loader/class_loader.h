@@ -39,6 +39,11 @@
 #include "class_loader/class_loader_register_macro.h"
 #include "class_loader/class_loader_core.h"
 
+#if __cplusplus >= 201103L
+#  include<memory>
+#  include<functional>
+#endif
+
 namespace class_loader
 {
 
@@ -47,8 +52,6 @@ namespace class_loader
 */
 std::string systemLibrarySuffix();
 
-
-
 /**
  * @class ClassLoader
  * @brief This class allows loading and unloading of dynamically linked libraries which contain class definitions from which objects can be created/destroyed during runtime (i.e. class_loader). Libraries loaded by a ClassLoader are only accessible within scope of that ClassLoader object.
@@ -56,6 +59,14 @@ std::string systemLibrarySuffix();
 class ClassLoader
 {
   public:
+#if __cplusplus >= 201103L
+    template<typename Base>
+    using DeleterType = std::function<void (Base *)>;
+
+    template<typename Base>
+    using UniquePtr = std::unique_ptr<Base, DeleterType<Base>>;
+#endif
+
     /**
      * @brief  Constructor for ClassLoader
      * @param library_path - The path of the runtime library to load
@@ -96,8 +107,29 @@ class ClassLoader
     boost::shared_ptr<Base> createInstance(const std::string& derived_class_name)
     {
       return boost::shared_ptr<Base>(createRawInstance<Base>(derived_class_name, true),
-                                     boost::bind(&class_loader::ClassLoader::onPluginDeletion<Base>, this, _1));
+                                     boost::bind(&ClassLoader::onPluginDeletion<Base>, this, _1));
     }
+
+#if __cplusplus >= 201103L
+    /**
+     * @brief  Generates an instance of loadable classes (i.e. class_loader).
+     *
+     * It is not necessary for the user to call loadLibrary() as it will be invoked automatically
+     * if the library is not yet loaded (which typically happens when in "On Demand Load/Unload" mode).
+     *
+     * If you release the wrapped pointer you must manually call the original
+     * deleter when you want to destroy the released pointer.
+     *
+     * @param  derived_class_name The name of the class we want to create (@see getAvailableClasses())
+     * @return A std::unique_ptr<Base> to newly created plugin object
+     */
+    template<class Base>
+    UniquePtr<Base> createUniqueInstance(const std::string& derived_class_name)
+    {
+      Base* raw = createRawInstance<Base>(derived_class_name, true);
+      return std::unique_ptr<Base, DeleterType<Base>>(raw, boost::bind(&ClassLoader::onPluginDeletion<Base>, this, _1));
+    }
+#endif
 
     /**
      * @brief  Generates an instance of loadable classes (i.e. class_loader).
@@ -165,7 +197,7 @@ class ClassLoader
      * @brief Callback method when a plugin created by this class loader is destroyed
      * @param obj - A pointer to the deleted object
      */
-    template <class Base>    
+    template <class Base>
     void onPluginDeletion(Base* obj)
     {
       logDebug("class_loader::ClassLoader: Calling onPluginDeletion() for obj ptr = %p.\n", obj);
