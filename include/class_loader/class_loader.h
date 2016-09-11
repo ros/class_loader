@@ -95,20 +95,8 @@ class ClassLoader
     template <class Base>
     boost::shared_ptr<Base> createInstance(const std::string& derived_class_name)
     {
-      if(ClassLoader::hasUnmanagedInstanceBeenCreated() && isOnDemandLoadUnloadEnabled())
-        logInform("class_loader::ClassLoader: An attempt is being made to create a managed plugin instance (i.e. boost::shared_ptr), however an unmanaged instance was created within this process address space. This means libraries for the managed instances will not be shutdown automatically on final plugin destruction if on demand (lazy) loading/unloading mode is used.");
-
-      if(!isLibraryLoaded())
-        loadLibrary();
-
-      Base* obj = class_loader::class_loader_private::createInstance<Base>(derived_class_name, this);
-      assert(obj != NULL); //Unreachable assertion if createInstance() throws on failure
-
-      boost::recursive_mutex::scoped_lock lock(plugin_ref_count_mutex_);
-      plugin_ref_count_ = plugin_ref_count_ + 1;
-
-      boost::shared_ptr<Base> smart_obj(obj, boost::bind(&class_loader::ClassLoader::onPluginDeletion<Base>, this, _1));
-      return(smart_obj);
+      return boost::shared_ptr<Base>(createRawInstance<Base>(derived_class_name, true),
+                                     boost::bind(&class_loader::ClassLoader::onPluginDeletion<Base>, this, _1));
     }
 
     /**
@@ -126,14 +114,7 @@ class ClassLoader
     template <class Base>
     Base* createUnmanagedInstance(const std::string& derived_class_name)
     {
-      has_unmananged_instance_been_created_ = true;
-      if(!isLibraryLoaded())
-        loadLibrary();
-
-      Base* obj = class_loader::class_loader_private::createInstance<Base>(derived_class_name, this);
-      assert(obj != NULL); //Unreachable assertion if createInstance() throws on failure
-
-      return(obj);
+      return createRawInstance<Base>(derived_class_name, false);
     }
 
     /**
@@ -202,6 +183,40 @@ class ClassLoader
             logWarn("class_loader::ClassLoader: Cannot unload library %s even though last shared pointer went out of scope. This is because createUnmanagedInstance was used within the scope of this process, perhaps by a different ClassLoader. Library will NOT be closed.", getLibraryPath().c_str());
         }
       }
+    }
+
+    /**
+     * @brief  Generates an instance of loadable classes (i.e. class_loader).
+     *
+     * It is not necessary for the user to call loadLibrary() as it will be invoked automatically
+     * if the library is not yet loaded (which typically happens when in "On Demand Load/Unload" mode).
+     *
+     * @param  derived_class_name The name of the class we want to create (@see getAvailableClasses())
+     * @param  managed If true, the returned pointer is assumed to be wrapped in a smart pointer by the caller.
+     * @return A Base* to newly created plugin object
+     */
+    template <class Base>
+    Base* createRawInstance(const std::string& derived_class_name, bool managed)
+    {
+      if (!managed)
+        has_unmananged_instance_been_created_ = true;
+
+      if (managed && ClassLoader::hasUnmanagedInstanceBeenCreated() && isOnDemandLoadUnloadEnabled())
+        logInform("class_loader::ClassLoader: An attempt is being made to create a managed plugin instance (i.e. boost::shared_ptr), however an unmanaged instance was created within this process address space. This means libraries for the managed instances will not be shutdown automatically on final plugin destruction if on demand (lazy) loading/unloading mode is used.");
+
+      if (!isLibraryLoaded())
+        loadLibrary();
+
+      Base* obj = class_loader::class_loader_private::createInstance<Base>(derived_class_name, this);
+      assert(obj != NULL); //Unreachable assertion if createInstance() throws on failure
+
+      if (managed)
+      {
+        boost::recursive_mutex::scoped_lock lock(plugin_ref_count_mutex_);
+        plugin_ref_count_ = plugin_ref_count_ + 1;
+      }
+
+      return obj;
     }
 
     /**
