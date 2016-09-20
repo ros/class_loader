@@ -2,6 +2,17 @@
 Changelog for package class_loader
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Add ClassLoader::createUniqueInstance (`#38 <https://github.com/ros/class_loader/issues/38>`_)
+  * Wrap comments on createInstance and friend.
+  * Delegate createInstance and createUnmanagedInstance to private impl.
+  * Add ClassLoader::createUniqueInstance.
+  * MultiLibraryClassLoader: Factor out getClassLoaderForClass.
+  * MultiLibraryClassLoader: Add unique_ptr API.
+  * Add tests for unique_ptr API.
+* Contributors: Maarten de Vries
+
 0.3.4 (2016-06-22)
 ------------------
 * cleanup: don't use active_class_loaders\_[library_path] for existence test (`#35 <https://github.com/ros/class_loader/issues/35>`_)
