@@ -2,8 +2,8 @@
 Changelog for package class_loader
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.3.5 (2016-09-20)
+------------------
 * Add ClassLoader::createUniqueInstance (`#38 <https://github.com/ros/class_loader/issues/38>`_)
   * Wrap comments on createInstance and friend.
   * Delegate createInstance and createUnmanagedInstance to private impl.
