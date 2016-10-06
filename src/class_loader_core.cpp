@@ -415,21 +415,22 @@ void purgeGraveyardOfMetaobjects(const std::string& library_path, ClassLoader* l
 void loadLibrary(const std::string& library_path, ClassLoader* loader)
 /*****************************************************************************/
 {
+  static boost::recursive_mutex loader_mutex;
   logDebug("class_loader.class_loader_private: Attempting to load library %s on behalf of ClassLoader handle %p...\n", library_path.c_str(), loader);
+  boost::recursive_mutex::scoped_lock loader_lock(loader_mutex);
 
   //If it's already open, just update existing metaobjects to have an additional owner.
   if(isLibraryLoadedByAnybody(library_path))
   {
+    boost::recursive_mutex::scoped_lock lock(getPluginBaseToFactoryMapMapMutex());
     logDebug("class_loader.class_loader_private: Library already in memory, but binding existing MetaObjects to loader if necesesary.\n");
     addClassLoaderOwnerForAllExistingMetaObjectsForLibrary(library_path, loader);
     return;
   }
   
   Poco::SharedLibrary* library_handle = NULL;
-  static boost::recursive_mutex loader_mutex;
 
   {
-    boost::recursive_mutex::scoped_lock loader_lock(loader_mutex);
 
     try
     {
