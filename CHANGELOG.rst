@@ -2,8 +2,8 @@
 Changelog for package class_loader
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.3.6 (2016-10-24)
+------------------
 * Made changes to two locking mechanisms inside class loader core's loadLibrary() function: 1) I added a lock to the 'addClassLoaderOwnerFor...' function to protect it against a race condition with the unloadLibrary() function. 2) I also raised the loader lock to cover the whole function. Previously the check to see if a library is already loaded and the actual loading of the library was not atomic. Multiple threads could create shared library objects, for example.
 * Contributors: Jonathan Meyer
 
