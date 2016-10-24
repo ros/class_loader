@@ -2,6 +2,11 @@
 Changelog for package class_loader
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Made changes to two locking mechanisms inside class loader core's loadLibrary() function: 1) I added a lock to the 'addClassLoaderOwnerFor...' function to protect it against a race condition with the unloadLibrary() function. 2) I also raised the loader lock to cover the whole function. Previously the check to see if a library is already loaded and the actual loading of the library was not atomic. Multiple threads could create shared library objects, for example.
+* Contributors: Jonathan Meyer
+
 0.3.5 (2016-09-20)
 ------------------
 * Add ClassLoader::createUniqueInstance (`#38 <https://github.com/ros/class_loader/issues/38>`_)
