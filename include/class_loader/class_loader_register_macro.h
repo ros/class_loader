@@ -44,7 +44,7 @@ namespace \
     ProxyExec ## UniqueID() \
     { \
       if (std::string(Message) != "") { \
-        logInform("%s", Message); \
+        CONSOLE_BRIDGE_logInform("%s", Message); \
       } \
       class_loader::impl::registerPlugin<_derived, _base>(#Derived, #Base); \
     } \

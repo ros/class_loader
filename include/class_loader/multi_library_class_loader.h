@@ -72,7 +72,7 @@ public:
   template <class Base>
   std::shared_ptr<Base> createInstance(const std::string & class_name)
   {
-    logDebug(
+    CONSOLE_BRIDGE_logDebug(
       "class_loader::MultiLibraryClassLoader: "
       "Attempting to create instance of class type %s.", class_name.c_str());
     for (auto & loader : getAllAvailableClassLoaders()) {

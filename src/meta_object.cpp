@@ -41,12 +41,12 @@ base_class_name_(base_class_name),
 class_name_(class_name),
 typeid_base_class_name_("UNSET")
 {
-    logDebug("class_loader.private.AbstractMetaObjectBase: Creating MetaObject %p (base = %s, derived = %s, library path = %s)", this, baseClassName().c_str(), className().c_str(), getAssociatedLibraryPath().c_str());
+  CONSOLE_BRIDGE_logDebug("class_loader.private.AbstractMetaObjectBase: Creating MetaObject %p (base = %s, derived = %s, library path = %s)", this, baseClassName().c_str(), className().c_str(), getAssociatedLibraryPath().c_str());
 }
 
 AbstractMetaObjectBase::~AbstractMetaObjectBase()
 {
-    logDebug("class_loader.private.AbstractMetaObjectBase: Destroying MetaObject %p (base = %s, derived = %s, library path = %s)", this, baseClassName().c_str(), className().c_str(), getAssociatedLibraryPath().c_str());
+  CONSOLE_BRIDGE_logDebug("class_loader.private.AbstractMetaObjectBase: Destroying MetaObject %p (base = %s, derived = %s, library path = %s)", this, baseClassName().c_str(), className().c_str(), getAssociatedLibraryPath().c_str());
 }
 
 const std::string & AbstractMetaObjectBase::className() const

@@ -107,7 +107,7 @@ public:
   std::shared_ptr<Base> createInstance(const std::string & derived_class_name)
   {
     if (ClassLoader::hasUnmanagedInstanceBeenCreated() && isOnDemandLoadUnloadEnabled()) {
-      logInform(
+      CONSOLE_BRIDGE_logInform(
         "class_loader::ClassLoader: "
         "An attempt is being made to create a managed plugin instance (i.e. std::shared_ptr), "
         "however an unmanaged instance was created within this process address space. "
@@ -213,7 +213,7 @@ private:
   template <class Base>
   void onPluginDeletion(Base * obj)
   {
-    logDebug("class_loader::ClassLoader: Calling onPluginDeletion() for obj ptr = %p.\n", obj);
+    CONSOLE_BRIDGE_logDebug("class_loader::ClassLoader: Calling onPluginDeletion() for obj ptr = %p.\n", obj);
     if (!obj) {
       return;
     }
@@ -225,7 +225,7 @@ private:
       if (!ClassLoader::hasUnmanagedInstanceBeenCreated()) {
         unloadLibraryInternal(false);
       } else {
-        logWarn(
+        CONSOLE_BRIDGE_logWarn(
           "class_loader::ClassLoader: "
           "Cannot unload library %s even though last shared pointer went out of scope. "
           "This is because createUnmanagedInstance was used within the scope of this process, "

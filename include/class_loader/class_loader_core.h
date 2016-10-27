@@ -171,13 +171,13 @@ void registerPlugin(const std::string & class_name, const std::string & base_cla
   //Note: This function will be automatically invoked when a dlopen() call
   //opens a library. Normally it will happen within the scope of loadLibrary(),
   //but that may not be guaranteed.
-  logDebug(
+  CONSOLE_BRIDGE_logDebug(
     "class_loader.impl: "
     "Registering plugin factory for class = %s, ClassLoader * = %p and library name %s.",
     class_name.c_str(), getCurrentlyActiveClassLoader(), getCurrentlyLoadingLibraryName().c_str());
 
   if (getCurrentlyActiveClassLoader() == nullptr) {
-    logDebug(
+    CONSOLE_BRIDGE_logDebug(
       "class_loader.impl: ALERT!!! "
       "A library containing plugins has been opened through a means other than through the "
       "class_loader or pluginlib package. "
@@ -207,7 +207,7 @@ void registerPlugin(const std::string & class_name, const std::string & base_cla
   getPluginBaseToFactoryMapMapMutex().lock();
   FactoryMap& factoryMap = getFactoryMapForBaseClass<Base>();
   if (factoryMap.find(class_name) != factoryMap.end())
-    logWarn(
+    CONSOLE_BRIDGE_logWarn(
       "class_loader.impl: SEVERE WARNING!!! "
       "A namespace collision has occured with plugin factory for class %s. "
       "New factory will OVERWRITE existing one. "
@@ -219,7 +219,7 @@ void registerPlugin(const std::string & class_name, const std::string & base_cla
   factoryMap[class_name] = new_factory;
   getPluginBaseToFactoryMapMapMutex().unlock();
 
-  logDebug(
+  CONSOLE_BRIDGE_logDebug(
     "class_loader.impl: Registration of %s complete (Metaobject Address = %p)",
     class_name.c_str(), new_factory);
 }
@@ -240,7 +240,7 @@ Base * createInstance(const std::string & derived_class_name, ClassLoader * load
   if (factoryMap.find(derived_class_name) != factoryMap.end()) {
     factory = dynamic_cast<impl::AbstractMetaObject<Base>*>(factoryMap[derived_class_name]);
   } else {
-    logError(
+    CONSOLE_BRIDGE_logError(
       "class_loader.impl: No metaobject exists for class type %s.", derived_class_name.c_str());
   }
   getPluginBaseToFactoryMapMapMutex().unlock();
@@ -252,7 +252,7 @@ Base * createInstance(const std::string & derived_class_name, ClassLoader * load
 
   if (obj == nullptr) {  // Was never created
     if (factory && factory->isOwnedBy(nullptr)) {
-      logDebug(
+      CONSOLE_BRIDGE_logDebug(
         "class_loader.impl: ALERT!!! "
         "A metaobject (i.e. factory) exists for desired class, but has no owner. "
         "This implies that the library containing the class was dlopen()ed by means other than "
@@ -270,7 +270,7 @@ Base * createInstance(const std::string & derived_class_name, ClassLoader * load
     }
   }
 
-  logDebug(
+  CONSOLE_BRIDGE_logDebug(
     "class_loader.impl: Created instance of type %s and object pointer = %p",
     (typeid(obj).name()), obj);
 
