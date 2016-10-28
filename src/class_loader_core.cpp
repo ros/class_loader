@@ -279,8 +279,8 @@ bool isLibraryLoadedByAnybody(const std::string & library_path)
 bool isLibraryLoaded(const std::string & library_path, const ClassLoader * loader)
 {
   bool is_lib_loaded_by_anyone = isLibraryLoadedByAnybody(library_path);
-  int num_meta_objs_for_lib = allMetaObjectsForLibrary(library_path).size();
-  int num_meta_objs_for_lib_bound_to_loader = allMetaObjectsForLibraryOwnedBy(library_path, loader).size();
+  size_t num_meta_objs_for_lib = allMetaObjectsForLibrary(library_path).size();
+  size_t num_meta_objs_for_lib_bound_to_loader = allMetaObjectsForLibraryOwnedBy(library_path, loader).size();
   bool are_meta_objs_bound_to_loader = (num_meta_objs_for_lib == 0) ? true : (num_meta_objs_for_lib_bound_to_loader <= num_meta_objs_for_lib);
 
   return is_lib_loaded_by_anyone && are_meta_objs_bound_to_loader;
@@ -408,7 +408,7 @@ void loadLibrary(const std::string & library_path, ClassLoader * loader)
   CONSOLE_BRIDGE_logDebug("class_loader.impl: Successfully loaded library %s into memory (Poco::SharedLibrary handle = %p).", library_path.c_str(), library_handle);
 
   //Graveyard scenario
-  unsigned int num_lib_objs = allMetaObjectsForLibrary(library_path).size();
+  size_t num_lib_objs = allMetaObjectsForLibrary(library_path).size();
   if (num_lib_objs == 0) {
     CONSOLE_BRIDGE_logDebug("class_loader.impl: Though the library %s was just loaded, it seems no factory metaobjects were registered. Checking factory graveyard for previously loaded metaobjects...", library_path.c_str());
     revivePreviouslyCreateMetaobjectsFromGraveyard(library_path, loader);
