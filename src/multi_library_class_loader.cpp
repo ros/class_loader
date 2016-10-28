@@ -29,23 +29,35 @@
 
 #include "class_loader/multi_library_class_loader.h"
 
+#include <mutex>
+
 namespace class_loader
 {
 
-MultiLibraryClassLoader::MultiLibraryClassLoader(bool enable_ondemand_loadunload)
-: enable_ondemand_loadunload_(enable_ondemand_loadunload)
+class MultiLibraryClassLoaderImpl
 {
+public:
+  bool enable_ondemand_loadunload_;
+  LibraryToClassLoaderMap active_class_loaders_;
+  std::mutex loader_mutex_;
+};
+
+MultiLibraryClassLoader::MultiLibraryClassLoader(bool enable_ondemand_loadunload)
+: impl_(new MultiLibraryClassLoaderImpl())
+{
+  impl_->enable_ondemand_loadunload_ = enable_ondemand_loadunload;
 }
 
 MultiLibraryClassLoader::~MultiLibraryClassLoader()
 {
   shutdownAllClassLoaders();
+  delete impl_;
 }
 
 std::vector<std::string> MultiLibraryClassLoader::getRegisteredLibraries() const
 {
   std::vector<std::string> libraries;
-  for (auto & it : active_class_loaders_) {
+  for (auto & it : impl_->active_class_loaders_) {
     if (it.second != nullptr) {
       libraries.push_back(it.first);
     }
@@ -55,13 +67,13 @@ std::vector<std::string> MultiLibraryClassLoader::getRegisteredLibraries() const
 
 ClassLoader * MultiLibraryClassLoader::getClassLoaderForLibrary(const std::string & library_path)
 {
-  return active_class_loaders_[library_path];
+  return impl_->active_class_loaders_[library_path];
 }
 
 ClassLoaderVector MultiLibraryClassLoader::getAllAvailableClassLoaders() const
 {
   ClassLoaderVector loaders;
-  for (auto & it : active_class_loaders_) {
+  for (auto & it : impl_->active_class_loaders_) {
     loaders.push_back(it.second);
   }
   return loaders;
@@ -77,7 +89,7 @@ bool MultiLibraryClassLoader::isLibraryAvailable(const std::string & library_nam
 void MultiLibraryClassLoader::loadLibrary(const std::string & library_path)
 {
   if (!isLibraryAvailable(library_path)) {
-    active_class_loaders_[library_path] =
+    impl_->active_class_loaders_[library_path] =
       new class_loader::ClassLoader(library_path, isOnDemandLoadUnloadEnabled());
   }
 }
@@ -96,7 +108,7 @@ int MultiLibraryClassLoader::unloadLibrary(const std::string & library_path)
     ClassLoader * loader = getClassLoaderForLibrary(library_path);
     remaining_unloads = loader->unloadLibrary();
     if (remaining_unloads == 0) {
-      active_class_loaders_[library_path] = nullptr;
+      impl_->active_class_loaders_[library_path] = nullptr;
       delete(loader);
     }
   }
@@ -105,7 +117,7 @@ int MultiLibraryClassLoader::unloadLibrary(const std::string & library_path)
 
 bool MultiLibraryClassLoader::isOnDemandLoadUnloadEnabled() const
 {
-  return enable_ondemand_loadunload_;
+  return impl_->enable_ondemand_loadunload_;
 }
 
 }  // namespace class_loader

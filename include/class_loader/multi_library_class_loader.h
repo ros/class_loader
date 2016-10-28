@@ -30,8 +30,6 @@
 #ifndef __class_loader__multi_library_class_loader__h__
 #define __class_loader__multi_library_class_loader__h__
 
-#include <mutex>
-
 #include <console_bridge/console.h>
 
 #include "class_loader.h"
@@ -43,6 +41,8 @@ namespace class_loader
 typedef std::string LibraryPath;
 typedef std::map<LibraryPath, class_loader::ClassLoader *> LibraryToClassLoaderMap;
 typedef std::vector<ClassLoader *> ClassLoaderVector;
+
+class MultiLibraryClassLoaderImpl;
 
 /**
 * @class MultiLibraryClassLoader
@@ -245,9 +245,7 @@ private:
    */
   void shutdownAllClassLoaders();
 
-  bool enable_ondemand_loadunload_;
-  LibraryToClassLoaderMap active_class_loaders_;
-  std::mutex loader_mutex_;
+  MultiLibraryClassLoaderImpl * impl_;
 };
 
 }  // name space class_loader
