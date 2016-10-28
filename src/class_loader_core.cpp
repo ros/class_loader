@@ -487,9 +487,9 @@ void printDebugInfoToScreen()
            (typeid(*obj).name()),
            obj->getAssociatedLibraryPath().c_str());
 
-    ClassLoaderVector loaders = obj->getAssociatedClassLoaders();
-    for (unsigned int i = 0; i < loaders.size(); i++) {
-      printf(" Associated Loader %i = %p\n", i, loaders.at(i));
+    size_t size = obj->getAssociatedClassLoadersCount();
+    for (size_t i = 0; i < size; ++i) {
+      printf(" Associated Loader %zu = %p\n", i, obj->getAssociatedClassLoader(i));
     }
     printf("--------------------------------------------------------------------------------\n");
   }
