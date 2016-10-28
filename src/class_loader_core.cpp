@@ -349,7 +349,14 @@ void purgeGraveyardOfMetaobjects(const std::string & library_path, ClassLoader *
         } else {
           assert(hasANonPurePluginLibraryBeenOpened() == false);
           CONSOLE_BRIDGE_logDebug("class_loader.impl: Also destroying metaobject %p (class = %s, base_class = %s, library_path = %s) in addition to purging it from graveyard.", obj, obj->className().c_str(), obj->baseClassName().c_str(), obj->getAssociatedLibraryPath().c_str());
+#ifndef _WIN32
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdelete-non-virtual-dtor"
+#endif
           delete(obj);  // Note: This is the only place where metaobjects can be destroyed
+#ifndef _WIN32
+#pragma GCC diagnostic pop
+#endif
         }
       }
     } else {
