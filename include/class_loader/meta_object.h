@@ -46,7 +46,7 @@ class ClassLoader;
 namespace impl
 {
 
-typedef std::vector<class_loader::ClassLoader *> ClassLoaderVector;
+class AbstractMetaObjectBaseImpl;
 
 /**
  * @class AbstractMetaObjectBase
@@ -59,7 +59,7 @@ public:
   /**
    * @brief Constructor for the class
    */
-  AbstractMetaObjectBase(const std::string & class_name, const std::string & base_class_name);
+  AbstractMetaObjectBase(const std::string & class_name, const std::string & base_class_name, const std::string & typeid_base_class_name = "UNSET");
   /**
    * @brief Destructor for the class. THIS MUST NOT BE VIRTUAL AND OVERRIDDEN BY
    * TEMPLATE SUBCLASSES, OTHERWISE THEY WILL PULL IN A REDUNDANT METAOBJECT
@@ -116,10 +116,9 @@ public:
    */
   bool isOwnedByAnybody() const;
 
-  /**
-   * A vector of class loaders that own this metaobject
-   */
-  const ClassLoaderVector & getAssociatedClassLoaders() const;
+  size_t getAssociatedClassLoadersCount() const;
+
+  ClassLoader * getAssociatedClassLoader(size_t index) const;
 
 protected:
   /**
@@ -127,11 +126,7 @@ protected:
    */
   virtual void dummyMethod(){}
 
-  ClassLoaderVector associated_class_loaders_;
-  std::string associated_library_path_;
-  std::string base_class_name_;
-  std::string class_name_;
-  std::string typeid_base_class_name_;
+  AbstractMetaObjectBaseImpl * impl_;
 };
 
 /**
@@ -148,9 +143,8 @@ public:
    * @param name The literal name of the class.
    */
   AbstractMetaObject(const std::string & class_name, const std::string & base_class_name) :
-  AbstractMetaObjectBase(class_name, base_class_name)
+  AbstractMetaObjectBase(class_name, base_class_name, typeid(B).name())
   {
-    AbstractMetaObjectBase::typeid_base_class_name_ = std::string(typeid(B).name());
   }
 
   /**

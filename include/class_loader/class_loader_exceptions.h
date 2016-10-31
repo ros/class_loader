@@ -42,11 +42,11 @@ namespace class_loader
  * @class ClassLoader sException
  * @brief A base class for all class_loader exceptions that inherits from std::runtime_exception
  */
-class CLASS_LOADER_PUBLIC ClassLoaderException
+class ClassLoaderException
 : public std::runtime_error
 {
 public:
-  ClassLoaderException(const std::string & error_desc)
+  inline ClassLoaderException(const std::string & error_desc)
   : std::runtime_error(error_desc)
   {}
 };
@@ -55,11 +55,11 @@ public:
  * @class LibraryLoadException
  * @brief An exception class thrown when class_loader is unable to load a runtime library
  */
-class CLASS_LOADER_PUBLIC LibraryLoadException
+class LibraryLoadException
 : public ClassLoaderException
 {
 public:
-  LibraryLoadException(const std::string & error_desc)
+  inline LibraryLoadException(const std::string & error_desc)
   : ClassLoaderException(error_desc)
   {}
 };
@@ -68,11 +68,11 @@ public:
  * @class LibraryUnloadException
  * @brief An exception class thrown when class_loader is unable to unload a runtime library
  */
-class CLASS_LOADER_PUBLIC LibraryUnloadException
+class LibraryUnloadException
 : public ClassLoaderException
 {
 public:
-  LibraryUnloadException(const std::string & error_desc)
+  inline LibraryUnloadException(const std::string & error_desc)
   : ClassLoaderException(error_desc)
   {}
 };
@@ -81,11 +81,11 @@ public:
  * @class CreateClassException
  * @brief An exception class thrown when class_loader is unable to create a plugin
  */
-class CLASS_LOADER_PUBLIC CreateClassException
+class CreateClassException
 : public ClassLoaderException
 {
 public:
-  CreateClassException(const std::string & error_desc)
+  inline CreateClassException(const std::string & error_desc)
   : ClassLoaderException(error_desc)
   {}
 };
@@ -94,11 +94,11 @@ public:
  * @class NoClassLoaderExistsException
  * @brief An exception class thrown when a multilibrary class loader does not have a ClassLoader bound to it
  */
-class CLASS_LOADER_PUBLIC NoClassLoaderExistsException
+class NoClassLoaderExistsException
 : public ClassLoaderException
 {
 public:
-  NoClassLoaderExistsException(const std::string & error_desc)
+  inline NoClassLoaderExistsException(const std::string & error_desc)
   : ClassLoaderException(error_desc)
   {}
 };
