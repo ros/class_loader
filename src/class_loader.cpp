@@ -105,6 +105,10 @@ bool ClassLoader::isOnDemandLoadUnloadEnabled() const
 
 void ClassLoader::loadLibrary()
 {
+  if (getLibraryPath() == "") {
+    // special library path for libraries linked at link-time (not dlopen-ed)
+    return;
+  }
   std::lock_guard<std::recursive_mutex> lock(load_ref_count_mutex_);
   ++load_ref_count_;
   class_loader::impl::loadLibrary(getLibraryPath(), this);
@@ -112,6 +116,10 @@ void ClassLoader::loadLibrary()
 
 int ClassLoader::unloadLibrary()
 {
+  if (getLibraryPath() == "") {
+    // special library path for libraries linked at link-time (not dlopen-ed)
+    return 0;
+  }
   return unloadLibraryInternal(true);
 }
 
