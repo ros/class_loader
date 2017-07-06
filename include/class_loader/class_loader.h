@@ -32,6 +32,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <functional>
 #include <memory>
 #include <mutex>
 #include <string>
