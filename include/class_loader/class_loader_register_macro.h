@@ -33,6 +33,8 @@
 #include "class_loader_core.h"
 #include <console_bridge/console.h>
 
+#include "class_loader/console_bridge_compatibility.h"
+
 #define CLASS_LOADER_REGISTER_CLASS_INTERNAL_WITH_MESSAGE(Derived, Base, UniqueID, Message) \
 namespace \
 {\
@@ -43,7 +45,7 @@ namespace \
     ProxyExec##UniqueID() \
     { \
       if(std::string(Message)!="")\
-        logInform("%s", Message);\
+        CONSOLE_BRIDGE_logInform("%s", Message);\
       class_loader::class_loader_private::registerPlugin<_derived, _base>(#Derived, #Base); \
     }\
   };\
