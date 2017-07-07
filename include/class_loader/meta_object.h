@@ -36,6 +36,8 @@
 #include <vector>
 #include <typeinfo>
 
+#include "class_loader/console_bridge_compatibility.h"
+
 namespace class_loader
 {
 
