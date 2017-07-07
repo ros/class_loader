@@ -50,7 +50,7 @@ namespace \
     }\
   };\
   static ProxyExec##UniqueID g_register_plugin_##UniqueID;\
-} 
+}
 
 #define CLASS_LOADER_REGISTER_CLASS_INTERNAL_HOP1_WITH_MESSAGE(Derived, Base, UniqueID, Message) CLASS_LOADER_REGISTER_CLASS_INTERNAL_WITH_MESSAGE(Derived, Base, UniqueID, Message)
 

@@ -37,7 +37,7 @@ namespace class_loader_private
 {
 
 
-//Global data 
+//Global data
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
@@ -227,7 +227,7 @@ void insertMetaObjectIntoGraveyard(AbstractMetaObjectBase* meta_obj)
 void destroyMetaObjectsForLibrary(const std::string& library_path, FactoryMap& factories, const ClassLoader* loader)
 /*****************************************************************************/
 {
-  FactoryMap::iterator factory_itr = factories.begin();    
+  FactoryMap::iterator factory_itr = factories.begin();
   while(factory_itr != factories.end())
   {
     AbstractMetaObjectBase* meta_obj = factory_itr->second;
@@ -240,17 +240,17 @@ void destroyMetaObjectsForLibrary(const std::string& library_path, FactoryMap& f
         factory_itr++;
         factories.erase(factory_itr_copy); //Note: map::erase does not return iterator like vector::erase does. Hence the ugliness of this code and a need for copy. Should be fixed in next C++ revision
 
-        //Insert into graveyard 
+        //Insert into graveyard
         //We remove the metaobject from its factory map, but we don't destroy it...instead it saved to
         //a "graveyard" to the side. This is due to our static global variable initialization problem
         //that causes factories to not be registered when a library is closed and then reopened. This is
-        //because it's truly not closed due to the use of global symbol binding i.e. calling dlopen 
+        //because it's truly not closed due to the use of global symbol binding i.e. calling dlopen
         //with RTLD_GLOBAL instead of RTLD_LOCAL. We require using the former as the which is required to support
-        //RTTI 
+        //RTTI
         insertMetaObjectIntoGraveyard(meta_obj);
       }
       else
-        factory_itr++;      
+        factory_itr++;
     }
     else
       factory_itr++;
@@ -363,7 +363,7 @@ void revivePreviouslyCreateMetaobjectsFromGraveyard(const std::string& library_p
   MetaObjectVector& graveyard = getMetaObjectGraveyard();
 
   for(MetaObjectVector::iterator itr = graveyard.begin(); itr != graveyard.end(); itr++)
-  {    
+  {
     AbstractMetaObjectBase* obj = *itr;
     if(obj->getAssociatedLibraryPath() == library_path)
     {
@@ -387,11 +387,11 @@ void purgeGraveyardOfMetaobjects(const std::string& library_path, ClassLoader* l
   MetaObjectVector::iterator itr = graveyard.begin();
 
   while(itr != graveyard.end())
-  {    
+  {
     AbstractMetaObjectBase* obj = *itr;
     if(obj->getAssociatedLibraryPath() == library_path)
     {
-      CONSOLE_BRIDGE_logDebug("class_loader.class_loader_private: Purging factory metaobject from graveyard, class = %s, base_class = %s ptr = %p...bound to ClassLoader %p (library path = %s)", obj->className().c_str(), obj->baseClassName().c_str(), obj, loader, loader ? loader->getLibraryPath().c_str() : "NULL");      
+      CONSOLE_BRIDGE_logDebug("class_loader.class_loader_private: Purging factory metaobject from graveyard, class = %s, base_class = %s ptr = %p...bound to ClassLoader %p (library path = %s)", obj->className().c_str(), obj->baseClassName().c_str(), obj, loader, loader ? loader->getLibraryPath().c_str() : "NULL");
 
       bool is_address_in_graveyard_same_as_global_factory_map = std::find(all_meta_objs.begin(), all_meta_objs.end(), *itr) != all_meta_objs.end();
       itr = graveyard.erase(itr);
@@ -427,7 +427,7 @@ void loadLibrary(const std::string& library_path, ClassLoader* loader)
     addClassLoaderOwnerForAllExistingMetaObjectsForLibrary(library_path, loader);
     return;
   }
-  
+
   Poco::SharedLibrary* library_handle = NULL;
 
   {
@@ -486,13 +486,13 @@ void loadLibrary(const std::string& library_path, ClassLoader* loader)
 
 void unloadLibrary(const std::string& library_path, ClassLoader* loader)
 /*****************************************************************************/
-{ 
+{
   if(hasANonPurePluginLibraryBeenOpened())
   {
     CONSOLE_BRIDGE_logDebug("class_loader.class_loader_private: Cannot unload %s or ANY other library as a non-pure plugin library was opened. As class_loader has no idea which libraries class factories were exported from, it can safely close any library without potentially unlinking symbols that are still actively being used. You must refactor your plugin libraries to be made exclusively of plugins in order for this error to stop happening.", library_path.c_str());
   }
   else
-  { 
+  {
     CONSOLE_BRIDGE_logDebug("class_loader.class_loader_private: Unloading library %s on behalf of ClassLoader %p...", library_path.c_str(), loader);
     boost::recursive_mutex::scoped_lock lock(getLoadedLibraryVectorMutex());
     LibraryVector& open_libraries =  getLoadedLibraryVector();
@@ -504,12 +504,12 @@ void unloadLibrary(const std::string& library_path, ClassLoader* loader)
       try
       {
         destroyMetaObjectsForLibrary(library_path, loader);
-     
+
         //Remove from loaded library list as well if no more factories associated with said library
         if(!areThereAnyExistingMetaObjectsForLibrary(library_path))
         {
           CONSOLE_BRIDGE_logDebug("class_loader.class_loader_private: There are no more MetaObjects left for %s so unloading library and removing from loaded library vector.\n", library_path.c_str());
-          library->unload();          
+          library->unload();
           assert(library->isLoaded() == false);
           delete(library);
           itr = open_libraries.erase(itr);
@@ -554,12 +554,12 @@ void printDebugInfoToScreen()
   for(unsigned int c = 0; c < meta_objs.size(); c++)
   {
     AbstractMetaObjectBase* obj = meta_objs.at(c);
-    printf("Metaobject %i (ptr = %p):\n TypeId = %s\n Associated Library = %s\n", 
-           c, 
-           obj, 
-           (typeid(*obj).name()), 
+    printf("Metaobject %i (ptr = %p):\n TypeId = %s\n Associated Library = %s\n",
+           c,
+           obj,
+           (typeid(*obj).name()),
            obj->getAssociatedLibraryPath().c_str());
-  
+
     ClassLoaderVector loaders = obj->getAssociatedClassLoaders();
     for(unsigned int i = 0; i < loaders.size(); i++)
       printf(" Associated Loader %i = %p\n", i, loaders.at(i));

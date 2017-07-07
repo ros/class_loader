@@ -62,13 +62,13 @@ endif()
 
 if(NOT catkin_FOUND)
   set(TARGET_NAME ${PROJECT_NAME})
-  set(PKGCONFIG_LIBS 
-    ${Boost_LIBRARIES} 
-    ${console_bridge_LIBRARIES} 
+  set(PKGCONFIG_LIBS
+    ${Boost_LIBRARIES}
+    ${console_bridge_LIBRARIES}
     ${Poco_LIBRARIES}
   )
 
-  # Prepare and install necessary files to support finding of the library 
+  # Prepare and install necessary files to support finding of the library
   # using pkg-config
   configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/${TARGET_NAME}.pc.in
                  ${CMAKE_CURRENT_BINARY_DIR}/${TARGET_NAME}.pc @ONLY)
