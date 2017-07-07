@@ -1,4 +1,6 @@
-<package>
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format2.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="2">
   <name>class_loader</name>
   <version>0.3.6</version>
   <description>
@@ -14,12 +16,9 @@
  
   <buildtool_depend version_gte="0.5.68">catkin</buildtool_depend>
 
-  <build_depend>boost</build_depend>
-  <build_depend>libconsole-bridge-dev</build_depend>
-  <build_depend>libpoco-dev</build_depend>
   <build_depend version_gte="0.3.3">cmake_modules</build_depend>
 
-  <run_depend>boost</run_depend>
-  <run_depend>libconsole-bridge-dev</run_depend>
-  <run_depend>libpoco-dev</run_depend>
+  <depend>boost</depend>
+  <depend>libconsole-bridge-dev</depend>
+  <depend>libpoco-dev</depend>
 </package>
