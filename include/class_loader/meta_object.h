@@ -43,7 +43,7 @@ namespace class_loader
 
 class ClassLoader; //Forward declaration
 
-namespace class_loader_private 
+namespace class_loader_private
 {
 
 typedef std::vector<class_loader::ClassLoader*> ClassLoaderVector;
@@ -53,7 +53,7 @@ typedef std::vector<class_loader::ClassLoader*> ClassLoaderVector;
  * @brief A base class for MetaObjects that excludes a polymorphic type parameter. Subclasses are class templates though.
  */
 class AbstractMetaObjectBase
-{  
+{
   public:
 
     /**
@@ -101,13 +101,13 @@ class AbstractMetaObjectBase
 
     /**
      * @brief Removes a ClassLoader that is an owner of this factory
-     * @param loader Handle to the owning ClassLoader. 
+     * @param loader Handle to the owning ClassLoader.
      */
     void removeOwningClassLoader(const ClassLoader* loader);
 
     /**
      * @brief Indicates if the factory is within the usable scope of a ClassLoader
-     * @param loader Handle to the owning ClassLoader. 
+     * @param loader Handle to the owning ClassLoader.
      */
     bool isOwnedBy(const ClassLoader* loader);
 
@@ -128,7 +128,7 @@ class AbstractMetaObjectBase
     virtual void dummyMethod(){}
 
   protected:
-    ClassLoaderVector associated_class_loaders_;    
+    ClassLoaderVector associated_class_loaders_;
     std::string associated_library_path_;
     std::string base_class_name_;
     std::string class_name_;
@@ -148,7 +148,7 @@ class AbstractMetaObject : public AbstractMetaObjectBase
      * @brief A constructor for this class
      * @param name The literal name of the class.
      */
-    AbstractMetaObject(const std::string& class_name, const std::string& base_class_name) : 
+    AbstractMetaObject(const std::string& class_name, const std::string& base_class_name) :
     AbstractMetaObjectBase(class_name, base_class_name)
     {
         AbstractMetaObjectBase::typeid_base_class_name_ = std::string(typeid(B).name());
@@ -170,7 +170,7 @@ class AbstractMetaObject : public AbstractMetaObjectBase
 
 /**
  * @class MetaObject
- * @brief The actual factory. 
+ * @brief The actual factory.
  * @parm C The derived class (the actual plugin)
  * @parm B The base class interface for the plugin
  */
@@ -199,4 +199,4 @@ class MetaObject: public AbstractMetaObject<B>
 } // End namespace class_loader_private
 } // End namespace class_loader
 
-#endif 
+#endif

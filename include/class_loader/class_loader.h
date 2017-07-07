@@ -268,7 +268,7 @@ class ClassLoader
 
     bool ondemand_load_unload_;
     std::string library_path_;
-    int load_ref_count_;  
+    int load_ref_count_;
     boost::recursive_mutex load_ref_count_mutex_;
     int plugin_ref_count_;
     boost::recursive_mutex plugin_ref_count_mutex_;

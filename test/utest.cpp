@@ -223,7 +223,7 @@ TEST(ClassLoaderTest, loadRefCountingNonLazy)
 
     loader1.unloadLibrary();
     ASSERT_TRUE(loader1.isLibraryLoaded());
-    
+
     loader1.unloadLibrary();
     ASSERT_TRUE(loader1.isLibraryLoaded());
 
@@ -263,18 +263,18 @@ TEST(ClassLoaderTest, loadRefCountingLazy)
       boost::shared_ptr<Base> obj = loader1.createInstance<Base>("Dog");
       ASSERT_TRUE(loader1.isLibraryLoaded());
     }
-    
+
     ASSERT_FALSE(loader1.isLibraryLoaded());
-    
+
     loader1.loadLibrary();
     ASSERT_TRUE(loader1.isLibraryLoaded());
-    
+
     loader1.loadLibrary();
     ASSERT_TRUE(loader1.isLibraryLoaded());
 
     loader1.unloadLibrary();
     ASSERT_TRUE(loader1.isLibraryLoaded());
-    
+
     loader1.unloadLibrary();
     ASSERT_FALSE(loader1.isLibraryLoaded());
 
