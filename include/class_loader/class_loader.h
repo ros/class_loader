@@ -126,9 +126,8 @@ public:
     std::lock_guard<std::recursive_mutex> lock(plugin_ref_count_mutex_);
     ++plugin_ref_count_;
 
-    using namespace std::placeholders;
     std::shared_ptr<Base> smart_obj(
-      obj, std::bind(&class_loader::ClassLoader::onPluginDeletion<Base>, this, _1));
+      obj, std::bind(&class_loader::ClassLoader::onPluginDeletion<Base>, this, std::placeholders::_1));
     return smart_obj;
   }
 
