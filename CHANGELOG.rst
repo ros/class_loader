@@ -2,8 +2,8 @@
 Changelog for package class_loader
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.3.7 (2017-07-27)
+------------------
 * switch to package format 2 (`#56 <https://github.com/ros/class_loader/issues/56>`_)
 * remove trailing whitespaces (`#55 <https://github.com/ros/class_loader/issues/55>`_)
 * use CONSOLE_BRIDGE_X logging macros (`#52 <https://github.com/ros/class_loader/issues/52>`_)
