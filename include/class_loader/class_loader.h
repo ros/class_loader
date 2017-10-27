@@ -270,7 +270,7 @@ private:
   Base* createRawInstance(const std::string& derived_class_name, bool managed)
   {
     if (!managed) {
-      has_unmananged_instance_been_created_ = true;
+      this->setUnmanagedInstanceBeenCreated(true);
     }
 
     if (
@@ -308,6 +308,9 @@ private:
    */
   CLASS_LOADER_PUBLIC
   static bool hasUnmanagedInstanceBeenCreated();
+
+  CLASS_LOADER_PUBLIC
+  static void setUnmanagedInstanceBeenCreated(bool state);
 
   /**
    * @brief As the library may be unloaded in "on-demand load/unload" mode, unload maybe called from createInstance(). The problem is that createInstance() locks the plugin_ref_count as does unloadLibrary(). This method is the implementation of unloadLibrary but with a parameter to decide if plugin_ref_mutex_ should be locked
