@@ -131,8 +131,8 @@ public:
     return loader->createUniqueInstance<Base>(class_name);
   }
 
+  /// Creates an instance of an object of given class name with ancestor class Base
   /**
-   * @brief Creates an instance of an object of given class name with ancestor class Base
    * This version takes a specific library to make explicit the factory being used
    * @param Base - polymorphic type indicating base class
    * @param class_name - the name of the concrete plugin class we want to instantiate

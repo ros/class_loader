@@ -129,9 +129,8 @@ public:
   /// Generates an instance of loadable classes (i.e. class_loader).
   /**
    * It is not necessary for the user to call loadLibrary() as it will be
-   * invoked automatically.
-   * If the library is not yet loaded (which typically happens when in
-   * "On Demand Load/Unload" mode).
+   * invoked automatically if the library is not yet loaded (which typically
+   * happens when in "On Demand Load/Unload" mode).
    *
    * If you release the wrapped pointer you must manually call the original
    * deleter when you want to destroy the released pointer.
@@ -156,6 +155,11 @@ public:
    * It is not necessary for the user to call loadLibrary() as it will be
    * invoked automatically if the library is not yet loaded (which typically
    * happens when in "On Demand Load/Unload" mode).
+   *
+   * Creating an unmanaged instance disables dynamically unloading libraries
+   * when managed pointers go out of scope for all class loaders in this
+   * process.
+   *
    * @param derived_class_name
    *   The name of the class we want to create (@see getAvailableClasses()).
    * @return An unmanaged (i.e. not a shared_ptr) Base* to newly created plugin object.
@@ -255,9 +259,8 @@ private:
   /// Generates an instance of loadable classes (i.e. class_loader).
   /**
    * It is not necessary for the user to call loadLibrary() as it will be
-   * invoked automatically.
-   * if the library is not yet loaded (which typically happens when in
-   * "On Demand Load/Unload" mode).
+   * invoked automatically if the library is not yet loaded (which typically
+   * happens when in "On Demand Load/Unload" mode).
    *
    * @param derived_class_name
    *   The name of the class we want to create (@see getAvailableClasses()).
