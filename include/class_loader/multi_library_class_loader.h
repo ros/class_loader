@@ -274,14 +274,14 @@ private:
   /**
    * @brief Gets a handle to the class loader corresponding to a specific runtime library
    * @param library_path - the library from which we want to create the plugin
-   * @return A pointer to the ClassLoader *, == nullptr if not found
+   * @return A pointer to the ClassLoader *, == NULL if not found
    */
   ClassLoader * getClassLoaderForLibrary(const std::string & library_path);
 
   /// Gets a handle to the class loader corresponding to a specific class.
   /**
    * @param class_name name of class for which we want to create instance.
-   * @return A pointer to the ClassLoader, or nullptr if not found.
+   * @return A pointer to the ClassLoader, or NULL if not found.
    */
   template<typename Base>
   ClassLoader * getClassLoaderForClass(const std::string& class_name)
@@ -296,7 +296,7 @@ private:
         return *i;
       }
     }
-    return nullptr;
+    return NULL;
   }
 
   /**
