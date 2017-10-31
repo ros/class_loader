@@ -75,6 +75,14 @@ std::string systemLibraryFormat(const std::string & library_name);
 class ClassLoader
 {
 public:
+#if __cplusplus >= 201103L
+  template<typename Base>
+  using DeleterType = std::function<void (Base *)>;
+
+  template<typename Base>
+  using UniquePtr = std::unique_ptr<Base, DeleterType<Base>>;
+#endif
+
   /**
    * @brief  Constructor for ClassLoader
    * @param library_path - The path of the runtime library to load
@@ -100,54 +108,66 @@ public:
   }
 
   /**
-   * @brief  Generates an instance of loadable classes (i.e. class_loader). It is not necessary for the user to call loadLibrary() as it will be invoked automatically if the library is not yet loaded (which typically happens when in "On Demand Load/Unload" mode).
+   * @brief  Generates an instance of loadable classes (i.e. class_loader).
+   *
+   * It is not necessary for the user to call loadLibrary() as it will be invoked automatically
+   * if the library is not yet loaded (which typically happens when in "On Demand Load/Unload" mode).
+   *
    * @param  derived_class_name The name of the class we want to create (@see getAvailableClasses())
    * @return A std::shared_ptr<Base> to newly created plugin object
    */
   template <class Base>
   std::shared_ptr<Base> createInstance(const std::string & derived_class_name)
   {
-    if (ClassLoader::hasUnmanagedInstanceBeenCreated() && isOnDemandLoadUnloadEnabled()) {
-      CONSOLE_BRIDGE_logInform(
-        "class_loader::ClassLoader: "
-        "An attempt is being made to create a managed plugin instance (i.e. std::shared_ptr), "
-        "however an unmanaged instance was created within this process address space. "
-        "This means libraries for the managed instances will not be shutdown automatically on "
-        "final plugin destruction if on demand (lazy) loading/unloading mode is used.");
-      }
-
-    if (!isLibraryLoaded()) {
-      loadLibrary();
-    }
-
-    Base * obj = class_loader::impl::createInstance<Base>(derived_class_name, this);
-    assert(obj != nullptr);  // Unreachable assertion if createInstance() throws on failure
-
-    std::lock_guard<std::recursive_mutex> lock(plugin_ref_count_mutex_);
-    ++plugin_ref_count_;
-
-    std::shared_ptr<Base> smart_obj(
-      obj, std::bind(&class_loader::ClassLoader::onPluginDeletion<Base>, this, std::placeholders::_1));
-    return smart_obj;
+    return std::shared_ptr<Base>(
+      createRawInstance<Base>(derived_class_name, true),
+      std::bind(&ClassLoader::onPluginDeletion<Base>, this, std::placeholders::_1)
+    );
   }
 
+#if __cplusplus >= 201103L
+  /// Generates an instance of loadable classes (i.e. class_loader).
   /**
-   * @brief  Generates an instance of loadable classes (i.e. class_loader). It is not necessary for the user to call loadLibrary() as it will be invoked automatically if the library is not yet loaded (which typically happens when in "On Demand Load/Unload" mode).
-   * @param derived_class_name The name of the class we want to create (@see getAvailableClasses())
+   * It is not necessary for the user to call loadLibrary() as it will be
+   * invoked automatically if the library is not yet loaded (which typically
+   * happens when in "On Demand Load/Unload" mode).
+   *
+   * If you release the wrapped pointer you must manually call the original
+   * deleter when you want to destroy the released pointer.
+   *
+   * @param derived_class_name
+   *   The name of the class we want to create (@see getAvailableClasses()).
+   * @return A std::unique_ptr<Base> to newly created plugin object.
+   */
+  template<class Base>
+  UniquePtr<Base> createUniqueInstance(const std::string& derived_class_name)
+  {
+    Base * raw = createRawInstance<Base>(derived_class_name, true);
+    return std::unique_ptr<Base, DeleterType<Base>>(
+      raw,
+      std::bind(&ClassLoader::onPluginDeletion<Base>, this, std::placeholders::_1)
+    );
+  }
+#endif
+
+  /// Generates an instance of loadable classes (i.e. class_loader).
+  /**
+   * It is not necessary for the user to call loadLibrary() as it will be
+   * invoked automatically if the library is not yet loaded (which typically
+   * happens when in "On Demand Load/Unload" mode).
+   *
+   * Creating an unmanaged instance disables dynamically unloading libraries
+   * when managed pointers go out of scope for all class loaders in this
+   * process.
+   *
+   * @param derived_class_name
+   *   The name of the class we want to create (@see getAvailableClasses()).
    * @return An unmanaged (i.e. not a shared_ptr) Base* to newly created plugin object.
    */
   template <class Base>
   Base * createUnmanagedInstance(const std::string & derived_class_name)
   {
-    has_unmananged_instance_been_created_ = true;
-    if (!isLibraryLoaded()) {
-      loadLibrary();
-    }
-
-    Base * obj = class_loader::impl::createInstance<Base>(derived_class_name, this);
-    assert(obj != nullptr);  // Unreachable assertion if createInstance() throws on failure
-
-    return obj;
+    return createRawInstance<Base>(derived_class_name, false);
   }
 
   /**
@@ -236,11 +256,64 @@ private:
     }
   }
 
+  /// Generates an instance of loadable classes (i.e. class_loader).
+  /**
+   * It is not necessary for the user to call loadLibrary() as it will be
+   * invoked automatically if the library is not yet loaded (which typically
+   * happens when in "On Demand Load/Unload" mode).
+   *
+   * @param derived_class_name
+   *   The name of the class we want to create (@see getAvailableClasses()).
+   * @param managed
+   *   If true, the returned pointer is assumed to be wrapped in a smart
+   *   pointer by the caller.
+   * @return A Base* to newly created plugin object.
+   */
+  template <class Base>
+  Base* createRawInstance(const std::string& derived_class_name, bool managed)
+  {
+    if (!managed) {
+      this->setUnmanagedInstanceBeenCreated(true);
+    }
+
+    if (
+      managed &&
+      ClassLoader::hasUnmanagedInstanceBeenCreated() &&
+      isOnDemandLoadUnloadEnabled())
+    {
+      CONSOLE_BRIDGE_logInform(
+        "class_loader::ClassLoader: "
+        "An attempt is being made to create a managed plugin instance (i.e. boost::shared_ptr), "
+        "however an unmanaged instance was created within this process address space. "
+        "This means libraries for the managed instances will not be shutdown automatically on "
+        "final plugin destruction if on demand (lazy) loading/unloading mode is used."
+      );
+    }
+
+    if (!isLibraryLoaded()) {
+      loadLibrary();
+    }
+
+    Base* obj = class_loader::impl::createInstance<Base>(derived_class_name, this);
+    assert(obj != NULL);  // Unreachable assertion if createInstance() throws on failure.
+
+    if (managed)
+    {
+      std::lock_guard<std::recursive_mutex> lock(plugin_ref_count_mutex_);
+      ++plugin_ref_count_;
+    }
+
+    return obj;
+  }
+
   /**
    * @brief Getter for if an unmanaged (i.e. unsafe) instance has been created flag
    */
   CLASS_LOADER_PUBLIC
   static bool hasUnmanagedInstanceBeenCreated();
+
+  CLASS_LOADER_PUBLIC
+  static void setUnmanagedInstanceBeenCreated(bool state);
 
   /**
    * @brief As the library may be unloaded in "on-demand load/unload" mode, unload maybe called from createInstance(). The problem is that createInstance() locks the plugin_ref_count as does unloadLibrary(). This method is the implementation of unloadLibrary but with a parameter to decide if plugin_ref_mutex_ should be locked

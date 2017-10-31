@@ -41,6 +41,11 @@ bool ClassLoader::hasUnmanagedInstanceBeenCreated()
   return ClassLoader::has_unmananged_instance_been_created_;
 }
 
+void ClassLoader::setUnmanagedInstanceBeenCreated(bool state)
+{
+  ClassLoader::has_unmananged_instance_been_created_ = state;
+}
+
 std::string systemLibraryPrefix()
 {
 #if !defined(WIN32)

@@ -4,6 +4,7 @@
 class Base
 {
 public:
+  virtual ~Base() {}
   virtual void saySomething() = 0;
 };
 
