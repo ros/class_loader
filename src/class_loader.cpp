@@ -56,12 +56,17 @@ std::string systemLibraryPrefix()
 
 std::string systemLibrarySuffix()
 {
-#if !defined(WIN32)
-  return Poco::SharedLibrary::suffix();
-#else
-  // Return just .dll , as Poco::SharedLibrary::suffix() will return d.dll in debug mode.
-  // This isn't common for our usecase (instead debug libraries are placed in a `Debug` folder).
+// Poco should be compiled with `#define POCO_NO_SHARED_LIBRARY_DEBUG_SUFFIX`
+// to automatically remove the trailing `d` from the shared library suffix
+//   return Poco::SharedLibrary::suffix();
+#ifdef __linux__
+  return ".so";
+#elif __APPLE__
+  return ".dylib";
+#elif _WIN32
   return ".dll";
+#else
+  return Poco::SharedLibrary::suffix();
 #endif
 }
 
