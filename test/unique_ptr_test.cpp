@@ -3,10 +3,13 @@
 #include <class_loader/multi_library_class_loader.h>
 
 #include <gtest/gtest.h>
-#include <boost/thread.hpp>
 
+#include <chrono>
 #include <functional>
 #include <iostream>
+#include <string>
+#include <thread>
+#include <vector>
 
 const std::string LIBRARY_1 = "libclass_loader_TestPlugins1.so";
 const std::string LIBRARY_2 = "libclass_loader_TestPlugins2.so";
@@ -89,7 +92,7 @@ TEST(ClassLoaderUniquePtrTest, nonExistentPlugin)
 
 void wait(int seconds)
 {
-  boost::this_thread::sleep(boost::posix_time::seconds(seconds));
+  std::this_thread::sleep_for(std::chrono::seconds(seconds));
 }
 
 void run(ClassLoader* loader)
@@ -111,7 +114,7 @@ TEST(ClassLoaderUniquePtrTest, threadSafety)
   //or something if there's some implementation error.
   try
   {
-    std::vector<boost::thread> client_threads;
+    std::vector<std::thread> client_threads;
 
     for(unsigned int c = 0; c < 1000; c++)
       client_threads.emplace_back(std::bind(&run, &loader1));
