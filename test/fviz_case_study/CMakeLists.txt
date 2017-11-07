@@ -20,7 +20,15 @@ target_link_libraries(${PROJECT_NAME}_Test_FvizDefaultPlugin
   ${PROJECT_NAME} ${PROJECT_NAME}_Test_Fviz)
 class_loader_hide_library_symbols(${PROJECT_NAME}_Test_FvizDefaultPlugin)
 
-ament_add_gtest(${PROJECT_NAME}_fviz_test fviz_test.cpp)
+if(WIN32)
+  set(append_library_dirs "$<TARGET_FILE_DIR:${PROJECT_NAME}>;$<TARGET_FILE_DIR:${PROJECT_NAME}_TestPlugins1>")
+else()
+  set(append_library_dirs "${CMAKE_CURRENT_BINARY_DIR}")
+endif()
+
+ament_add_gtest(${PROJECT_NAME}_fviz_test fviz_test.cpp
+ APPEND_LIBRARY_DIRS "${append_library_dirs}"
+)
 if(TARGET ${PROJECT_NAME}_fviz_test)
   target_include_directories(${PROJECT_NAME}_fviz_test
     PUBLIC "../include" ${console_bridge_INCLUDE_DIRS} ${Poco_INCLUDE_DIRS})

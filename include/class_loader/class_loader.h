@@ -75,13 +75,11 @@ std::string systemLibraryFormat(const std::string & library_name);
 class ClassLoader
 {
 public:
-#if __cplusplus >= 201103L
   template<typename Base>
   using DeleterType = std::function<void (Base *)>;
 
   template<typename Base>
   using UniquePtr = std::unique_ptr<Base, DeleterType<Base>>;
-#endif
 
   /**
    * @brief  Constructor for ClassLoader
@@ -125,7 +123,6 @@ public:
     );
   }
 
-#if __cplusplus >= 201103L
   /// Generates an instance of loadable classes (i.e. class_loader).
   /**
    * It is not necessary for the user to call loadLibrary() as it will be
@@ -148,7 +145,6 @@ public:
       std::bind(&ClassLoader::onPluginDeletion<Base>, this, std::placeholders::_1)
     );
   }
-#endif
 
   /// Generates an instance of loadable classes (i.e. class_loader).
   /**

@@ -14,7 +14,16 @@ target_include_directories(${PROJECT_NAME}_TestPlugins2
 target_link_libraries(${PROJECT_NAME}_TestPlugins2 ${PROJECT_NAME})
 class_loader_hide_library_symbols(${PROJECT_NAME}_TestPlugins2)
 
-ament_add_gtest(${PROJECT_NAME}_utest utest.cpp)
+if(WIN32)
+  set(append_library_dirs "$<TARGET_FILE_DIR:${PROJECT_NAME}>;$<TARGET_FILE_DIR:${PROJECT_NAME}_TestPlugins1>")
+else()
+  set(append_library_dirs "${CMAKE_CURRENT_BINARY_DIR}")
+endif()
+
+ament_add_gtest(${PROJECT_NAME}_utest utest.cpp
+  APPEND_LIBRARY_DIRS "${append_library_dirs}"
+)
+
 if(TARGET ${PROJECT_NAME}_utest)
   target_include_directories(${PROJECT_NAME}_utest
     PUBLIC "../include" ${console_bridge_INCLUDE_DIRS} ${Poco_INCLUDE_DIRS})

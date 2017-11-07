@@ -11,8 +11,8 @@
 #include <thread>
 #include <vector>
 
-const std::string LIBRARY_1 = "libclass_loader_TestPlugins1.so";
-const std::string LIBRARY_2 = "libclass_loader_TestPlugins2.so";
+const std::string LIBRARY_1 = class_loader::systemLibraryFormat("class_loader_TestPlugins1");
+const std::string LIBRARY_2 = class_loader::systemLibraryFormat("class_loader_TestPlugins2");
 
 using class_loader::ClassLoader;
 
