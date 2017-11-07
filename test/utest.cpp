@@ -74,7 +74,7 @@ TEST(ClassLoaderTest, nonExistentPlugin)
     }
 
     obj->saySomething();
-  } catch (const class_loader::CreateClassException & e) {
+  } catch (const class_loader::CreateClassException &) {
     SUCCEED();
     return;
   } catch (...) {
@@ -88,7 +88,7 @@ TEST(ClassLoaderTest, nonExistentLibrary)
 {
   try {
     class_loader::ClassLoader loader1("libDoesNotExist.so", false);
-  } catch (const class_loader::LibraryLoadException & e) {
+  } catch (const class_loader::LibraryLoadException &) {
     SUCCEED();
     return;
   } catch (...) {
@@ -115,7 +115,7 @@ TEST(ClassLoaderTest, invalidBase)
     } else {
       FAIL() << "Class not available for correct base class.";
     }
-  } catch (const class_loader::LibraryLoadException & e) {
+  } catch (const class_loader::LibraryLoadException &) {
     FAIL() << "Unexpected exception";
   } catch (...) {
     FAIL() << "Unexpected and unknown exception caught.\n";
@@ -161,7 +161,7 @@ TEST(ClassLoaderTest, threadSafety)
     loader1.unloadLibrary();
     ASSERT_FALSE(loader1.isLibraryLoaded());
 
-  } catch (const class_loader::ClassLoaderException & ex) {
+  } catch (const class_loader::ClassLoaderException &) {
     FAIL() << "Unexpected ClassLoaderException.";
   } catch (...) {
     FAIL() << "Unknown exception.";
@@ -194,7 +194,7 @@ TEST(ClassLoaderTest, loadRefCountingNonLazy)
     ASSERT_TRUE(loader1.isLibraryLoaded());
 
     return;
-  } catch (const class_loader::ClassLoaderException & e) {
+  } catch (const class_loader::ClassLoaderException &) {
     FAIL() << "Unexpected exception.\n";
   } catch (...) {
     FAIL() << "Unknown exception caught.\n";
@@ -235,7 +235,7 @@ TEST(ClassLoaderTest, loadRefCountingLazy)
     ASSERT_TRUE(loader1.isLibraryLoaded());
 
     return;
-  } catch (const class_loader::ClassLoaderException & e) {
+  } catch (const class_loader::ClassLoaderException &) {
     FAIL() << "Unexpected exception.\n";
   } catch (...) {
     FAIL() << "Unknown exception caught.\n";
