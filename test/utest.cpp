@@ -3,6 +3,7 @@
 #include <thread>
 
 #include <class_loader/class_loader.h>
+#include <class_loader/multi_library_class_loader.h>
 
 #include <gtest/gtest.h>
 
@@ -242,4 +243,57 @@ TEST(ClassLoaderTest, loadRefCountingLazy)
   }
 
   FAIL() << "Did not throw exception as expected.\n";
+}
+
+void testMultiClassLoader(bool lazy)
+{
+  try {
+    class_loader::MultiLibraryClassLoader loader(lazy);
+    loader.loadLibrary(LIBRARY_1);
+    loader.loadLibrary(LIBRARY_2);
+    for (int i = 0; i < 2; ++i) {
+      loader.createInstance<Base>("Cat")->saySomething();
+      loader.createInstance<Base>("Dog")->saySomething();
+      loader.createInstance<Base>("Robot")->saySomething();
+    }
+  } catch (class_loader::ClassLoaderException & e) {
+    FAIL() << "ClassLoaderException: " << e.what() << "\n";
+  }
+
+  SUCCEED();
+}
+
+TEST(MultiClassLoaderTest, lazyLoad)
+{
+  testMultiClassLoader(true);
+}
+TEST(MultiClassLoaderTest, lazyLoadSecondTime)
+{
+  testMultiClassLoader(true);
+}
+TEST(MultiClassLoaderTest, nonLazyLoad)
+{
+  testMultiClassLoader(false);
+}
+TEST(MultiClassLoaderTest, noWarningOnLazyLoad)
+{
+  try {
+    std::shared_ptr<Base> cat, dog, rob;
+    {
+      class_loader::MultiLibraryClassLoader loader(true);
+      loader.loadLibrary(LIBRARY_1);
+      loader.loadLibrary(LIBRARY_2);
+
+      cat = loader.createInstance<Base>("Cat");
+      dog = loader.createInstance<Base>("Dog");
+      rob = loader.createInstance<Base>("Robot");
+    }
+    cat->saySomething();
+    dog->saySomething();
+    rob->saySomething();
+  } catch (class_loader::ClassLoaderException & e) {
+    FAIL() << "ClassLoaderException: " << e.what() << "\n";
+  }
+
+  SUCCEED();
 }
