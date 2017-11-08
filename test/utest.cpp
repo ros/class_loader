@@ -247,19 +247,16 @@ TEST(ClassLoaderTest, loadRefCountingLazy)
 
 void testMultiClassLoader(bool lazy)
 {
-  try
-  {
+  try {
     class_loader::MultiLibraryClassLoader loader(lazy);
     loader.loadLibrary(LIBRARY_1);
     loader.loadLibrary(LIBRARY_2);
-    for (int i=0; i < 2; ++i) {
+    for (int i = 0; i < 2; ++i) {
       loader.createInstance<Base>("Cat")->saySomething();
       loader.createInstance<Base>("Dog")->saySomething();
       loader.createInstance<Base>("Robot")->saySomething();
     }
-  }
-  catch(class_loader::ClassLoaderException& e)
-  {
+  } catch (class_loader::ClassLoaderException & e) {
     FAIL() << "ClassLoaderException: " << e.what() << "\n";
   }
 
@@ -280,8 +277,7 @@ TEST(MultiClassLoaderTest, nonLazyLoad)
 }
 TEST(MultiClassLoaderTest, noWarningOnLazyLoad)
 {
-  try
-  {
+  try {
     std::shared_ptr<Base> cat, dog, rob;
     {
       class_loader::MultiLibraryClassLoader loader(true);
@@ -295,9 +291,7 @@ TEST(MultiClassLoaderTest, noWarningOnLazyLoad)
     cat->saySomething();
     dog->saySomething();
     rob->saySomething();
-  }
-  catch(class_loader::ClassLoaderException& e)
-  {
+  } catch (class_loader::ClassLoaderException & e) {
     FAIL() << "ClassLoaderException: " << e.what() << "\n";
   }
 
