@@ -14,36 +14,47 @@ target_include_directories(${PROJECT_NAME}_TestPlugins2
 target_link_libraries(${PROJECT_NAME}_TestPlugins2 ${PROJECT_NAME})
 class_loader_hide_library_symbols(${PROJECT_NAME}_TestPlugins2)
 
-ament_add_gtest(${PROJECT_NAME}_utest utest.cpp)
+if(WIN32)
+  set(append_library_dirs "$<TARGET_FILE_DIR:${PROJECT_NAME}>;$<TARGET_FILE_DIR:${PROJECT_NAME}_TestPlugins1>")
+else()
+  set(append_library_dirs "${CMAKE_CURRENT_BINARY_DIR}")
+endif()
+
+ament_add_gtest(${PROJECT_NAME}_utest utest.cpp
+  APPEND_LIBRARY_DIRS "${append_library_dirs}"
+)
+
 if(TARGET ${PROJECT_NAME}_utest)
   target_include_directories(${PROJECT_NAME}_utest
     PUBLIC "../include" ${console_bridge_INCLUDE_DIRS} ${Poco_INCLUDE_DIRS})
-  target_link_libraries(${PROJECT_NAME}_utest ${PROJECT_NAME} ${Poco_LIBRARIES})
+  target_link_libraries(${PROJECT_NAME}_utest
+    ${PROJECT_NAME}
+    ${Poco_LIBRARIES}
+  )
   if(NOT WIN32)
     target_link_libraries(${PROJECT_NAME}_utest pthread)
   endif()
-  add_dependencies(${PROJECT_NAME}_utest ${PROJECT_NAME}_TestPlugins1 ${PROJECT_NAME}_TestPlugins2)
+  add_dependencies(${PROJECT_NAME}_utest
+    ${PROJECT_NAME}_TestPlugins1
+    ${PROJECT_NAME}_TestPlugins2)
 endif()
 
-include(CheckCXXCompilerFlag)
-CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
-if(COMPILER_SUPPORTS_CXX11)
-  catkin_add_gtest(${PROJECT_NAME}_unique_ptr_test unique_ptr_test.cpp)
-  if(TARGET ${PROJECT_NAME}_unique_ptr_test)
-    target_link_libraries(${PROJECT_NAME}_unique_ptr_test
-      ${Boost_LIBRARIES}
-      ${class_loader_LIBRARIES}
-    )
-    set_target_properties(${PROJECT_NAME}_unique_ptr_test
-      PROPERTIES
-        COMPILE_FLAGS -std=c++11
-        LINK_FLAGS -std=c++11
-    )
-    add_dependencies(${PROJECT_NAME}_unique_ptr_test
-      ${PROJECT_NAME}_TestPlugins1
-      ${PROJECT_NAME}_TestPlugins2
-    )
+ament_add_gtest(${PROJECT_NAME}_unique_ptr_test unique_ptr_test.cpp
+  APPEND_LIBRARY_DIRS "${append_library_dirs}"
+)
+if(TARGET ${PROJECT_NAME}_unique_ptr_test)
+  target_include_directories(${PROJECT_NAME}_unique_ptr_test
+	  PUBLIC "../include" ${Poco_INCLUDE_DIRS})
+  target_link_libraries(${PROJECT_NAME}_unique_ptr_test
+    ${PROJECT_NAME}
+    ${Poco_LIBRARIES}
+  )
+  if(NOT WIN32)
+    target_link_libraries(${PROJECT_NAME}_unique_ptr_test pthread)
   endif()
+  add_dependencies(${PROJECT_NAME}_unique_ptr_test
+    ${PROJECT_NAME}_TestPlugins1
+    ${PROJECT_NAME}_TestPlugins2)
 endif()
 
 add_subdirectory(fviz_case_study)

@@ -43,7 +43,7 @@ if(WIN32)
   target_compile_definitions(${PROJECT_NAME} PRIVATE "CLASS_LOADER_BUILDING_DLL")
 endif()
 
-if(AMENT_ENABLE_TESTING)
+if(BUILD_TESTING)
   add_subdirectory(test)
 endif()
 
