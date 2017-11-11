@@ -29,6 +29,9 @@
 
 #include "class_loader/multi_library_class_loader.h"
 
+#include <string>
+#include <vector>
+
 namespace class_loader
 {
 

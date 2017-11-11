@@ -29,6 +29,8 @@
 
 #include "class_loader/class_loader.h"
 
+#include <string>
+
 namespace class_loader
 {
 

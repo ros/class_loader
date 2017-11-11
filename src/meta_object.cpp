@@ -27,6 +27,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <string>
+
 #include "class_loader/meta_object.h"
 #include "class_loader/class_loader.h"
 

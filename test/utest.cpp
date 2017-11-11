@@ -1,10 +1,15 @@
 #include <boost/thread.hpp>
 #include <boost/bind.hpp>
 #include <iostream>
-#include <class_loader/class_loader.h>
-#include <class_loader/multi_library_class_loader.h>
-#include "base.h"
-#include <gtest/gtest.h>
+#include <string>
+#include <vector>
+
+#include "class_loader/class_loader.h"
+#include "class_loader/multi_library_class_loader.h"
+
+#include "gtest/gtest.h"
+
+#include "./base.h"
 
 const std::string LIBRARY_1 = "libclass_loader_TestPlugins1.so";
 const std::string LIBRARY_2 = "libclass_loader_TestPlugins2.so";

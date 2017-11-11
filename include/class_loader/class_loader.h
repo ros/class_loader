@@ -30,19 +30,21 @@
 #ifndef CLASS_LOADER__CLASS_LOADER_H_
 #define CLASS_LOADER__CLASS_LOADER_H_
 
+#include <boost/bind.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/thread/recursive_mutex.hpp>
-#include <boost/bind.hpp>
-#include <vector>
 #include <string>
-#include <console_bridge/console.h>
-#include "class_loader/class_loader_register_macro.h"
+#include <vector>
+
+#include "console_bridge/console.h"
+
 #include "class_loader/class_loader_core.h"
+#include "class_loader/class_loader_register_macro.h"
 #include "class_loader/console_bridge_compatibility.h"
 
 #if __cplusplus >= 201103L
-#  include<memory>
-#  include<functional>
+#include <memory>
+#include <functional>
 #endif
 
 namespace class_loader

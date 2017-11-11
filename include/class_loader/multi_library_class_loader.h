@@ -30,8 +30,12 @@
 #ifndef CLASS_LOADER__MULTI_LIBRARY_CLASS_LOADER_H_
 #define CLASS_LOADER__MULTI_LIBRARY_CLASS_LOADER_H_
 
-#include "class_loader.h"
 #include <boost/thread.hpp>
+#include <map>
+#include <string>
+#include <vector>
+
+#include "class_loader/class_loader.h"
 
 namespace class_loader
 {

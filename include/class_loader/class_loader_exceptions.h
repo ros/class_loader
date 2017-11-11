@@ -31,6 +31,7 @@
 #define CLASS_LOADER__CLASS_LOADER_EXCEPTIONS_H_
 
 #include <exception>
+#include <string>
 
 namespace class_loader
 {

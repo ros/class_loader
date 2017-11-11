@@ -33,8 +33,9 @@
 #define CLASS_LOADER__META_OBJECT_H_
 
 #include <console_bridge/console.h>
-#include <vector>
 #include <typeinfo>
+#include <string>
+#include <vector>
 
 #include "class_loader/console_bridge_compatibility.h"
 

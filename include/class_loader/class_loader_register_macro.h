@@ -30,10 +30,12 @@
 #ifndef CLASS_LOADER__CLASS_LOADER_REGISTER_MACRO_H_
 #define CLASS_LOADER__CLASS_LOADER_REGISTER_MACRO_H_
 
-#include "class_loader_core.h"
-#include <console_bridge/console.h>
+#include <string>
 
+#include "class_loader/class_loader_core.h"
 #include "class_loader/console_bridge_compatibility.h"
+
+#include "console_bridge/console.h"
 
 #define CLASS_LOADER_REGISTER_CLASS_INTERNAL_WITH_MESSAGE(Derived, Base, UniqueID, Message) \
 namespace \

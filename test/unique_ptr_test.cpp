@@ -28,7 +28,6 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "base.h"
 #include <class_loader/class_loader.h>
 #include <class_loader/multi_library_class_loader.h>
 
@@ -37,6 +36,10 @@
 
 #include <functional>
 #include <iostream>
+#include <string>
+#include <vector>
+
+#include "./base.h"
 
 const std::string LIBRARY_1 = "libclass_loader_TestPlugins1.so";
 const std::string LIBRARY_2 = "libclass_loader_TestPlugins2.so";

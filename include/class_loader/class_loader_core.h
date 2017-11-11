@@ -30,15 +30,18 @@
 #ifndef CLASS_LOADER__CLASS_LOADER_CORE_H_
 #define CLASS_LOADER__CLASS_LOADER_CORE_H_
 
-#include <Poco/SharedLibrary.h>
 #include <boost/thread/recursive_mutex.hpp>
-//#include <vector>
+#include <cstdio>
 #include <map>
-#include <typeinfo>
 #include <string>
+#include <typeinfo>
+#include <utility>
+#include <vector>
+
+#include "Poco/SharedLibrary.h"
+
 #include "class_loader/meta_object.h"
 #include "class_loader/class_loader_exceptions.h"
-#include <cstdio>
 
 /**
  * @note This header file is the internal implementation of the plugin system which is exposed via the ClassLoader class
