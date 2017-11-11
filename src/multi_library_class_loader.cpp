@@ -53,8 +53,9 @@ std::vector<std::string> MultiLibraryClassLoader::getRegisteredLibraries()
 ClassLoader* MultiLibraryClassLoader::getClassLoaderForLibrary(const std::string& library_path)
 {
   LibraryToClassLoaderMap::iterator itr = active_class_loaders_.find(library_path);
-  if (itr != active_class_loaders_.end()) return itr->second;
-  else return NULL;
+  if (itr != active_class_loaders_.end()) {
+    return itr->second;
+  } else {return NULL;}
 }
 
 ClassLoaderVector MultiLibraryClassLoader::getAllAvailableClassLoaders()

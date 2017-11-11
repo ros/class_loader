@@ -215,9 +215,9 @@ class MultiLibraryClassLoader
       {
         available_classes = loader->getAvailableClasses<Base>();
         return(available_classes);
-      }
-      else
+      } else {
         throw class_loader::NoClassLoaderExistsException("There is no ClassLoader in MultiLibraryClassLoader bound to library " + library_path + " Ensure you called MultiLibraryClassLoader::loadLibrary()");
+      }
     }
 
     /**

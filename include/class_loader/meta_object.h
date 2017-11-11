@@ -55,7 +55,6 @@ typedef std::vector<class_loader::ClassLoader*> ClassLoaderVector;
 class AbstractMetaObjectBase
 {
   public:
-
     /**
      * @brief Constructor for the class
      */
@@ -159,8 +158,8 @@ class AbstractMetaObject : public AbstractMetaObjectBase
      * @return A pointer of parametric type B to a newly created object.
      */
     virtual B* create() const = 0;
-	    /// Create a new instance of a class.
-	    /// Cannot be used for singletons.
+      /// Create a new instance of a class.
+      /// Cannot be used for singletons.
 
   private:
     AbstractMetaObject();
@@ -192,7 +191,7 @@ class MetaObject: public AbstractMetaObject<B>
      */
     B* create() const
     {
-	    return new C;
+      return new C;
     }
 };
 

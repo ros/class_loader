@@ -44,7 +44,7 @@ namespace \
     typedef  Base    _base; \
     ProxyExec##UniqueID() \
     { \
-      if(std::string(Message)!="")\
+      if(std::string(Message) != "")\
         CONSOLE_BRIDGE_logInform("%s", Message);\
       class_loader::class_loader_private::registerPlugin<_derived, _base>(#Derived, #Base); \
     }\

@@ -216,9 +216,9 @@ Base* createInstance(const std::string& derived_class_name, ClassLoader* loader)
       CONSOLE_BRIDGE_logDebug("class_loader.class_loader_private: ALERT!!! A metaobject (i.e. factory) exists for desired class, but has no owner. This implies that the library containing the class was dlopen()ed by means other than through the class_loader interface. This can happen if you build plugin libraries that contain more than just plugins (i.e. normal code your app links against) -- that intrinsically will trigger a dlopen() prior to main(). You should isolate your plugins into their own library, otherwise it will not be possible to shutdown the library!");
 
       obj = factory->create();
-    }
-    else
+    } else {
       throw(class_loader::CreateClassException("Could not create instance of type " + derived_class_name));
+    }
   }
 
   CONSOLE_BRIDGE_logDebug("class_loader.class_loader_private: Created instance of type %s and object pointer = %p", (typeid(obj).name()), obj);

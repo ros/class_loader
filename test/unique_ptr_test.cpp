@@ -151,7 +151,6 @@ TEST(ClassLoaderUniquePtrTest, threadSafety)
 
     loader1.unloadLibrary();
     ASSERT_FALSE(loader1.isLibraryLoaded());
-
   }
   catch(const class_loader::ClassLoaderException& ex)
   {

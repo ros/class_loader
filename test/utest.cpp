@@ -140,14 +140,12 @@ TEST(ClassLoaderTest, invalidBase)
     if(loader1.isClassAvailable<InvalidBase>("Cat"))
     {
       FAIL() << "Cat should not be available for InvalidBase";
-    }
-    else if(loader1.isClassAvailable<Base>("Cat"))
-    {
+    } else if(loader1.isClassAvailable<Base>("Cat")) {
       SUCCEED();
       return;
-    }
-    else
+    } else {
       FAIL() << "Class not available for correct base class.";
+    }
   }
   catch(const class_loader::LibraryLoadException& e)
   {
@@ -196,7 +194,6 @@ TEST(ClassLoaderTest, threadSafety)
 
     loader1.unloadLibrary();
     ASSERT_FALSE(loader1.isLibraryLoaded());
-
   }
   catch(const class_loader::ClassLoaderException& ex)
   {

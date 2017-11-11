@@ -265,7 +265,6 @@ class ClassLoader
     int unloadLibraryInternal(bool lock_plugin_ref_count);
 
   private:
-
     bool ondemand_load_unload_;
     std::string library_path_;
     int load_ref_count_;
