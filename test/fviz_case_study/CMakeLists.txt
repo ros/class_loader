@@ -27,7 +27,7 @@ else()
 endif()
 
 ament_add_gtest(${PROJECT_NAME}_fviz_test fviz_test.cpp
- APPEND_LIBRARY_DIRS "${append_library_dirs}"
+  APPEND_LIBRARY_DIRS "${append_library_dirs}"
 )
 if(TARGET ${PROJECT_NAME}_fviz_test)
   target_include_directories(${PROJECT_NAME}_fviz_test

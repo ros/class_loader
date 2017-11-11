@@ -44,7 +44,7 @@ ament_add_gtest(${PROJECT_NAME}_unique_ptr_test unique_ptr_test.cpp
 )
 if(TARGET ${PROJECT_NAME}_unique_ptr_test)
   target_include_directories(${PROJECT_NAME}_unique_ptr_test
-	  PUBLIC "../include" ${Poco_INCLUDE_DIRS})
+    PUBLIC "../include" ${Poco_INCLUDE_DIRS})
   target_link_libraries(${PROJECT_NAME}_unique_ptr_test
     ${PROJECT_NAME}
     ${Poco_LIBRARIES}
