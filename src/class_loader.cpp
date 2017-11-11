@@ -103,4 +103,4 @@ int ClassLoader::unloadLibraryInternal(bool lock_plugin_ref_count)
   return(load_ref_count_);
 }
 
-}
+}  // namespace class_loader

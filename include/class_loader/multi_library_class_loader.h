@@ -27,8 +27,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef CLASS_LOADER_MULTI_LIBRARY_CLASS_LOADER_H_DEFINED
-#define CLASS_LOADER_MULTI_LIBRARY_CLASS_LOADER_H_DEFINED
+#ifndef CLASS_LOADER__MULTI_LIBRARY_CLASS_LOADER_H_
+#define CLASS_LOADER__MULTI_LIBRARY_CLASS_LOADER_H_
 
 #include "class_loader.h"
 #include <boost/thread.hpp>
@@ -288,5 +288,5 @@ class MultiLibraryClassLoader
 };
 
 
-}
-#endif
+}  // namespace class_loader
+#endif  // CLASS_LOADER__MULTI_LIBRARY_CLASS_LOADER_H_

@@ -27,8 +27,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef CLASS_LOADER_CLASS_LOADER_H_DEFINED
-#define CLASS_LOADER_CLASS_LOADER_H_DEFINED
+#ifndef CLASS_LOADER__CLASS_LOADER_H_
+#define CLASS_LOADER__CLASS_LOADER_H_
 
 #include <boost/shared_ptr.hpp>
 #include <boost/thread/recursive_mutex.hpp>
@@ -275,7 +275,7 @@ class ClassLoader
     static bool has_unmananged_instance_been_created_;
 };
 
-}
+}  // namespace class_loader
 
 
-#endif
+#endif  // CLASS_LOADER__CLASS_LOADER_H_

@@ -29,8 +29,8 @@
 
 //Note: This header defines a simplication of Poco::MetaObject that allows us to tag MetaObjects with an associated library name.
 
-#ifndef PLUGINS_PRIVATE_META_OBJECT_DEFINED
-#define PLUGINS_PRIVATE_META_OBJECT_DEFINED
+#ifndef CLASS_LOADER__META_OBJECT_H_
+#define CLASS_LOADER__META_OBJECT_H_
 
 #include <console_bridge/console.h>
 #include <vector>
@@ -199,4 +199,4 @@ class MetaObject: public AbstractMetaObject<B>
 } // End namespace class_loader_private
 } // End namespace class_loader
 
-#endif
+#endif  // CLASS_LOADER__META_OBJECT_H_

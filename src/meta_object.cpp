@@ -118,7 +118,7 @@ ClassLoaderVector AbstractMetaObjectBase::getAssociatedClassLoaders()
   return(associated_class_loaders_);
 }
 
-}
+}  // namespace class_loader_private
 
 
-}
+}  // namespace class_loader

@@ -1,5 +1,5 @@
-#ifndef BASE_H
-#define BASE_H
+#ifndef BASE_H_
+#define BASE_H_
 
 class Base
 {
@@ -7,4 +7,4 @@ class Base
     virtual void saySomething() = 0;
 };
 
-#endif
+#endif  // BASE_H_

@@ -27,8 +27,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef class_loader_private_H_DEFINED
-#define class_loader_private_H_DEFINED
+#ifndef CLASS_LOADER__CLASS_LOADER_CORE_H_
+#define CLASS_LOADER__CLASS_LOADER_CORE_H_
 
 #include <Poco/SharedLibrary.h>
 #include <boost/thread/recursive_mutex.hpp>
@@ -295,4 +295,4 @@ void unloadLibrary(const std::string& library_path, ClassLoader* loader);
 } //End namespace class_loader_private
 } //End namespace class_loader
 
-#endif
+#endif  // CLASS_LOADER__CLASS_LOADER_CORE_H_

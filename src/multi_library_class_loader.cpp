@@ -99,4 +99,4 @@ int MultiLibraryClassLoader::unloadLibrary(const std::string& library_path)
   return(remaining_unloads);
 }
 
-}
+}  // namespace class_loader

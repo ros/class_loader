@@ -27,6 +27,9 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifndef CLASS_LOADER__CLASS_LOADER_EXCEPTIONS_H_
+#define CLASS_LOADER__CLASS_LOADER_EXCEPTIONS_H_
+
 #include <exception>
 
 namespace class_loader
@@ -82,4 +85,5 @@ class NoClassLoaderExistsException: public ClassLoaderException
     NoClassLoaderExistsException(const std::string error_desc) : ClassLoaderException(error_desc) {}
 };
 
-}
+}  // namespace class_loader
+#endif  // CLASS_LOADER__CLASS_LOADER_EXCEPTIONS_H_

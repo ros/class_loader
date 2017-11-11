@@ -27,8 +27,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef CLASS_LOADER_REGISTER_MACRO_H_DEFINED
-#define CLASS_LOADER_REGISTER_MACRO_H_DEFINED
+#ifndef CLASS_LOADER__CLASS_LOADER_REGISTER_MACRO_H_
+#define CLASS_LOADER__CLASS_LOADER_REGISTER_MACRO_H_
 
 #include "class_loader_core.h"
 #include <console_bridge/console.h>
@@ -50,7 +50,7 @@ namespace \
     }\
   };\
   static ProxyExec##UniqueID g_register_plugin_##UniqueID;\
-}
+}  // namespace
 
 #define CLASS_LOADER_REGISTER_CLASS_INTERNAL_HOP1_WITH_MESSAGE(Derived, Base, UniqueID, Message) CLASS_LOADER_REGISTER_CLASS_INTERNAL_WITH_MESSAGE(Derived, Base, UniqueID, Message)
 
@@ -66,5 +66,5 @@ namespace \
 */
 #define CLASS_LOADER_REGISTER_CLASS(Derived, Base)  CLASS_LOADER_REGISTER_CLASS_WITH_MESSAGE(Derived, Base, "")
 
-#endif
+#endif  // CLASS_LOADER__CLASS_LOADER_REGISTER_MACRO_H_
 
