@@ -108,7 +108,7 @@ int ClassLoader::unloadLibraryInternal(bool lock_plugin_ref_count)
       "destroying the ClassLoader. The library will NOT be unloaded.");
   } else {
     load_ref_count_ = load_ref_count_ - 1;
-    if (load_ref_count_ == 0) {
+    if (0 == load_ref_count_) {
       class_loader::class_loader_private::unloadLibrary(getLibraryPath(), this);
     } else if (load_ref_count_ < 0) {
       load_ref_count_ = 0;

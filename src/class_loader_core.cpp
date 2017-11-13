@@ -347,7 +347,7 @@ bool isLibraryLoaded(const std::string & library_path, ClassLoader * loader)
   int num_meta_objs_for_lib_bound_to_loader =
     allMetaObjectsForLibraryOwnedBy(library_path, loader).size();
   bool are_meta_objs_bound_to_loader =
-    (num_meta_objs_for_lib == 0) ? true : (
+    (0 == num_meta_objs_for_lib) ? true : (
     num_meta_objs_for_lib_bound_to_loader <= num_meta_objs_for_lib);
 
   return is_lib_loaded_by_anyone && are_meta_objs_bound_to_loader;
@@ -518,7 +518,7 @@ void loadLibrary(const std::string & library_path, ClassLoader * loader)
 
   // Graveyard scenario
   unsigned int num_lib_objs = allMetaObjectsForLibrary(library_path).size();
-  if (num_lib_objs == 0) {
+  if (0 == num_lib_objs) {
     CONSOLE_BRIDGE_logDebug(
       "class_loader.class_loader_private: "
       "Though the library %s was just loaded, it seems no factory metaobjects were registered. "

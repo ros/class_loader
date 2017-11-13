@@ -79,7 +79,7 @@ public:
       "Attempting to create instance of class type %s.",
       class_name.c_str());
     ClassLoader * loader = getClassLoaderForClass<Base>(class_name);
-    if (loader == NULL) {
+    if (NULL == loader) {
       throw class_loader::CreateClassException(
               "MultiLibraryClassLoader: Could not create object of class type " +
               class_name +
@@ -103,7 +103,7 @@ public:
   createInstance(const std::string & class_name, const std::string & library_path)
   {
     ClassLoader * loader = getClassLoaderForLibrary(library_path);
-    if (loader == NULL) {
+    if (NULL == loader) {
       throw class_loader::NoClassLoaderExistsException(
               "Could not create instance as there is no ClassLoader in "
               "MultiLibraryClassLoader bound to library " + library_path +
@@ -127,7 +127,7 @@ public:
       "class_loader::MultiLibraryClassLoader: Attempting to create instance of class type %s.",
       class_name.c_str());
     ClassLoader * loader = getClassLoaderForClass<Base>(class_name);
-    if (loader == nullptr) {
+    if (nullptr == loader) {
       throw class_loader::CreateClassException(
               "MultiLibraryClassLoader: Could not create object of class type " + class_name +
               " as no factory exists for it. "
@@ -150,7 +150,7 @@ public:
   createUniqueInstance(const std::string & class_name, const std::string & library_path)
   {
     ClassLoader * loader = getClassLoaderForLibrary(library_path);
-    if (loader == nullptr) {
+    if (nullptr == loader) {
       throw class_loader::NoClassLoaderExistsException(
               "Could not create instance as there is no ClassLoader in "
               "MultiLibraryClassLoader bound to library " + library_path +
@@ -172,7 +172,7 @@ public:
   Base * createUnmanagedInstance(const std::string & class_name)
   {
     ClassLoader * loader = getClassLoaderForClass<Base>(class_name);
-    if (loader == NULL) {
+    if (NULL == loader) {
       throw class_loader::CreateClassException(
               "MultiLibraryClassLoader: Could not create class of type " + class_name);
     }
@@ -191,7 +191,7 @@ public:
   Base * createUnmanagedInstance(const std::string & class_name, const std::string & library_path)
   {
     ClassLoader * loader = getClassLoaderForLibrary(library_path);
-    if (loader == NULL) {
+    if (NULL == loader) {
       throw class_loader::NoClassLoaderExistsException(
               "Could not create instance as there is no ClassLoader in MultiLibraryClassLoader "
               "bound to library " + library_path +

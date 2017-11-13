@@ -216,7 +216,7 @@ private:
       delete (obj);
       plugin_ref_count_ = plugin_ref_count_ - 1;
       assert(plugin_ref_count_ >= 0);
-      if (plugin_ref_count_ == 0 && isOnDemandLoadUnloadEnabled()) {
+      if (0 == plugin_ref_count_ && isOnDemandLoadUnloadEnabled()) {
         if (!ClassLoader::hasUnmanagedInstanceBeenCreated()) {
           unloadLibraryInternal(false);
         } else {

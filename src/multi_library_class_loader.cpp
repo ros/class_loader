@@ -104,7 +104,7 @@ int MultiLibraryClassLoader::unloadLibrary(const std::string & library_path)
   LibraryToClassLoaderMap::iterator itr = active_class_loaders_.find(library_path);
   if (itr != active_class_loaders_.end()) {
     ClassLoader * loader = itr->second;
-    if ((remaining_unloads = loader->unloadLibrary()) == 0) {
+    if (0 == (remaining_unloads = loader->unloadLibrary())) {
       delete (loader);
       active_class_loaders_.erase(itr);
     }

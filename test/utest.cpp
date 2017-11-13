@@ -104,7 +104,7 @@ TEST(ClassLoaderTest, nonExistentPlugin) {
 
   try {
     boost::shared_ptr<Base> obj = loader1.createInstance<Base>("Bear");
-    if (obj == NULL) {
+    if (NULL == obj) {
       FAIL() << "Null object being returned instead of exception thrown.";
     }
 

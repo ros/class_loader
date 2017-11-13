@@ -168,7 +168,7 @@ void registerPlugin(const std::string & class_name, const std::string & base_cla
     class_name.c_str(), getCurrentlyActiveClassLoader(),
     getCurrentlyLoadingLibraryName().c_str());
 
-  if (getCurrentlyActiveClassLoader() == NULL) {
+  if (NULL == getCurrentlyActiveClassLoader()) {
     CONSOLE_BRIDGE_logDebug(
       "class_loader.impl: ALERT!!! "
       "A library containing plugins has been opened through a means other than through the "
@@ -246,7 +246,7 @@ Base * createInstance(const std::string & derived_class_name, ClassLoader * load
     obj = factory->create();
   }
 
-  if (obj == NULL) {  // Was never created
+  if (NULL == obj) {  // Was never created
     if (factory && factory->isOwnedBy(NULL)) {
       CONSOLE_BRIDGE_logDebug(
         "class_loader.impl: ALERT!!! "

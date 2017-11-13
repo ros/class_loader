@@ -88,7 +88,7 @@ TEST(ClassLoaderUniquePtrTest, nonExistentPlugin) {
 
   try {
     ClassLoader::UniquePtr<Base> obj = loader1.createUniqueInstance<Base>("Bear");
-    if (obj == NULL) {
+    if (nullptr == obj) {
       FAIL() << "Null object being returned instead of exception thrown.";
     }
 
