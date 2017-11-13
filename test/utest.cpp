@@ -11,8 +11,8 @@
 
 #include "./base.h"
 
-const std::string LIBRARY_1 = "libclass_loader_TestPlugins1.so";
-const std::string LIBRARY_2 = "libclass_loader_TestPlugins2.so";
+const char LIBRARY_1[] = "libclass_loader_TestPlugins1.so";
+const char LIBRARY_2[] = "libclass_loader_TestPlugins2.so";
 
 /*****************************************************************************/
 TEST(ClassLoaderTest, basicLoad)
