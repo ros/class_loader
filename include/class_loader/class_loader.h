@@ -130,7 +130,9 @@ class ClassLoader
     UniquePtr<Base> createUniqueInstance(const std::string& derived_class_name)
     {
       Base* raw = createRawInstance<Base>(derived_class_name, true);
-      return std::unique_ptr<Base, DeleterType<Base>>(raw, boost::bind(&ClassLoader::onPluginDeletion<Base>, this, _1));
+      return std::unique_ptr<Base, DeleterType<Base>>(
+        raw,
+        boost::bind(&ClassLoader::onPluginDeletion<Base>, this, _1));
     }
 #endif
 
@@ -162,8 +164,9 @@ class ClassLoader
     bool isClassAvailable(const std::string& class_name)
     {
       std::vector<std::string> available_classes = getAvailableClasses<Base>();
-      return(std::find(available_classes.begin(), available_classes.end(), class_name) != available_classes.end());
-    }
+      return std::find(
+        available_classes.begin(), available_classes.end(), class_name) != available_classes.end();
+      }
 
     /**
      * @brief  Indicates if a library is loaded within the scope of this ClassLoader. Note that the library may already be loaded internally through another ClassLoader, but until loadLibrary() method is called, the ClassLoader cannot create objects from said library. If we want to see if the library has been opened by somebody else, @see isLibraryLoadedByAnyClassloader()
@@ -203,7 +206,8 @@ class ClassLoader
     template <class Base>
     void onPluginDeletion(Base* obj)
     {
-      CONSOLE_BRIDGE_logDebug("class_loader::ClassLoader: Calling onPluginDeletion() for obj ptr = %p.\n", obj);
+      CONSOLE_BRIDGE_logDebug(
+        "class_loader::ClassLoader: Calling onPluginDeletion() for obj ptr = %p.\n", obj);
       if(obj)
       {
         boost::recursive_mutex::scoped_lock lock(plugin_ref_count_mutex_);
@@ -212,10 +216,16 @@ class ClassLoader
         assert(plugin_ref_count_ >= 0);
         if(plugin_ref_count_ == 0 && isOnDemandLoadUnloadEnabled())
         {
-          if(!ClassLoader::hasUnmanagedInstanceBeenCreated())
+          if(!ClassLoader::hasUnmanagedInstanceBeenCreated()) {
             unloadLibraryInternal(false);
-          else
-            CONSOLE_BRIDGE_logWarn("class_loader::ClassLoader: Cannot unload library %s even though last shared pointer went out of scope. This is because createUnmanagedInstance was used within the scope of this process, perhaps by a different ClassLoader. Library will NOT be closed.", getLibraryPath().c_str());
+          } else {
+            CONSOLE_BRIDGE_logWarn(
+              "class_loader::ClassLoader: "
+              "Cannot unload library %s even though last shared pointer went out of scope. "
+              "This is because createUnmanagedInstance was used within the scope of this process,"
+              " perhaps by a different ClassLoader. Library will NOT be closed.",
+              getLibraryPath().c_str());
+          }
         }
       }
     }
@@ -236,14 +246,25 @@ class ClassLoader
       if (!managed)
         has_unmananged_instance_been_created_ = true;
 
-      if (managed && ClassLoader::hasUnmanagedInstanceBeenCreated() && isOnDemandLoadUnloadEnabled())
-        CONSOLE_BRIDGE_logInform("class_loader::ClassLoader: An attempt is being made to create a managed plugin instance (i.e. boost::shared_ptr), however an unmanaged instance was created within this process address space. This means libraries for the managed instances will not be shutdown automatically on final plugin destruction if on demand (lazy) loading/unloading mode is used.");
-
+      if (
+        managed &&
+        ClassLoader::hasUnmanagedInstanceBeenCreated() &&
+        isOnDemandLoadUnloadEnabled())
+      {
+        CONSOLE_BRIDGE_logInform(
+          "class_loader::ClassLoader: "
+          "An attempt is being made to create a managed plugin instance (i.e. boost::shared_ptr), "
+          "however an unmanaged instance was created within this process address space. "
+          "This means libraries for the managed instances will not be shutdown automatically on "
+          "final plugin destruction if on demand (lazy) loading/unloading mode is used."
+        );
+      }
       if (!isLibraryLoaded())
         loadLibrary();
 
-      Base* obj = class_loader::class_loader_private::createInstance<Base>(derived_class_name, this);
-      assert(obj != NULL); //Unreachable assertion if createInstance() throws on failure
+      Base* obj =
+        class_loader::class_loader_private::createInstance<Base>(derived_class_name, this);
+      assert(obj != NULL);  // Unreachable assertion if createInstance() throws on failure
 
       if (managed)
       {

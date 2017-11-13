@@ -50,12 +50,12 @@
 namespace class_loader
 {
 
-class ClassLoader; //Forward declaration
+class ClassLoader;  // Forward declaration
 
 namespace class_loader_private
 {
 
-//Typedefs
+// Typedefs
 /*****************************************************************************/
 typedef std::string LibraryPath;
 typedef std::string ClassName;
@@ -66,11 +66,11 @@ typedef std::pair<LibraryPath, Poco::SharedLibrary*> LibraryPair;
 typedef std::vector<LibraryPair> LibraryVector;
 typedef std::vector<AbstractMetaObjectBase*> MetaObjectVector;
 
-//Debug
+// Debug
 /*****************************************************************************/
 void printDebugInfoToScreen();
 
-//Global storage
+// Global storage
 /*****************************************************************************/
 
 /**
@@ -146,7 +146,7 @@ bool hasANonPurePluginLibraryBeenOpened();
  */
 void hasANonPurePluginLibraryBeenOpened(bool hasIt);
 
-//Plugin Functions
+// Plugin Functions
 /*****************************************************************************/
 
 /**
@@ -159,32 +159,64 @@ void hasANonPurePluginLibraryBeenOpened(bool hasIt);
 template <typename Derived, typename Base>
 void registerPlugin(const std::string& class_name, const std::string& base_class_name)
 {
-  //Note: This function will be automatically invoked when a dlopen() call
-  //opens a library. Normally it will happen within the scope of loadLibrary(),
-  //but that may not be guaranteed.
-  CONSOLE_BRIDGE_logDebug("class_loader.class_loader_private: Registering plugin factory for class = %s, ClassLoader* = %p and library name %s.", class_name.c_str(), getCurrentlyActiveClassLoader(), getCurrentlyLoadingLibraryName().c_str());
+  // Note: This function will be automatically invoked when a dlopen() call
+  // opens a library. Normally it will happen within the scope of loadLibrary(),
+  // but that may not be guaranteed.
+  CONSOLE_BRIDGE_logDebug(
+    "class_loader.class_loader_private: "
+    "Registering plugin factory for class = %s, ClassLoader* = %p and library name %s.",
+    class_name.c_str(), getCurrentlyActiveClassLoader(),
+    getCurrentlyLoadingLibraryName().c_str());
 
   if(getCurrentlyActiveClassLoader() == NULL)
   {
-    CONSOLE_BRIDGE_logDebug("class_loader.class_loader_private: ALERT!!! A library containing plugins has been opened through a means other than through the class_loader or pluginlib package. This can happen if you build plugin libraries that contain more than just plugins (i.e. normal code your app links against). This inherently will trigger a dlopen() prior to main() and cause problems as class_loader is not aware of plugin factories that autoregister under the hood. The class_loader package can compensate, but you may run into namespace collision problems (e.g. if you have the same plugin class in two different libraries and you load them both at the same time). The biggest problem is that library can now no longer be safely unloaded as the ClassLoader does not know when non-plugin code is still in use. In fact, no ClassLoader instance in your application will be unable to unload any library once a non-pure one has been opened. Please refactor your code to isolate plugins into their own libraries.");
+    CONSOLE_BRIDGE_logDebug(
+      "class_loader.impl: ALERT!!! "
+      "A library containing plugins has been opened through a means other than through the "
+      "class_loader or pluginlib package. "
+      "This can happen if you build plugin libraries that contain more than just plugins "
+      "(i.e. normal code your app links against). "
+      "This inherently will trigger a dlopen() prior to main() and cause problems as class_loader "
+      "is not aware of plugin factories that autoregister under the hood. "
+      "The class_loader package can compensate, but you may run into namespace collision problems "
+      "(e.g. if you have the same plugin class in two different libraries and you load them both "
+      "at the same time). "
+      "The biggest problem is that library can now no longer be safely unloaded as the "
+      "ClassLoader does not know when non-plugin code is still in use. "
+      "In fact, no ClassLoader instance in your application will be unable to unload any library "
+      "once a non-pure one has been opened. "
+      "Please refactor your code to isolate plugins into their own libraries.");
     hasANonPurePluginLibraryBeenOpened(true);
   }
 
-  //Create factory
-  class_loader_private::AbstractMetaObject<Base>* new_factory = new class_loader_private::MetaObject<Derived, Base>(class_name, base_class_name);
+  // Create factory
+  class_loader_private::AbstractMetaObject<Base>* new_factory =
+    new class_loader_private::MetaObject<Derived, Base>(class_name, base_class_name);
   new_factory->addOwningClassLoader(getCurrentlyActiveClassLoader());
   new_factory->setAssociatedLibraryPath(getCurrentlyLoadingLibraryName());
 
 
-  //Add it to global factory map map
+  // Add it to global factory map map
   getPluginBaseToFactoryMapMapMutex().lock();
   FactoryMap& factoryMap = getFactoryMapForBaseClass<Base>();
-  if(factoryMap.find(class_name) != factoryMap.end())
-    CONSOLE_BRIDGE_logWarn("class_loader.class_loader_private: SEVERE WARNING!!! A namespace collision has occured with plugin factory for class %s. New factory will OVERWRITE existing one. This situation occurs when libraries containing plugins are directly linked against an executable (the one running right now generating this message). Please separate plugins out into their own library or just don't link against the library and use either class_loader::ClassLoader/MultiLibraryClassLoader to open.", class_name.c_str());
+  if(factoryMap.find(class_name) != factoryMap.end()) {
+    CONSOLE_BRIDGE_logWarn(
+      "class_loader.impl: SEVERE WARNING!!! "
+      "A namespace collision has occured with plugin factory for class %s. "
+      "New factory will OVERWRITE existing one. "
+      "This situation occurs when libraries containing plugins are directly linked against an "
+      "executable (the one running right now generating this message). "
+      "Please separate plugins out into their own library or just don't link against the library "
+      "and use either class_loader::ClassLoader/MultiLibraryClassLoader to open.",
+      class_name.c_str());
+  }
   factoryMap[class_name] = new_factory;
   getPluginBaseToFactoryMapMapMutex().unlock();
 
-  CONSOLE_BRIDGE_logDebug("class_loader.class_loader_private: Registration of %s complete (Metaobject Address = %p)", class_name.c_str(), new_factory);
+  CONSOLE_BRIDGE_logDebug(
+    "class_loader.class_loader_private: "
+    "Registration of %s complete (Metaobject Address = %p)",
+    class_name.c_str(), new_factory);
 }
 
 /**
@@ -200,11 +232,13 @@ Base* createInstance(const std::string& derived_class_name, ClassLoader* loader)
 
   getPluginBaseToFactoryMapMapMutex().lock();
   FactoryMap& factoryMap = getFactoryMapForBaseClass<Base>();
-  if(factoryMap.find(derived_class_name) != factoryMap.end())
-    factory = dynamic_cast<class_loader_private::AbstractMetaObject<Base>*>(factoryMap[derived_class_name]);
-  else
-  {
-    CONSOLE_BRIDGE_logError("class_loader.class_loader_private: No metaobject exists for class type %s.", derived_class_name.c_str());
+  if(factoryMap.find(derived_class_name) != factoryMap.end()) {
+    factory = dynamic_cast<class_loader_private::AbstractMetaObject<Base>*>(
+      factoryMap[derived_class_name]);
+  } else {
+    CONSOLE_BRIDGE_logError(
+      "class_loader.class_loader_private: No metaobject exists for class type %s.",
+      derived_class_name.c_str());
   }
   getPluginBaseToFactoryMapMapMutex().unlock();
 
@@ -212,19 +246,32 @@ Base* createInstance(const std::string& derived_class_name, ClassLoader* loader)
   if(factory != NULL && factory->isOwnedBy(loader))
     obj = factory->create();
 
-  if(obj == NULL) //Was never created
+  if(obj == NULL)  // Was never created
   {
     if(factory && factory->isOwnedBy(NULL))
     {
-      CONSOLE_BRIDGE_logDebug("class_loader.class_loader_private: ALERT!!! A metaobject (i.e. factory) exists for desired class, but has no owner. This implies that the library containing the class was dlopen()ed by means other than through the class_loader interface. This can happen if you build plugin libraries that contain more than just plugins (i.e. normal code your app links against) -- that intrinsically will trigger a dlopen() prior to main(). You should isolate your plugins into their own library, otherwise it will not be possible to shutdown the library!");
+      CONSOLE_BRIDGE_logDebug(
+        "class_loader.impl: ALERT!!! "
+        "A metaobject (i.e. factory) exists for desired class, but has no owner. "
+        "This implies that the library containing the class was dlopen()ed by means other than "
+        "through the class_loader interface. "
+        "This can happen if you build plugin libraries that contain more than just plugins "
+        "(i.e. normal code your app links against) -- that intrinsically will trigger a dlopen() "
+        "prior to main(). "
+        "You should isolate your plugins into their own library, otherwise it will not be "
+        "possible to shutdown the library!");
 
       obj = factory->create();
     } else {
-      throw(class_loader::CreateClassException("Could not create instance of type " + derived_class_name));
+      throw(class_loader::CreateClassException(
+        "Could not create instance of type " + derived_class_name));
     }
   }
 
-  CONSOLE_BRIDGE_logDebug("class_loader.class_loader_private: Created instance of type %s and object pointer = %p", (typeid(obj).name()), obj);
+  CONSOLE_BRIDGE_logDebug(
+    "class_loader.class_loader_private: "
+    "Created instance of type %s and object pointer = %p",
+    (typeid(obj).name()), obj);
 
   return(obj);
 }
@@ -252,8 +299,8 @@ std::vector<std::string> getAvailableClasses(ClassLoader* loader)
       classes_with_no_owner.push_back(itr->first);
   }
 
-  //Added classes not associated with a class loader (Which can happen through
-  //an unexpected dlopen() to the library)
+  // Added classes not associated with a class loader (Which can happen through
+  // an unexpected dlopen() to the library)
   classes.insert(classes.end(), classes_with_no_owner.begin(),  classes_with_no_owner.end());
   return(classes);
 }
@@ -295,7 +342,7 @@ void loadLibrary(const std::string& library_path, ClassLoader* loader);
 void unloadLibrary(const std::string& library_path, ClassLoader* loader);
 
 
-} //End namespace class_loader_private
-} //End namespace class_loader
+}  // namespace class_loader_private
+}  // namespace class_loader
 
 #endif  // CLASS_LOADER__CLASS_LOADER_CORE_H_

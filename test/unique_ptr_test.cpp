@@ -52,7 +52,7 @@ TEST(ClassLoaderUniquePtrTest, basicLoad)
   try
   {
     ClassLoader loader1(LIBRARY_1, false);
-    loader1.createUniqueInstance<Base>("Cat")->saySomething(); //See if lazy load works
+    loader1.createUniqueInstance<Base>("Cat")->saySomething();  // See if lazy load works
     SUCCEED();
   }
   catch(class_loader::ClassLoaderException& e)
@@ -77,7 +77,7 @@ TEST(ClassLoaderUniquePtrTest, correctLazyLoadUnload)
       ASSERT_TRUE(loader1.isLibraryLoaded());
     }
 
-    //The library will unload automatically when the only plugin object left is destroyed
+    // The library will unload automatically when the only plugin object left is destroyed
     ASSERT_FALSE(class_loader::class_loader_private::isLibraryLoadedByAnybody(LIBRARY_1));
     return;
   }
@@ -139,9 +139,9 @@ TEST(ClassLoaderUniquePtrTest, threadSafety)
   ClassLoader loader1(LIBRARY_1);
   ASSERT_TRUE(loader1.isLibraryLoaded());
 
-  //Note: Hard to test thread safety to make sure memory isn't corrupted.
-  //The hope is this test is hard enough that once in a while it'll segfault
-  //or something if there's some implementation error.
+  // Note: Hard to test thread safety to make sure memory isn't corrupted.
+  // The hope is this test is hard enough that once in a while it'll segfault
+  // or something if there's some implementation error.
   try
   {
     std::vector<boost::thread> client_threads;

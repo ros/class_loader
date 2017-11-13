@@ -72,10 +72,19 @@ class MultiLibraryClassLoader
     template <class Base>
     boost::shared_ptr<Base> createInstance(const std::string& class_name)
     {
-      CONSOLE_BRIDGE_logDebug("class_loader::MultiLibraryClassLoader: Attempting to create instance of class type %s.", class_name.c_str());
+      CONSOLE_BRIDGE_logDebug(
+        "class_loader::MultiLibraryClassLoader: "
+        "Attempting to create instance of class type %s.",
+        class_name.c_str());
       ClassLoader* loader = getClassLoaderForClass<Base>(class_name);
-      if (loader == NULL)
-        throw class_loader::CreateClassException("MultiLibraryClassLoader: Could not create object of class type " + class_name + " as no factory exists for it. Make sure that the library exists and was explicitly loaded through MultiLibraryClassLoader::loadLibrary()");
+      if (loader == NULL) {
+        throw class_loader::CreateClassException(
+          "MultiLibraryClassLoader: Could not create object of class type " +
+          class_name +
+          " as no factory exists for it. Make sure that the library exists and "
+          "was explicitly loaded through MultiLibraryClassLoader::loadLibrary()");
+      }
+
       return loader->createInstance<Base>(class_name);
     }
 
@@ -88,11 +97,16 @@ class MultiLibraryClassLoader
      * @return A boost::shared_ptr<Base> to newly created plugin
      */
     template <class Base>
-    boost::shared_ptr<Base> createInstance(const std::string& class_name, const std::string& library_path)
+    boost::shared_ptr<Base>
+    createInstance(const std::string& class_name, const std::string& library_path)
     {
       ClassLoader* loader = getClassLoaderForLibrary(library_path);
-      if (loader == NULL)
-        throw class_loader::NoClassLoaderExistsException("Could not create instance as there is no ClassLoader in MultiLibraryClassLoader bound to library " + library_path + " Ensure you called MultiLibraryClassLoader::loadLibrary()");
+      if (loader == NULL) {
+        throw class_loader::NoClassLoaderExistsException(
+          "Could not create instance as there is no ClassLoader in "
+          "MultiLibraryClassLoader bound to library " + library_path +
+          " Ensure you called MultiLibraryClassLoader::loadLibrary()");
+      }
       return loader->createInstance<Base>(class_name);
     }
 
@@ -107,10 +121,17 @@ class MultiLibraryClassLoader
     template <class Base>
     ClassLoader::UniquePtr<Base> createUniqueInstance(const std::string& class_name)
     {
-      CONSOLE_BRIDGE_logDebug("class_loader::MultiLibraryClassLoader: Attempting to create instance of class type %s.", class_name.c_str());
+      CONSOLE_BRIDGE_logDebug(
+        "class_loader::MultiLibraryClassLoader: Attempting to create instance of class type %s.",
+        class_name.c_str());
       ClassLoader* loader = getClassLoaderForClass<Base>(class_name);
-      if (loader == nullptr)
-        throw class_loader::CreateClassException("MultiLibraryClassLoader: Could not create object of class type " + class_name + " as no factory exists for it. Make sure that the library exists and was explicitly loaded through MultiLibraryClassLoader::loadLibrary()");
+      if (loader == nullptr) {
+        throw class_loader::CreateClassException(
+          "MultiLibraryClassLoader: Could not create object of class type " + class_name +
+          " as no factory exists for it. "
+          "Make sure that the library exists and was explicitly loaded through "
+          "MultiLibraryClassLoader::loadLibrary()");
+      }
       return loader->createUniqueInstance<Base>(class_name);
     }
 
@@ -123,11 +144,16 @@ class MultiLibraryClassLoader
      * @return A unique pointer to newly created plugin
      */
     template <class Base>
-    ClassLoader::UniquePtr<Base> createUniqueInstance(const std::string& class_name, const std::string& library_path)
+    ClassLoader::UniquePtr<Base>
+    createUniqueInstance(const std::string& class_name, const std::string& library_path)
     {
       ClassLoader* loader = getClassLoaderForLibrary(library_path);
-      if (loader == nullptr)
-        throw class_loader::NoClassLoaderExistsException("Could not create instance as there is no ClassLoader in MultiLibraryClassLoader bound to library " + library_path + " Ensure you called MultiLibraryClassLoader::loadLibrary()");
+      if (loader == nullptr) {
+        throw class_loader::NoClassLoaderExistsException(
+          "Could not create instance as there is no ClassLoader in "
+          "MultiLibraryClassLoader bound to library " + library_path +
+          " Ensure you called MultiLibraryClassLoader::loadLibrary()");
+      }
       return loader->createUniqueInstance<Base>(class_name);
     }
 #endif
@@ -145,7 +171,8 @@ class MultiLibraryClassLoader
     {
       ClassLoader* loader = getClassLoaderForClass<Base>(class_name);
       if (loader == NULL)
-        throw class_loader::CreateClassException("MultiLibraryClassLoader: Could not create class of type " + class_name);
+        throw class_loader::CreateClassException(
+          "MultiLibraryClassLoader: Could not create class of type " + class_name);
       return loader->createUnmanagedInstance<Base>(class_name);
     }
 
@@ -161,8 +188,12 @@ class MultiLibraryClassLoader
     Base* createUnmanagedInstance(const std::string& class_name, const std::string& library_path)
     {
       ClassLoader* loader = getClassLoaderForLibrary(library_path);
-      if (loader == NULL)
-        throw class_loader::NoClassLoaderExistsException("Could not create instance as there is no ClassLoader in MultiLibraryClassLoader bound to library " + library_path + " Ensure you called MultiLibraryClassLoader::loadLibrary()");
+      if (loader == NULL) {
+        throw class_loader::NoClassLoaderExistsException(
+          "Could not create instance as there is no ClassLoader in MultiLibraryClassLoader "
+          "bound to library " + library_path +
+          " Ensure you called MultiLibraryClassLoader::loadLibrary()");
+      }
       return loader->createUnmanagedInstance<Base>(class_name);
     }
 
@@ -176,7 +207,8 @@ class MultiLibraryClassLoader
     bool isClassAvailable(const std::string& class_name)
     {
       std::vector<std::string> available_classes = getAvailableClasses<Base>();
-      return(available_classes.end() != std::find(available_classes.begin(), available_classes.end(), class_name));
+      return(available_classes.end() != std::find(
+        available_classes.begin(), available_classes.end(), class_name));
     }
 
     /**
@@ -200,7 +232,8 @@ class MultiLibraryClassLoader
       {
         ClassLoader* current = loaders.at(c);
         std::vector<std::string> loader_classes = current->getAvailableClasses<Base>();
-        available_classes.insert(available_classes.end(), loader_classes.begin(), loader_classes.end());
+        available_classes.insert(
+          available_classes.end(), loader_classes.begin(), loader_classes.end());
       }
       return(available_classes);
     }
@@ -220,7 +253,9 @@ class MultiLibraryClassLoader
         available_classes = loader->getAvailableClasses<Base>();
         return(available_classes);
       } else {
-        throw class_loader::NoClassLoaderExistsException("There is no ClassLoader in MultiLibraryClassLoader bound to library " + library_path + " Ensure you called MultiLibraryClassLoader::loadLibrary()");
+        throw class_loader::NoClassLoaderExistsException(
+          "There is no ClassLoader in MultiLibraryClassLoader bound to library " + library_path +
+          " Ensure you called MultiLibraryClassLoader::loadLibrary()");
       }
     }
 

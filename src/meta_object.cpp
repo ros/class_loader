@@ -37,20 +37,27 @@ namespace class_loader
 namespace class_loader_private
 {
 
-AbstractMetaObjectBase::AbstractMetaObjectBase(const std::string& class_name, const std::string& base_class_name) :
+AbstractMetaObjectBase::AbstractMetaObjectBase(
+  const std::string& class_name, const std::string& base_class_name) :
 associated_library_path_("Unknown"),
 base_class_name_(base_class_name),
 class_name_(class_name),
 typeid_base_class_name_("UNSET")
 /*****************************************************************************/
 {
-    CONSOLE_BRIDGE_logDebug("class_loader.class_loader_private.AbstractMetaObjectBase: Creating MetaObject %p (base = %s, derived = %s, library path = %s)", this, baseClassName().c_str(), className().c_str(), getAssociatedLibraryPath().c_str());
+  CONSOLE_BRIDGE_logDebug(
+    "class_loader.class_loader_private.AbstractMetaObjectBase: "
+    "Creating MetaObject %p (base = %s, derived = %s, library path = %s)",
+    this, baseClassName().c_str(), className().c_str(), getAssociatedLibraryPath().c_str());
 }
 
 AbstractMetaObjectBase::~AbstractMetaObjectBase()
 /*****************************************************************************/
 {
-    CONSOLE_BRIDGE_logDebug("class_loader.class_loader_private.AbstractMetaObjectBase: Destroying MetaObject %p (base = %s, derived = %s, library path = %s)", this, baseClassName().c_str(), className().c_str(), getAssociatedLibraryPath().c_str());
+    CONSOLE_BRIDGE_logDebug(
+      "class_loader.class_loader_private.AbstractMetaObjectBase: "
+      "Destroying MetaObject %p (base = %s, derived = %s, library path = %s)",
+      this, baseClassName().c_str(), className().c_str(), getAssociatedLibraryPath().c_str());
 }
 
 std::string AbstractMetaObjectBase::className() const
@@ -121,6 +128,4 @@ ClassLoaderVector AbstractMetaObjectBase::getAssociatedClassLoaders()
 }
 
 }  // namespace class_loader_private
-
-
 }  // namespace class_loader
