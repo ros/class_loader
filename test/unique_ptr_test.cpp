@@ -93,7 +93,7 @@ TEST(ClassLoaderUniquePtrTest, nonExistentPlugin) {
     }
 
     obj->saySomething();
-  } catch (const class_loader::CreateClassException & e) {
+  } catch (const class_loader::CreateClassException &) {
     SUCCEED();
     return;
   } catch (...) {
@@ -138,7 +138,7 @@ TEST(ClassLoaderUniquePtrTest, threadSafety) {
 
     loader1.unloadLibrary();
     ASSERT_FALSE(loader1.isLibraryLoaded());
-  } catch (const class_loader::ClassLoaderException & ex) {
+  } catch (const class_loader::ClassLoaderException &) {
     FAIL() << "Unexpected ClassLoaderException.";
   } catch (...) {
     FAIL() << "Unknown exception.";
@@ -179,7 +179,7 @@ TEST(ClassLoaderUniquePtrTest, loadRefCountingLazy) {
     ASSERT_TRUE(loader1.isLibraryLoaded());
 
     return;
-  } catch (const class_loader::ClassLoaderException & e) {
+  } catch (const class_loader::ClassLoaderException &) {
     FAIL() << "Unexpected exception.\n";
   } catch (...) {
     FAIL() << "Unknown exception caught.\n";
