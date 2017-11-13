@@ -3,7 +3,7 @@ project(class_loader)
 
 find_package(Boost REQUIRED COMPONENTS thread system)
 
-set(CATKIN_DISABLED false CACHE BOOL "Disable the catkin build, useful if catkin is present but a build outside or ros is done" )
+set(CATKIN_DISABLED false CACHE BOOL "Disable the catkin build, useful if catkin is present but a build outside of ros is done")
 if(NOT CATKIN_DISABLED)
   find_package(catkin QUIET)
 endif()
@@ -38,11 +38,11 @@ set(${PROJECT_NAME}_SRCS
   src/multi_library_class_loader.cpp
 )
 set(${PROJECT_NAME}_HDRS
+  include/class_loader/class_loader.h
   include/class_loader/class_loader_core.h
   include/class_loader/class_loader_exceptions.h
-  include/class_loader/class_loader.h
-  include/class_loader/console_bridge_compatibility.h
   include/class_loader/class_loader_register_macro.h
+  include/class_loader/console_bridge_compatibility.h
   include/class_loader/meta_object.h
   include/class_loader/multi_library_class_loader.h
 )
@@ -71,7 +71,7 @@ if(NOT catkin_FOUND)
   # Prepare and install necessary files to support finding of the library
   # using pkg-config
   configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/${TARGET_NAME}.pc.in
-                 ${CMAKE_CURRENT_BINARY_DIR}/${TARGET_NAME}.pc @ONLY)
+    ${CMAKE_CURRENT_BINARY_DIR}/${TARGET_NAME}.pc @ONLY)
 
   install(FILES ${CMAKE_BINARY_DIR}/${PROJECT_NAME}.pc DESTINATION lib/pkgconfig)
 endif()
