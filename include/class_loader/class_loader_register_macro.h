@@ -38,21 +38,21 @@
 #include "console_bridge/console.h"
 
 #define CLASS_LOADER_REGISTER_CLASS_INTERNAL_WITH_MESSAGE(Derived, Base, UniqueID, Message) \
-namespace \
-{\
-  struct ProxyExec##UniqueID \
-  {\
+  namespace \
+  { \
+  struct ProxyExec ## UniqueID \
+  { \
     typedef  Derived _derived; \
-    typedef  Base    _base; \
-    ProxyExec##UniqueID() \
+    typedef  Base _base; \
+    ProxyExec ## UniqueID() \
     { \
-      if(std::string(Message) != "")\
-        CONSOLE_BRIDGE_logInform("%s", Message);\
+      if (std::string(Message) != "") { \
+        CONSOLE_BRIDGE_logInform("%s", Message);} \
       class_loader::class_loader_private::registerPlugin<_derived, _base>(#Derived, #Base); \
-    }\
-  };\
-  static ProxyExec##UniqueID g_register_plugin_##UniqueID;\
-}  // namespace
+    } \
+  }; \
+  static ProxyExec ## UniqueID g_register_plugin_ ## UniqueID; \
+  }  // namespace
 
 #define CLASS_LOADER_REGISTER_CLASS_INTERNAL_HOP1_WITH_MESSAGE(Derived, Base, UniqueID, Message) \
   CLASS_LOADER_REGISTER_CLASS_INTERNAL_WITH_MESSAGE(Derived, Base, UniqueID, Message)
@@ -72,4 +72,3 @@ namespace \
   CLASS_LOADER_REGISTER_CLASS_WITH_MESSAGE(Derived, Base, "")
 
 #endif  // CLASS_LOADER__CLASS_LOADER_REGISTER_MACRO_H_
-

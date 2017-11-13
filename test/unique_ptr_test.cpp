@@ -47,25 +47,19 @@ const char LIBRARY_2[] = "libclass_loader_TestPlugins2.so";
 using class_loader::ClassLoader;
 
 /*****************************************************************************/
-TEST(ClassLoaderUniquePtrTest, basicLoad)
-{
-  try
-  {
+TEST(ClassLoaderUniquePtrTest, basicLoad) {
+  try {
     ClassLoader loader1(LIBRARY_1, false);
     loader1.createUniqueInstance<Base>("Cat")->saySomething();  // See if lazy load works
     SUCCEED();
-  }
-  catch(class_loader::ClassLoaderException& e)
-  {
+  } catch (class_loader::ClassLoaderException & e) {
     FAIL() << "ClassLoaderException: " << e.what() << "\n";
   }
 }
 
 /*****************************************************************************/
-TEST(ClassLoaderUniquePtrTest, correctLazyLoadUnload)
-{
-  try
-  {
+TEST(ClassLoaderUniquePtrTest, correctLazyLoadUnload) {
+  try {
     ASSERT_FALSE(class_loader::class_loader_private::isLibraryLoadedByAnybody(LIBRARY_1));
     ClassLoader loader1(LIBRARY_1, true);
     ASSERT_FALSE(class_loader::class_loader_private::isLibraryLoadedByAnybody(LIBRARY_1));
@@ -80,38 +74,29 @@ TEST(ClassLoaderUniquePtrTest, correctLazyLoadUnload)
     // The library will unload automatically when the only plugin object left is destroyed
     ASSERT_FALSE(class_loader::class_loader_private::isLibraryLoadedByAnybody(LIBRARY_1));
     return;
-  }
-  catch(class_loader::ClassLoaderException& e)
-  {
+  } catch (class_loader::ClassLoaderException & e) {
     FAIL() << "ClassLoaderException: " << e.what() << "\n";
-  }
-  catch(...)
-  {
+  } catch (...) {
     FAIL() << "Unhandled exception";
   }
 }
 
 /*****************************************************************************/
 
-TEST(ClassLoaderUniquePtrTest, nonExistentPlugin)
-{
+TEST(ClassLoaderUniquePtrTest, nonExistentPlugin) {
   ClassLoader loader1(LIBRARY_1, false);
 
-  try
-  {
+  try {
     ClassLoader::UniquePtr<Base> obj = loader1.createUniqueInstance<Base>("Bear");
-    if(obj == NULL)
+    if (obj == NULL) {
       FAIL() << "Null object being returned instead of exception thrown.";
+    }
 
     obj->saySomething();
-  }
-  catch(const class_loader::CreateClassException& e)
-  {
+  } catch (const class_loader::CreateClassException & e) {
     SUCCEED();
     return;
-  }
-  catch(...)
-  {
+  } catch (...) {
     FAIL() << "Unknown exception caught.\n";
   }
 
@@ -125,42 +110,37 @@ void wait(int seconds)
   boost::this_thread::sleep(boost::posix_time::seconds(seconds));
 }
 
-void run(ClassLoader* loader)
+void run(ClassLoader * loader)
 {
   std::vector<std::string> classes = loader->getAvailableClasses<Base>();
-  for(unsigned int c = 0; c < classes.size(); c++)
-  {
+  for (unsigned int c = 0; c < classes.size(); c++) {
     loader->createUniqueInstance<Base>(classes.at(c))->saySomething();
   }
 }
 
-TEST(ClassLoaderUniquePtrTest, threadSafety)
-{
+TEST(ClassLoaderUniquePtrTest, threadSafety) {
   ClassLoader loader1(LIBRARY_1);
   ASSERT_TRUE(loader1.isLibraryLoaded());
 
   // Note: Hard to test thread safety to make sure memory isn't corrupted.
   // The hope is this test is hard enough that once in a while it'll segfault
   // or something if there's some implementation error.
-  try
-  {
+  try {
     std::vector<boost::thread> client_threads;
 
-    for(unsigned int c = 0; c < 1000; c++)
+    for (unsigned int c = 0; c < 1000; c++) {
       client_threads.emplace_back(std::bind(&run, &loader1));
+    }
 
-    for(unsigned int c = 0; c < client_threads.size(); c++)
+    for (unsigned int c = 0; c < client_threads.size(); c++) {
       client_threads.at(c).join();
+    }
 
     loader1.unloadLibrary();
     ASSERT_FALSE(loader1.isLibraryLoaded());
-  }
-  catch(const class_loader::ClassLoaderException& ex)
-  {
+  } catch (const class_loader::ClassLoaderException & ex) {
     FAIL() << "Unexpected ClassLoaderException.";
-  }
-  catch(...)
-  {
+  } catch (...) {
     FAIL() << "Unknown exception.";
   }
 }
@@ -168,10 +148,8 @@ TEST(ClassLoaderUniquePtrTest, threadSafety)
 
 /*****************************************************************************/
 
-TEST(ClassLoaderUniquePtrTest, loadRefCountingLazy)
-{
-  try
-  {
+TEST(ClassLoaderUniquePtrTest, loadRefCountingLazy) {
+  try {
     ClassLoader loader1(LIBRARY_1, true);
     ASSERT_FALSE(loader1.isLibraryLoaded());
 
@@ -201,13 +179,9 @@ TEST(ClassLoaderUniquePtrTest, loadRefCountingLazy)
     ASSERT_TRUE(loader1.isLibraryLoaded());
 
     return;
-  }
-  catch(const class_loader::ClassLoaderException& e)
-  {
+  } catch (const class_loader::ClassLoaderException & e) {
     FAIL() << "Unexpected exception.\n";
-  }
-  catch(...)
-  {
+  } catch (...) {
     FAIL() << "Unknown exception caught.\n";
   }
 
@@ -219,41 +193,33 @@ TEST(ClassLoaderUniquePtrTest, loadRefCountingLazy)
 
 void testMultiClassLoader(bool lazy)
 {
-  try
-  {
+  try {
     class_loader::MultiLibraryClassLoader loader(lazy);
     loader.loadLibrary(LIBRARY_1);
     loader.loadLibrary(LIBRARY_2);
-    for (int i=0; i < 2; ++i) {
+    for (int i = 0; i < 2; ++i) {
       loader.createUniqueInstance<Base>("Cat")->saySomething();
       loader.createUniqueInstance<Base>("Dog")->saySomething();
       loader.createUniqueInstance<Base>("Robot")->saySomething();
     }
-  }
-  catch(class_loader::ClassLoaderException& e)
-  {
+  } catch (class_loader::ClassLoaderException & e) {
     FAIL() << "ClassLoaderException: " << e.what() << "\n";
   }
 
   SUCCEED();
 }
 
-TEST(MultiClassLoaderUniquePtrTest, lazyLoad)
-{
+TEST(MultiClassLoaderUniquePtrTest, lazyLoad) {
   testMultiClassLoader(true);
 }
-TEST(MultiClassLoaderUniquePtrTest, lazyLoadSecondTime)
-{
+TEST(MultiClassLoaderUniquePtrTest, lazyLoadSecondTime) {
   testMultiClassLoader(true);
 }
-TEST(MultiClassLoaderUniquePtrTest, nonLazyLoad)
-{
+TEST(MultiClassLoaderUniquePtrTest, nonLazyLoad) {
   testMultiClassLoader(false);
 }
-TEST(MultiClassLoaderUniquePtrTest, noWarningOnLazyLoad)
-{
-  try
-  {
+TEST(MultiClassLoaderUniquePtrTest, noWarningOnLazyLoad) {
+  try {
     ClassLoader::UniquePtr<Base> cat = nullptr, dog = nullptr, rob = nullptr;
     {
       class_loader::MultiLibraryClassLoader loader(true);
@@ -267,9 +233,7 @@ TEST(MultiClassLoaderUniquePtrTest, noWarningOnLazyLoad)
     cat->saySomething();
     dog->saySomething();
     rob->saySomething();
-  }
-  catch(class_loader::ClassLoaderException& e)
-  {
+  } catch (class_loader::ClassLoaderException & e) {
     FAIL() << "ClassLoaderException: " << e.what() << "\n";
   }
 
@@ -279,9 +243,8 @@ TEST(MultiClassLoaderUniquePtrTest, noWarningOnLazyLoad)
 /*****************************************************************************/
 
 // Run all the tests that were declared with TEST()
-int main(int argc, char **argv){
+int main(int argc, char ** argv)
+{
   testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
 }
-
-

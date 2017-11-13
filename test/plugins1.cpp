@@ -35,32 +35,32 @@
 
 class Dog : public Base
 {
-  public:
-    virtual void saySomething(){std::cout << "Bark" << std::endl;}
+public:
+  virtual void saySomething() {std::cout << "Bark" << std::endl;}
 };
 
 class Cat : public Base
 {
-  public:
-    virtual void saySomething(){std::cout << "Meow" << std::endl;}
+public:
+  virtual void saySomething() {std::cout << "Meow" << std::endl;}
 };
 
 class Duck : public Base
 {
-  public:
-    virtual void saySomething(){std::cout << "Quack" << std::endl;}
+public:
+  virtual void saySomething() {std::cout << "Quack" << std::endl;}
 };
 
 class Cow : public Base
 {
-  public:
-    virtual void saySomething(){std::cout << "Moooo" << std::endl;}
+public:
+  virtual void saySomething() {std::cout << "Moooo" << std::endl;}
 };
 
 class Sheep : public Base
 {
-  public:
-    virtual void saySomething(){std::cout << "Baaah" << std::endl;}
+public:
+  virtual void saySomething() {std::cout << "Baaah" << std::endl;}
 };
 
 CLASS_LOADER_REGISTER_CLASS(Dog, Base);

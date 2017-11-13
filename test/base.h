@@ -32,8 +32,8 @@
 
 class Base
 {
-  public:
-    virtual void saySomething() = 0;
+public:
+  virtual void saySomething() = 0;
 };
 
 #endif  // BASE_H_
