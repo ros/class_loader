@@ -29,6 +29,8 @@
 
 #include "class_loader/class_loader.h"
 
+#include <string>
+
 namespace class_loader
 {
 
@@ -41,34 +43,40 @@ bool ClassLoader::hasUnmanagedInstanceBeenCreated()
 
 std::string systemLibrarySuffix()
 {
-  return(Poco::SharedLibrary::suffix());
+  return Poco::SharedLibrary::suffix();
 }
 
-ClassLoader::ClassLoader(const std::string& library_path, bool ondemand_load_unload) :
-ondemand_load_unload_(ondemand_load_unload),
-library_path_(library_path),
-load_ref_count_(0),
-plugin_ref_count_(0)
+ClassLoader::ClassLoader(const std::string & library_path, bool ondemand_load_unload)
+: ondemand_load_unload_(ondemand_load_unload),
+  library_path_(library_path),
+  load_ref_count_(0),
+  plugin_ref_count_(0)
 {
-  CONSOLE_BRIDGE_logDebug("class_loader.ClassLoader: Constructing new ClassLoader (%p) bound to library %s.", this, library_path.c_str());
-  if(!isOnDemandLoadUnloadEnabled())
+  CONSOLE_BRIDGE_logDebug(
+    "class_loader.ClassLoader: "
+    "Constructing new ClassLoader (%p) bound to library %s.",
+    this, library_path.c_str());
+  if (!isOnDemandLoadUnloadEnabled()) {
     loadLibrary();
+  }
 }
 
 ClassLoader::~ClassLoader()
 {
-  CONSOLE_BRIDGE_logDebug("class_loader.ClassLoader: Destroying class loader, unloading associated library...\n");
-  unloadLibrary(); //TODO: while(unloadLibrary() > 0){} ??
+  CONSOLE_BRIDGE_logDebug(
+    "class_loader.ClassLoader: "
+    "Destroying class loader, unloading associated library...\n");
+  unloadLibrary();  // TODO(mikaelarguedas): while(unloadLibrary() > 0){} ??
 }
 
 bool ClassLoader::isLibraryLoaded()
 {
-  return(class_loader::class_loader_private::isLibraryLoaded(getLibraryPath(), this));
+  return class_loader::class_loader_private::isLibraryLoaded(getLibraryPath(), this);
 }
 
 bool ClassLoader::isLibraryLoadedByAnyClassloader()
 {
-  return(class_loader::class_loader_private::isLibraryLoadedByAnybody(getLibraryPath()));
+  return class_loader::class_loader_private::isLibraryLoadedByAnybody(getLibraryPath());
 }
 
 void ClassLoader::loadLibrary()
@@ -80,27 +88,33 @@ void ClassLoader::loadLibrary()
 
 int ClassLoader::unloadLibrary()
 {
-  return(unloadLibraryInternal(true));
+  return unloadLibraryInternal(true);
 }
 
 int ClassLoader::unloadLibraryInternal(bool lock_plugin_ref_count)
 {
   boost::recursive_mutex::scoped_lock load_ref_lock(load_ref_count_mutex_);
   boost::recursive_mutex::scoped_lock plugin_ref_lock;
-  if(lock_plugin_ref_count)
+  if (lock_plugin_ref_count) {
     plugin_ref_lock = boost::recursive_mutex::scoped_lock(plugin_ref_count_mutex_);
-
-  if(plugin_ref_count_ > 0)
-    CONSOLE_BRIDGE_logWarn("class_loader.ClassLoader: SEVERE WARNING!!! Attempting to unload library while objects created by this loader exist in the heap! You should delete your objects before attempting to unload the library or destroying the ClassLoader. The library will NOT be unloaded.");
-  else
-  {
-    load_ref_count_ = load_ref_count_ - 1;
-    if(load_ref_count_ == 0)
-      class_loader::class_loader_private::unloadLibrary(getLibraryPath(), this);
-    else if(load_ref_count_ < 0)
-      load_ref_count_ = 0;
   }
-  return(load_ref_count_);
+
+  if (plugin_ref_count_ > 0) {
+    CONSOLE_BRIDGE_logWarn(
+      "class_loader.ClassLoader: "
+      "SEVERE WARNING!!! Attempting to unload library while objects created by this loader "
+      "exist in the heap! "
+      "You should delete your objects before attempting to unload the library or "
+      "destroying the ClassLoader. The library will NOT be unloaded.");
+  } else {
+    load_ref_count_ = load_ref_count_ - 1;
+    if (0 == load_ref_count_) {
+      class_loader::class_loader_private::unloadLibrary(getLibraryPath(), this);
+    } else if (load_ref_count_ < 0) {
+      load_ref_count_ = 0;
+    }
+  }
+  return load_ref_count_;
 }
 
-}
+}  // namespace class_loader

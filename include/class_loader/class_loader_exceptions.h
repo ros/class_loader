@@ -27,7 +27,13 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifndef CLASS_LOADER__CLASS_LOADER_EXCEPTIONS_H_
+#define CLASS_LOADER__CLASS_LOADER_EXCEPTIONS_H_
+
 #include <exception>
+#include <string>
+
+// TODO(mikaelarguedas) : replace no lints with the explicit keyword in an ABI breaking release
 
 namespace class_loader
 {
@@ -36,50 +42,56 @@ namespace class_loader
  * @class ClassLoader sException
  * @brief A base class for all class_loader exceptions that inherits from std::runtime_exception
  */
-class ClassLoaderException: public std::runtime_error
+class ClassLoaderException : public std::runtime_error
 {
-  public:
-    ClassLoaderException(const std::string error_desc) : std::runtime_error(error_desc) {}
+public:
+  ClassLoaderException(const std::string error_desc)    // NOLINT(runtime/explicit)
+  : std::runtime_error(error_desc) {}
 };
 
 /**
  * @class LibraryLoadException
  * @brief An exception class thrown when class_loader is unable to load a runtime library
  */
-class LibraryLoadException: public ClassLoaderException
+class LibraryLoadException : public ClassLoaderException
 {
-  public:
-    LibraryLoadException(const std::string error_desc) : ClassLoaderException(error_desc) {}
+public:
+  LibraryLoadException(const std::string error_desc)    // NOLINT(runtime/explicit)
+  : ClassLoaderException(error_desc) {}
 };
 
 /**
  * @class LibraryUnloadException
  * @brief An exception class thrown when class_loader is unable to unload a runtime library
  */
-class LibraryUnloadException: public ClassLoaderException
+class LibraryUnloadException : public ClassLoaderException
 {
-  public:
-    LibraryUnloadException(const std::string error_desc) : ClassLoaderException(error_desc) {}
+public:
+  LibraryUnloadException(const std::string error_desc)    // NOLINT(runtime/explicit)
+  : ClassLoaderException(error_desc) {}
 };
 
 /**
  * @class CreateClassException
  * @brief An exception class thrown when class_loader is unable to create a plugin
  */
-class CreateClassException: public ClassLoaderException
+class CreateClassException : public ClassLoaderException
 {
-  public:
-    CreateClassException(const std::string error_desc) : ClassLoaderException(error_desc) {}
+public:
+  CreateClassException(const std::string error_desc)    // NOLINT(runtime/explicit)
+  : ClassLoaderException(error_desc) {}
 };
 
 /**
  * @class NoClassLoaderExistsException
  * @brief An exception class thrown when a multilibrary class loader does not have a ClassLoader bound to it
  */
-class NoClassLoaderExistsException: public ClassLoaderException
+class NoClassLoaderExistsException : public ClassLoaderException
 {
-  public:
-    NoClassLoaderExistsException(const std::string error_desc) : ClassLoaderException(error_desc) {}
+public:
+  NoClassLoaderExistsException(const std::string error_desc)    // NOLINT(runtime/explicit)
+  : ClassLoaderException(error_desc) {}
 };
 
-}
+}  // namespace class_loader
+#endif  // CLASS_LOADER__CLASS_LOADER_EXCEPTIONS_H_
