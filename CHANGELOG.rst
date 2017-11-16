@@ -2,8 +2,8 @@
 Changelog for package class_loader
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.3.8 (2017-11-16)
+------------------
 * Fix console_bridge marcos definition (`#66 <https://github.com/ros/class_loader/issues/66>`_)
 * Style overhaul (`#64 <https://github.com/ros/class_loader/issues/64>`_) (`#62 <https://github.com/ros/class_loader/issues/62>`_)
 * Add copyright notice to unique_ptr_test.cpp (`#65 <https://github.com/ros/class_loader/issues/65>`_)
