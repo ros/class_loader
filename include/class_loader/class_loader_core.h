@@ -44,7 +44,7 @@
 #include "class_loader/class_loader_exceptions.h"
 
 /**
- * @note This header file is the internal implementation of the plugin system which is exposed via the ClassLoader class
+ * \note This header file is the internal implementation of the plugin system which is exposed via the ClassLoader class
  */
 
 namespace class_loader
@@ -55,8 +55,6 @@ class ClassLoader;  // Forward declaration
 namespace class_loader_private
 {
 
-// Typedefs
-/*****************************************************************************/
 typedef std::string LibraryPath;
 typedef std::string ClassName;
 typedef std::string BaseClassName;
@@ -66,47 +64,53 @@ typedef std::pair<LibraryPath, Poco::SharedLibrary *> LibraryPair;
 typedef std::vector<LibraryPair> LibraryVector;
 typedef std::vector<AbstractMetaObjectBase *> MetaObjectVector;
 
-// Debug
-/*****************************************************************************/
 void printDebugInfoToScreen();
 
-// Global storage
-/*****************************************************************************/
-
+/// Get a FactoryMap holding the factories for the different classes that can be instantiated 
 /**
- * @brief Gets a handle to a global data structure that holds a map of base class names (Base class describes plugin interface) to a FactoryMap which holds the factories for the various different concrete classes that can be instantiated. Note that the Base class is NOT THE LITERAL CLASSNAME, but rather the result of typeid(Base).name() which sometimes is the literal class name (as on Windows) but is often in mangled form (as on Linux).
- * @return A reference to the global base to factory map
+ * Gets a handle to a global data structure that holds a map of base class names (Base class
+ * describes plugin interface) to a FactoryMap which holds the factories for the various different
+ * concrete classes that can be instantiated.
+ * Note that the Base class is NOT THE LITERAL CLASSNAME, but rather the result of
+ * typeid(Base).name() which sometimes is the literal class name (as on Windows) but
+ * is often in mangled form (as on Linux).
+ * \return A reference to the global base to factory map
  */
 BaseToFactoryMapMap & getGlobalPluginBaseToFactoryMapMap();
 
+/// Get a handle to a list of open libraries in the form of LibraryPairs
 /**
- * @brief Gets a handle to a list of open libraries in the form of LibraryPairs which encode the library path+name and the handle to the underlying Poco::SharedLibrary
- * @return A reference to the global vector that tracks loaded libraries
+ * Gets a handle to a list of open libraries in the form of LibraryPairs which encode the
+ * library path+name and the handle to the underlying Poco::SharedLibrary
+ * \return A reference to the global vector that tracks loaded libraries
  */
 LibraryVector & getLoadedLibraryVector();
 
+/// Return the name of the library being loaded
 /**
- * @brief When a library is being loaded, in order for factories to know which library they are being associated with, they use this function to query which library is being loaded.
- * @return The currently set loading library name as a string
+ * When a library is being loaded, in order for factories to know which library they are being
+ * associated with, they use this function to query which library is being loaded.
+ * \return The currently set loading library name as a string
  */
 std::string getCurrentlyLoadingLibraryName();
 
+/// Set the name of the library being loaded
 /**
- * @brief When a library is being loaded, in order for factories to know which library they are being associated with, this function is called to set the name of the library currently being loaded.
- * @param library_name - The name of library that is being loaded currently
+ * When a library is being loaded, in order for factories to know which library they are being
+ * associated with, this function is called to set the name of the library currently being loaded.
+ * \param[in] library_name - The name of library that is currently being loaded
  */
 void setCurrentlyLoadingLibraryName(const std::string & library_name);
 
-
+/// Return the ClassLoader currently in scope which used when a library is being loaded.
 /**
- * @brief Gets the ClassLoader currently in scope which used when a library is being loaded.
- * @return A pointer to the currently active ClassLoader.
+ * \return A pointer to the currently active ClassLoader.
  */
 ClassLoader * getCurrentlyActiveClassLoader();
 
+/// Set the ClassLoader currently in scope which used when a library is being loaded.
 /**
- * @brief Sets the ClassLoader currently in scope which used when a library is being loaded.
- * @param loader - pointer to the currently active ClassLoader.
+ * \param[in] loader - pointer to the currently active ClassLoader.
  */
 void setCurrentlyActiveClassLoader(ClassLoader * loader);
 
