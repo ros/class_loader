@@ -43,7 +43,6 @@
 const char LIBRARY_1[] = "libclass_loader_TestPlugins1.so";
 const char LIBRARY_2[] = "libclass_loader_TestPlugins2.so";
 
-/*****************************************************************************/
 TEST(ClassLoaderTest, basicLoad) {
   try {
     class_loader::ClassLoader loader1(LIBRARY_1, false);
@@ -55,7 +54,6 @@ TEST(ClassLoaderTest, basicLoad) {
   SUCCEED();
 }
 
-/*****************************************************************************/
 TEST(ClassLoaderTest, correctNonLazyLoadUnload) {
   try {
     ASSERT_FALSE(class_loader::class_loader_private::isLibraryLoadedByAnybody(LIBRARY_1));
@@ -73,7 +71,6 @@ TEST(ClassLoaderTest, correctNonLazyLoadUnload) {
   }
 }
 
-/*****************************************************************************/
 TEST(ClassLoaderTest, correctLazyLoadUnload) {
   try {
     ASSERT_FALSE(class_loader::class_loader_private::isLibraryLoadedByAnybody(LIBRARY_1));
@@ -97,8 +94,6 @@ TEST(ClassLoaderTest, correctLazyLoadUnload) {
   }
 }
 
-/*****************************************************************************/
-
 TEST(ClassLoaderTest, nonExistentPlugin) {
   class_loader::ClassLoader loader1(LIBRARY_1, false);
 
@@ -119,7 +114,6 @@ TEST(ClassLoaderTest, nonExistentPlugin) {
   FAIL() << "Did not throw exception as expected.\n";
 }
 
-/*****************************************************************************/
 TEST(ClassLoaderTest, nonExistentLibrary) {
   try {
     class_loader::ClassLoader loader1("libDoesNotExist.so", false);
@@ -132,8 +126,6 @@ TEST(ClassLoaderTest, nonExistentLibrary) {
 
   FAIL() << "Did not throw exception as expected.\n";
 }
-
-/*****************************************************************************/
 
 class InvalidBase
 {
@@ -156,8 +148,6 @@ TEST(ClassLoaderTest, invalidBase) {
     FAIL() << "Unexpected and unknown exception caught.\n";
   }
 }
-
-/*****************************************************************************/
 
 void wait(int seconds)
 {
@@ -203,8 +193,6 @@ TEST(ClassLoaderTest, threadSafety) {
   }
 }
 
-/*****************************************************************************/
-
 TEST(ClassLoaderTest, loadRefCountingNonLazy) {
   try {
     class_loader::ClassLoader loader1(LIBRARY_1, false);
@@ -238,8 +226,6 @@ TEST(ClassLoaderTest, loadRefCountingNonLazy) {
 
   FAIL() << "Did not throw exception as expected.\n";
 }
-
-/*****************************************************************************/
 
 TEST(ClassLoaderTest, loadRefCountingLazy) {
   try {
@@ -280,9 +266,6 @@ TEST(ClassLoaderTest, loadRefCountingLazy) {
 
   FAIL() << "Did not throw exception as expected.\n";
 }
-
-
-/*****************************************************************************/
 
 void testMultiClassLoader(bool lazy)
 {
@@ -332,8 +315,6 @@ TEST(MultiClassLoaderTest, noWarningOnLazyLoad) {
 
   SUCCEED();
 }
-
-/*****************************************************************************/
 
 // Run all the tests that were declared with TEST()
 int main(int argc, char ** argv)

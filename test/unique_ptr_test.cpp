@@ -46,7 +46,6 @@ const char LIBRARY_2[] = "libclass_loader_TestPlugins2.so";
 
 using class_loader::ClassLoader;
 
-/*****************************************************************************/
 TEST(ClassLoaderUniquePtrTest, basicLoad) {
   try {
     ClassLoader loader1(LIBRARY_1, false);
@@ -57,7 +56,6 @@ TEST(ClassLoaderUniquePtrTest, basicLoad) {
   }
 }
 
-/*****************************************************************************/
 TEST(ClassLoaderUniquePtrTest, correctLazyLoadUnload) {
   try {
     ASSERT_FALSE(class_loader::class_loader_private::isLibraryLoadedByAnybody(LIBRARY_1));
@@ -81,8 +79,6 @@ TEST(ClassLoaderUniquePtrTest, correctLazyLoadUnload) {
   }
 }
 
-/*****************************************************************************/
-
 TEST(ClassLoaderUniquePtrTest, nonExistentPlugin) {
   ClassLoader loader1(LIBRARY_1, false);
 
@@ -102,8 +98,6 @@ TEST(ClassLoaderUniquePtrTest, nonExistentPlugin) {
 
   FAIL() << "Did not throw exception as expected.\n";
 }
-
-/*****************************************************************************/
 
 void wait(int seconds)
 {
@@ -145,9 +139,6 @@ TEST(ClassLoaderUniquePtrTest, threadSafety) {
   }
 }
 
-
-/*****************************************************************************/
-
 TEST(ClassLoaderUniquePtrTest, loadRefCountingLazy) {
   try {
     ClassLoader loader1(LIBRARY_1, true);
@@ -187,9 +178,6 @@ TEST(ClassLoaderUniquePtrTest, loadRefCountingLazy) {
 
   FAIL() << "Did not throw exception as expected.\n";
 }
-
-
-/*****************************************************************************/
 
 void testMultiClassLoader(bool lazy)
 {
@@ -239,8 +227,6 @@ TEST(MultiClassLoaderUniquePtrTest, noWarningOnLazyLoad) {
 
   SUCCEED();
 }
-
-/*****************************************************************************/
 
 // Run all the tests that were declared with TEST()
 int main(int argc, char ** argv)
