@@ -241,7 +241,7 @@ void destroyMetaObjectsForLibrary(const std::string & library_path, const ClassL
     destroyMetaObjectsForLibrary(library_path, it.second, loader);
   }
 
-  CONSOLE_BRIDGE_logDebug("class_loader.impl: Metaobjects removed.");
+  CONSOLE_BRIDGE_logDebug("%s", "class_loader.impl: Metaobjects removed.");
 }
 
 bool areThereAnyExistingMetaObjectsForLibrary(const std::string & library_path)
@@ -345,7 +345,7 @@ void purgeGraveyardOfMetaobjects(const std::string & library_path, ClassLoader *
       itr = graveyard.erase(itr);
       if (delete_objs) {
         if (is_address_in_graveyard_same_as_global_factory_map) {
-          CONSOLE_BRIDGE_logDebug("class_loader.impl: Newly created metaobject factory in global factory map map has same address as one in graveyard -- metaobject has been purged from graveyard but not deleted.");
+          CONSOLE_BRIDGE_logDebug("%s", "class_loader.impl: Newly created metaobject factory in global factory map map has same address as one in graveyard -- metaobject has been purged from graveyard but not deleted.");
         } else {
           assert(hasANonPurePluginLibraryBeenOpened() == false);
           CONSOLE_BRIDGE_logDebug("class_loader.impl: Also destroying metaobject %p (class = %s, base_class = %s, library_path = %s) in addition to purging it from graveyard.", obj, obj->className().c_str(), obj->baseClassName().c_str(), obj->getAssociatedLibraryPath().c_str());
@@ -371,7 +371,7 @@ void loadLibrary(const std::string & library_path, ClassLoader * loader)
 
   //If it's already open, just update existing metaobjects to have an additional owner.
   if (isLibraryLoadedByAnybody(library_path)) {
-    CONSOLE_BRIDGE_logDebug("class_loader.impl: Library already in memory, but binding existing MetaObjects to loader if necesesary.\n");
+    CONSOLE_BRIDGE_logDebug("%s", "class_loader.impl: Library already in memory, but binding existing MetaObjects to loader if necesesary.\n");
     addClassLoaderOwnerForAllExistingMetaObjectsForLibrary(library_path, loader);
     return;
   }
