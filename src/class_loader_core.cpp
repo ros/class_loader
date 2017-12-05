@@ -297,7 +297,7 @@ void destroyMetaObjectsForLibrary(const std::string & library_path, const ClassL
     destroyMetaObjectsForLibrary(library_path, itr->second, loader);
   }
 
-  CONSOLE_BRIDGE_logDebug("class_loader.class_loader_private: Metaobjects removed.");
+  CONSOLE_BRIDGE_logDebug("%s", "class_loader.class_loader_private: Metaobjects removed.");
 }
 
 bool areThereAnyExistingMetaObjectsForLibrary(const std::string & library_path)
@@ -441,7 +441,7 @@ void purgeGraveyardOfMetaobjects(
       itr = graveyard.erase(itr);
       if (delete_objs) {
         if (is_address_in_graveyard_same_as_global_factory_map) {
-          CONSOLE_BRIDGE_logDebug(
+          CONSOLE_BRIDGE_logDebug("%s",
             "class_loader.class_loader_private: "
             "Newly created metaobject factory in global factory map map has same address as "
             "one in graveyard -- metaobject has been purged from graveyard but not deleted.");
@@ -475,7 +475,7 @@ void loadLibrary(const std::string & library_path, ClassLoader * loader)
   // If it's already open, just update existing metaobjects to have an additional owner.
   if (isLibraryLoadedByAnybody(library_path)) {
     boost::recursive_mutex::scoped_lock lock(getPluginBaseToFactoryMapMapMutex());
-    CONSOLE_BRIDGE_logDebug(
+    CONSOLE_BRIDGE_logDebug("%s",
       "class_loader.class_loader_private: "
       "Library already in memory, but binding existing MetaObjects to loader if necesesary.\n");
     addClassLoaderOwnerForAllExistingMetaObjectsForLibrary(library_path, loader);

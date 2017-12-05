@@ -253,7 +253,7 @@ private:
       ClassLoader::hasUnmanagedInstanceBeenCreated() &&
       isOnDemandLoadUnloadEnabled())
     {
-      CONSOLE_BRIDGE_logInform(
+      CONSOLE_BRIDGE_logInform("%s",
         "class_loader::ClassLoader: "
         "An attempt is being made to create a managed plugin instance (i.e. boost::shared_ptr), "
         "however an unmanaged instance was created within this process address space. "
