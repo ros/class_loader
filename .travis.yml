@@ -1,6 +1,7 @@
 sudo: required
 language: python
-python: "3.5"
+python:
+  - 3.5
 os:
   - linux
   - osx
@@ -29,8 +30,7 @@ script:
   - git clone https://github.com/ament/ament_package.git
   - git clone https://github.com/ament/ament_tools.git
   - git clone https://github.com/osrf/osrf_pycommon.git
-  - git clone https://github.com/ament/gtest_vendor.git
-  - git clone https://github.com/ament/gmock_vendor.git
+  - git clone https://github.com/ament/googletest
   - cd ..
   - git clone https://github.com/ros/console_bridge.git
   - git clone https://github.com/ros2/poco_vendor.git

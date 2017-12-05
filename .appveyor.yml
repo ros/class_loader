@@ -16,6 +16,7 @@ install:
   - python -m pip install -U setuptools pip
   - python -m pip install EmPy
   - python -m pip install trollius
+  - python -m pip install pyparsing
   - mkdir build
   - cd build
   - mkdir src
@@ -29,8 +30,7 @@ install:
   - git clone https://github.com/ament/ament_package.git
   - git clone https://github.com/ament/ament_tools.git
   - git clone https://github.com/osrf/osrf_pycommon.git
-  - git clone https://github.com/ament/gtest_vendor.git
-  - git clone https://github.com/ament/gmock_vendor.git
+  - git clone https://github.com/ament/googletest
   - cd ..\..\..
   - '"%VS140COMNTOOLS%\..\..\VC\vcvarsall.bat" x86_amd64'
   - set "PATH=%PATH%;C:\Python35"
