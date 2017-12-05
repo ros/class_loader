@@ -89,7 +89,7 @@ ClassLoader::ClassLoader(const std::string & library_path, bool ondemand_load_un
 
 ClassLoader::~ClassLoader()
 {
-  CONSOLE_BRIDGE_logDebug("class_loader.ClassLoader: Destroying class loader, unloading associated library...\n");
+  CONSOLE_BRIDGE_logDebug("%s", "class_loader.ClassLoader: Destroying class loader, unloading associated library...\n");
   unloadLibrary(); //TODO: while(unloadLibrary() > 0){} ??
 }
 
@@ -142,7 +142,7 @@ int ClassLoader::unloadLibraryInternal(bool lock_plugin_ref_count)
 
   try {
     if (plugin_ref_count_ > 0) {
-      CONSOLE_BRIDGE_logWarn("class_loader.ClassLoader: SEVERE WARNING!!! Attempting to unload library while objects created by this loader exist in the heap! You should delete your objects before attempting to unload the library or destroying the ClassLoader. The library will NOT be unloaded.");
+      CONSOLE_BRIDGE_logWarn("%s", "class_loader.ClassLoader: SEVERE WARNING!!! Attempting to unload library while objects created by this loader exist in the heap! You should delete your objects before attempting to unload the library or destroying the ClassLoader. The library will NOT be unloaded.");
     } else {
       load_ref_count_ = load_ref_count_ - 1;
       if (load_ref_count_ == 0) {
