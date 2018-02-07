@@ -38,8 +38,6 @@
 
 #include "class_loader/class_loader.h"
 
-// TODO(mikaelarguedas) : replace no lints with the explicit keyword in an ABI breaking release
-
 namespace class_loader
 {
 
@@ -58,7 +56,7 @@ public:
    * @brief Constructor for the class
    * @param enable_ondemand_loadunload - Flag indicates if classes are to be loaded/unloaded automatically as class_loader are created and destroyed
    */
-  MultiLibraryClassLoader(bool enable_ondemand_loadunload);  // NOLINT(runtime/explicit)
+  explicit MultiLibraryClassLoader(bool enable_ondemand_loadunload);
 
   /**
   * @brief Virtual destructor for class

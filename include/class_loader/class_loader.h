@@ -48,8 +48,6 @@
 #include <functional>
 #endif
 
-// TODO(mikaelarguedas) : replace no lints with the explicit keyword in an ABI breaking release
-
 namespace class_loader
 {
 
@@ -78,7 +76,7 @@ public:
    * @param library_path - The path of the runtime library to load
    * @param ondemand_load_unload - Indicates if on-demand (lazy) unloading/loading of libraries occurs as plugins are created/destroyed
    */
-  ClassLoader(const std::string & library_path, bool ondemand_load_unload = false);  // NOLINT
+  explicit ClassLoader(const std::string & library_path, bool ondemand_load_unload = false);
 
   /**
    * @brief  Destructor for ClassLoader. All libraries opened by this ClassLoader are unloaded automatically.
