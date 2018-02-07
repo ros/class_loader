@@ -33,6 +33,7 @@
 #include <boost/bind.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/thread/recursive_mutex.hpp>
+#include <cstddef>
 #include <string>
 #include <vector>
 
@@ -267,7 +268,7 @@ private:
 
     Base * obj =
       class_loader::class_loader_private::createInstance<Base>(derived_class_name, this);
-    assert(obj != NULL);  // Unreachable assertion if createInstance() throws on failure
+    assert(obj != nullptr);  // Unreachable assertion if createInstance() throws on failure
 
     if (managed) {
       boost::recursive_mutex::scoped_lock lock(plugin_ref_count_mutex_);

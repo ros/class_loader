@@ -29,6 +29,7 @@
 
 #include <boost/thread.hpp>
 #include <boost/bind.hpp>
+#include <cstddef>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -104,7 +105,7 @@ TEST(ClassLoaderTest, nonExistentPlugin) {
 
   try {
     boost::shared_ptr<Base> obj = loader1.createInstance<Base>("Bear");
-    if (NULL == obj) {
+    if (nullptr == obj) {
       FAIL() << "Null object being returned instead of exception thrown.";
     }
 

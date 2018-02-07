@@ -31,6 +31,7 @@
 #define CLASS_LOADER__CLASS_LOADER_CORE_H_
 
 #include <boost/thread/recursive_mutex.hpp>
+#include <cstddef>
 #include <cstdio>
 #include <map>
 #include <string>
@@ -168,7 +169,7 @@ void registerPlugin(const std::string & class_name, const std::string & base_cla
     class_name.c_str(), getCurrentlyActiveClassLoader(),
     getCurrentlyLoadingLibraryName().c_str());
 
-  if (NULL == getCurrentlyActiveClassLoader()) {
+  if (nullptr == getCurrentlyActiveClassLoader()) {
     CONSOLE_BRIDGE_logDebug("%s",
       "class_loader.impl: ALERT!!! "
       "A library containing plugins has been opened through a means other than through the "
@@ -227,7 +228,7 @@ void registerPlugin(const std::string & class_name, const std::string & base_cla
 template<typename Base>
 Base * createInstance(const std::string & derived_class_name, ClassLoader * loader)
 {
-  AbstractMetaObject<Base> * factory = NULL;
+  AbstractMetaObject<Base> * factory = nullptr;
 
   getPluginBaseToFactoryMapMapMutex().lock();
   FactoryMap & factoryMap = getFactoryMapForBaseClass<Base>();
@@ -241,13 +242,13 @@ Base * createInstance(const std::string & derived_class_name, ClassLoader * load
   }
   getPluginBaseToFactoryMapMapMutex().unlock();
 
-  Base * obj = NULL;
-  if (factory != NULL && factory->isOwnedBy(loader)) {
+  Base * obj = nullptr;
+  if (factory != nullptr && factory->isOwnedBy(loader)) {
     obj = factory->create();
   }
 
-  if (NULL == obj) {  // Was never created
-    if (factory && factory->isOwnedBy(NULL)) {
+  if (nullptr == obj) {  // Was never created
+    if (factory && factory->isOwnedBy(nullptr)) {
       CONSOLE_BRIDGE_logDebug("%s",
         "class_loader.impl: ALERT!!! "
         "A metaobject (i.e. factory) exists for desired class, but has no owner. "
@@ -292,7 +293,7 @@ std::vector<std::string> getAvailableClasses(ClassLoader * loader)
     AbstractMetaObjectBase * factory = itr->second;
     if (factory->isOwnedBy(loader)) {
       classes.push_back(itr->first);
-    } else if (factory->isOwnedBy(NULL)) {
+    } else if (factory->isOwnedBy(nullptr)) {
       classes_with_no_owner.push_back(itr->first);
     }
   }

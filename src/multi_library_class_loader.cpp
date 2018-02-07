@@ -29,6 +29,7 @@
 
 #include "class_loader/multi_library_class_loader.h"
 
+#include <cstddef>
 #include <string>
 #include <vector>
 
@@ -62,7 +63,7 @@ ClassLoader * MultiLibraryClassLoader::getClassLoaderForLibrary(const std::strin
   LibraryToClassLoaderMap::iterator itr = active_class_loaders_.find(library_path);
   if (itr != active_class_loaders_.end()) {
     return itr->second;
-  } else {return NULL;}
+  } else {return nullptr;}
 }
 
 ClassLoaderVector MultiLibraryClassLoader::getAllAvailableClassLoaders()
@@ -79,7 +80,7 @@ ClassLoaderVector MultiLibraryClassLoader::getAllAvailableClassLoaders()
 
 bool MultiLibraryClassLoader::isLibraryAvailable(const std::string & library_name)
 {
-  return getClassLoaderForLibrary(library_name) != NULL;
+  return getClassLoaderForLibrary(library_name) != nullptr;
 }
 
 void MultiLibraryClassLoader::loadLibrary(const std::string & library_path)

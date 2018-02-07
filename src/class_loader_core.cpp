@@ -30,6 +30,7 @@
 #include "class_loader/class_loader_core.h"
 #include "class_loader/class_loader.h"
 #include <cassert>
+#include <cstddef>
 #include <string>
 #include <vector>
 
@@ -114,7 +115,7 @@ void setCurrentlyLoadingLibraryName(const std::string & library_name)
 ClassLoader * & getCurrentlyActiveClassLoaderReference()
 /*****************************************************************************/
 {
-  static ClassLoader * loader = NULL;
+  static ClassLoader * loader = nullptr;
   return loader;
 }
 
@@ -489,7 +490,7 @@ void loadLibrary(const std::string & library_path, ClassLoader * loader)
     return;
   }
 
-  Poco::SharedLibrary * library_handle = NULL;
+  Poco::SharedLibrary * library_handle = nullptr;
 
   {
     try {
@@ -498,26 +499,26 @@ void loadLibrary(const std::string & library_path, ClassLoader * loader)
       library_handle = new Poco::SharedLibrary(library_path);
     } catch (const Poco::LibraryLoadException & e) {
       setCurrentlyLoadingLibraryName("");
-      setCurrentlyActiveClassLoader(NULL);
+      setCurrentlyActiveClassLoader(nullptr);
       throw(class_loader::LibraryLoadException(
               "Could not load library (Poco exception = " + std::string(e.message()) + ")"));
     } catch (const Poco::LibraryAlreadyLoadedException & e) {
       setCurrentlyLoadingLibraryName("");
-      setCurrentlyActiveClassLoader(NULL);
+      setCurrentlyActiveClassLoader(nullptr);
       throw(class_loader::LibraryLoadException(
               "Library already loaded (Poco exception = " + std::string(e.message()) + ")"));
     } catch (const Poco::NotFoundException & e) {
       setCurrentlyLoadingLibraryName("");
-      setCurrentlyActiveClassLoader(NULL);
+      setCurrentlyActiveClassLoader(nullptr);
       throw(class_loader::LibraryLoadException(
               "Library not found (Poco exception = " + std::string(e.message()) + ")"));
     }
 
     setCurrentlyLoadingLibraryName("");
-    setCurrentlyActiveClassLoader(NULL);
+    setCurrentlyActiveClassLoader(nullptr);
   }
 
-  assert(library_handle != NULL);
+  assert(library_handle != nullptr);
   CONSOLE_BRIDGE_logDebug(
     "class_loader.class_loader_private: "
     "Successfully loaded library %s into memory (Poco::SharedLibrary handle = %p).",

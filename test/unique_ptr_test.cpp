@@ -34,6 +34,7 @@
 #include <gtest/gtest.h>
 #include <boost/thread.hpp>
 
+#include <cstddef>
 #include <functional>
 #include <iostream>
 #include <string>
