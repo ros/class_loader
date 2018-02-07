@@ -41,7 +41,6 @@
 
 #include "class_loader/class_loader_core.h"
 #include "class_loader/class_loader_register_macro.h"
-#include "class_loader/console_bridge_compatibility.h"
 
 #if __cplusplus >= 201103L
 #include <memory>

@@ -50,7 +50,6 @@ set(${PROJECT_NAME}_HDRS
   include/class_loader/class_loader_core.h
   include/class_loader/class_loader_exceptions.h
   include/class_loader/class_loader_register_macro.h
-  include/class_loader/console_bridge_compatibility.h
   include/class_loader/meta_object.h
   include/class_loader/multi_library_class_loader.h
 )
