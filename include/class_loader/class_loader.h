@@ -211,7 +211,14 @@ private:
       "class_loader::ClassLoader: Calling onPluginDeletion() for obj ptr = %p.\n", obj);
     if (obj) {
       boost::recursive_mutex::scoped_lock lock(plugin_ref_count_mutex_);
+#ifndef _WIN32
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdelete-non-virtual-dtor"
+#endif
       delete (obj);
+#ifndef _WIN32
+#pragma GCC diagnostic pop
+#endif
       plugin_ref_count_ = plugin_ref_count_ - 1;
       assert(plugin_ref_count_ >= 0);
       if (0 == plugin_ref_count_ && isOnDemandLoadUnloadEnabled()) {
