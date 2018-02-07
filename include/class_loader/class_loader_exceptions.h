@@ -33,8 +33,6 @@
 #include <exception>
 #include <string>
 
-// TODO(mikaelarguedas) : replace no lints with the explicit keyword in an ABI breaking release
-
 namespace class_loader
 {
 
