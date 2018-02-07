@@ -57,7 +57,6 @@ namespace class_loader_private
 {
 
 // Typedefs
-/*****************************************************************************/
 typedef std::string LibraryPath;
 typedef std::string ClassName;
 typedef std::string BaseClassName;
@@ -68,11 +67,9 @@ typedef std::vector<LibraryPair> LibraryVector;
 typedef std::vector<AbstractMetaObjectBase *> MetaObjectVector;
 
 // Debug
-/*****************************************************************************/
 void printDebugInfoToScreen();
 
 // Global storage
-/*****************************************************************************/
 
 /**
  * @brief Gets a handle to a global data structure that holds a map of base class names (Base class describes plugin interface) to a FactoryMap which holds the factories for the various different concrete classes that can be instantiated. Note that the Base class is NOT THE LITERAL CLASSNAME, but rather the result of typeid(Base).name() which sometimes is the literal class name (as on Windows) but is often in mangled form (as on Linux).
@@ -148,7 +145,6 @@ bool hasANonPurePluginLibraryBeenOpened();
 void hasANonPurePluginLibraryBeenOpened(bool hasIt);
 
 // Plugin Functions
-/*****************************************************************************/
 
 /**
  * @brief This function is called by the CLASS_LOADER_REGISTER_CLASS macro in plugin_register_macro.h to register factories.
@@ -216,7 +212,7 @@ void registerPlugin(const std::string & class_name, const std::string & base_cla
   CONSOLE_BRIDGE_logDebug(
     "class_loader.class_loader_private: "
     "Registration of %s complete (Metaobject Address = %p)",
-    class_name.c_str(), new_factory);
+    class_name.c_str(), reinterpret_cast<void *>(new_factory));
 }
 
 /**
@@ -270,7 +266,7 @@ Base * createInstance(const std::string & derived_class_name, ClassLoader * load
   CONSOLE_BRIDGE_logDebug(
     "class_loader.class_loader_private: "
     "Created instance of type %s and object pointer = %p",
-    (typeid(obj).name()), obj);
+    (typeid(obj).name()), reinterpret_cast<void *>(obj));
 
   return obj;
 }
