@@ -241,7 +241,8 @@ void insertMetaObjectIntoGraveyard(AbstractMetaObjectBase * meta_obj)
   CONSOLE_BRIDGE_logDebug(
     "class_loader.class_loader_private: "
     "Inserting MetaObject (class = %s, base_class = %s, ptr = %p) into graveyard",
-    meta_obj->className().c_str(), meta_obj->baseClassName().c_str(), reinterpret_cast<void *>(meta_obj));
+    meta_obj->className().c_str(), meta_obj->baseClassName().c_str(),
+    reinterpret_cast<void *>(meta_obj));
   getMetaObjectGraveyard().push_back(meta_obj);
 }
 
@@ -385,8 +386,10 @@ void addClassLoaderOwnerForAllExistingMetaObjectsForLibrary(
       "class_loader.class_loader_private: "
       "Tagging existing MetaObject %p (base = %s, derived = %s) with "
       "class loader %p (library path = %s).",
-      reinterpret_cast<void *>(meta_obj), meta_obj->baseClassName().c_str(), meta_obj->className().c_str(),
-      reinterpret_cast<void *>(loader), nullptr == loader ? loader->getLibraryPath().c_str() : "NULL");
+      reinterpret_cast<void *>(meta_obj), meta_obj->baseClassName().c_str(),
+      meta_obj->className().c_str(),
+      reinterpret_cast<void *>(loader),
+      nullptr == loader ? loader->getLibraryPath().c_str() : "NULL");
     all_meta_objs.at(c)->addOwningClassLoader(loader);
   }
 }
@@ -406,7 +409,8 @@ void revivePreviouslyCreateMetaobjectsFromGraveyard(
         "Resurrected factory metaobject from graveyard, class = %s, base_class = %s ptr = %p..."
         "bound to ClassLoader %p (library path = %s)",
         obj->className().c_str(), obj->baseClassName().c_str(), reinterpret_cast<void *>(obj),
-        reinterpret_cast<void *>(loader), nullptr == loader ? loader->getLibraryPath().c_str() : "NULL");
+        reinterpret_cast<void *>(loader),
+        nullptr == loader ? loader->getLibraryPath().c_str() : "NULL");
 
       obj->addOwningClassLoader(loader);
       assert(obj->typeidBaseClassName() != "UNSET");
@@ -435,7 +439,8 @@ void purgeGraveyardOfMetaobjects(
         "Purging factory metaobject from graveyard, class = %s, base_class = %s ptr = %p.."
         ".bound to ClassLoader %p (library path = %s)",
         obj->className().c_str(), obj->baseClassName().c_str(), reinterpret_cast<void *>(obj),
-        reinterpret_cast<void *>(loader), nullptr == loader ? loader->getLibraryPath().c_str() : "NULL");
+        reinterpret_cast<void *>(loader),
+        nullptr == loader ? loader->getLibraryPath().c_str() : "NULL");
 
       bool is_address_in_graveyard_same_as_global_factory_map =
         std::find(all_meta_objs.begin(), all_meta_objs.end(), *itr) != all_meta_objs.end();
