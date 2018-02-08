@@ -30,6 +30,7 @@
 #include "class_loader/class_loader_core.h"
 #include "class_loader/class_loader.h"
 #include <cassert>
+#include <cstddef>
 #include <string>
 #include <vector>
 
@@ -40,33 +41,26 @@ namespace class_loader_private
 
 
 // Global data
-/*****************************************************************************/
-/*****************************************************************************/
-/*****************************************************************************/
 
 boost::recursive_mutex & getLoadedLibraryVectorMutex()
-/*****************************************************************************/
 {
   static boost::recursive_mutex m;
   return m;
 }
 
 boost::recursive_mutex & getPluginBaseToFactoryMapMapMutex()
-/*****************************************************************************/
 {
   static boost::recursive_mutex m;
   return m;
 }
 
 BaseToFactoryMapMap & getGlobalPluginBaseToFactoryMapMap()
-/*****************************************************************************/
 {
   static BaseToFactoryMapMap instance;
   return instance;
 }
 
 FactoryMap & getFactoryMapForBaseClass(const std::string & typeid_base_class_name)
-/*****************************************************************************/
 {
   BaseToFactoryMapMap & factoryMapMap = getGlobalPluginBaseToFactoryMapMap();
   std::string base_class_name = typeid_base_class_name;
@@ -78,86 +72,71 @@ FactoryMap & getFactoryMapForBaseClass(const std::string & typeid_base_class_nam
 }
 
 MetaObjectVector & getMetaObjectGraveyard()
-/*****************************************************************************/
 {
   static MetaObjectVector instance;
   return instance;
 }
 
 LibraryVector & getLoadedLibraryVector()
-/*****************************************************************************/
 {
   static LibraryVector instance;
   return instance;
 }
 
 std::string & getCurrentlyLoadingLibraryNameReference()
-/*****************************************************************************/
 {
   static std::string library_name;
   return library_name;
 }
 
 std::string getCurrentlyLoadingLibraryName()
-/*****************************************************************************/
 {
   return getCurrentlyLoadingLibraryNameReference();
 }
 
 void setCurrentlyLoadingLibraryName(const std::string & library_name)
-/*****************************************************************************/
 {
   std::string & library_name_ref = getCurrentlyLoadingLibraryNameReference();
   library_name_ref = library_name;
 }
 
 ClassLoader * & getCurrentlyActiveClassLoaderReference()
-/*****************************************************************************/
 {
-  static ClassLoader * loader = NULL;
+  static ClassLoader * loader = nullptr;
   return loader;
 }
 
 ClassLoader * getCurrentlyActiveClassLoader()
-/*****************************************************************************/
 {
   return getCurrentlyActiveClassLoaderReference();
 }
 
 void setCurrentlyActiveClassLoader(ClassLoader * loader)
-/*****************************************************************************/
 {
   ClassLoader * & loader_ref = getCurrentlyActiveClassLoaderReference();
   loader_ref = loader;
 }
 
 bool & hasANonPurePluginLibraryBeenOpenedReference()
-/*****************************************************************************/
 {
   static bool hasANonPurePluginLibraryBeenOpenedReference = false;
   return hasANonPurePluginLibraryBeenOpenedReference;
 }
 
 bool hasANonPurePluginLibraryBeenOpened()
-/*****************************************************************************/
 {
   return hasANonPurePluginLibraryBeenOpenedReference();
 }
 
 void hasANonPurePluginLibraryBeenOpened(bool hasIt)
-/*****************************************************************************/
 {
   hasANonPurePluginLibraryBeenOpenedReference() = hasIt;
 }
 
 
 // MetaObject search/insert/removal/query
-/*****************************************************************************/
-/*****************************************************************************/
-/*****************************************************************************/
 
 MetaObjectVector allMetaObjects(const FactoryMap & factories)
-/*****************************************************************************/
 {
   MetaObjectVector all_meta_objs;
   for (
@@ -171,7 +150,6 @@ MetaObjectVector allMetaObjects(const FactoryMap & factories)
 }
 
 MetaObjectVector allMetaObjects()
-/*****************************************************************************/
 {
   boost::recursive_mutex::scoped_lock lock(getPluginBaseToFactoryMapMapMutex());
 
@@ -188,7 +166,6 @@ MetaObjectVector allMetaObjects()
 
 MetaObjectVector
 filterAllMetaObjectsOwnedBy(const MetaObjectVector & to_filter, const ClassLoader * owner)
-/*****************************************************************************/
 {
   MetaObjectVector filtered_objs;
   for (unsigned int c = 0; c < to_filter.size(); c++) {
@@ -202,7 +179,6 @@ filterAllMetaObjectsOwnedBy(const MetaObjectVector & to_filter, const ClassLoade
 MetaObjectVector
 filterAllMetaObjectsAssociatedWithLibrary(
   const MetaObjectVector & to_filter, const std::string & library_path)
-/*****************************************************************************/
 {
   MetaObjectVector filtered_objs;
   for (unsigned int c = 0; c < to_filter.size(); c++) {
@@ -215,38 +191,34 @@ filterAllMetaObjectsAssociatedWithLibrary(
 
 MetaObjectVector
 allMetaObjectsForClassLoader(const ClassLoader * owner)
-/*****************************************************************************/
 {
   return filterAllMetaObjectsOwnedBy(allMetaObjects(), owner);
 }
 
 MetaObjectVector
 allMetaObjectsForLibrary(const std::string & library_path)
-/*****************************************************************************/
 {
   return filterAllMetaObjectsAssociatedWithLibrary(allMetaObjects(), library_path);
 }
 
 MetaObjectVector
 allMetaObjectsForLibraryOwnedBy(const std::string & library_path, const ClassLoader * owner)
-/*****************************************************************************/
 {
   return filterAllMetaObjectsOwnedBy(allMetaObjectsForLibrary(library_path), owner);
 }
 
 void insertMetaObjectIntoGraveyard(AbstractMetaObjectBase * meta_obj)
-/*****************************************************************************/
 {
   CONSOLE_BRIDGE_logDebug(
     "class_loader.class_loader_private: "
     "Inserting MetaObject (class = %s, base_class = %s, ptr = %p) into graveyard",
-    meta_obj->className().c_str(), meta_obj->baseClassName().c_str(), meta_obj);
+    meta_obj->className().c_str(), meta_obj->baseClassName().c_str(),
+    reinterpret_cast<void *>(meta_obj));
   getMetaObjectGraveyard().push_back(meta_obj);
 }
 
 void destroyMetaObjectsForLibrary(
   const std::string & library_path, FactoryMap & factories, const ClassLoader * loader)
-/*****************************************************************************/
 {
   FactoryMap::iterator factory_itr = factories.begin();
   while (factory_itr != factories.end()) {
@@ -280,7 +252,6 @@ void destroyMetaObjectsForLibrary(
 }
 
 void destroyMetaObjectsForLibrary(const std::string & library_path, const ClassLoader * loader)
-/*****************************************************************************/
 {
   boost::recursive_mutex::scoped_lock lock(getPluginBaseToFactoryMapMapMutex());
 
@@ -288,7 +259,7 @@ void destroyMetaObjectsForLibrary(const std::string & library_path, const ClassL
     "class_loader.class_loader_private: "
     "Removing MetaObjects associated with library %s and class loader %p from global "
     "plugin-to-factorymap map.\n",
-    library_path.c_str(), loader);
+    library_path.c_str(), reinterpret_cast<const void *>(loader));
 
   // We have to walk through all FactoryMaps to be sure
   BaseToFactoryMapMap & factory_map_map = getGlobalPluginBaseToFactoryMapMap();
@@ -301,17 +272,12 @@ void destroyMetaObjectsForLibrary(const std::string & library_path, const ClassL
 }
 
 bool areThereAnyExistingMetaObjectsForLibrary(const std::string & library_path)
-/*****************************************************************************/
 {
   return allMetaObjectsForLibrary(library_path).size() > 0;
 }
 
 // Loaded Library Vector manipulation
-/*****************************************************************************/
-/*****************************************************************************/
-/*****************************************************************************/
 LibraryVector::iterator findLoadedLibrary(const std::string & library_path)
-/*****************************************************************************/
 {
   LibraryVector & open_libraries = getLoadedLibraryVector();
   LibraryVector::iterator itr;
@@ -324,7 +290,6 @@ LibraryVector::iterator findLoadedLibrary(const std::string & library_path)
 }
 
 bool isLibraryLoadedByAnybody(const std::string & library_path)
-/*****************************************************************************/
 {
   boost::recursive_mutex::scoped_lock lock(getLoadedLibraryVectorMutex());
 
@@ -340,11 +305,10 @@ bool isLibraryLoadedByAnybody(const std::string & library_path)
 }
 
 bool isLibraryLoaded(const std::string & library_path, ClassLoader * loader)
-/*****************************************************************************/
 {
   bool is_lib_loaded_by_anyone = isLibraryLoadedByAnybody(library_path);
-  int num_meta_objs_for_lib = allMetaObjectsForLibrary(library_path).size();
-  int num_meta_objs_for_lib_bound_to_loader =
+  size_t num_meta_objs_for_lib = allMetaObjectsForLibrary(library_path).size();
+  size_t num_meta_objs_for_lib_bound_to_loader =
     allMetaObjectsForLibraryOwnedBy(library_path, loader).size();
   bool are_meta_objs_bound_to_loader =
     (0 == num_meta_objs_for_lib) ? true : (
@@ -354,11 +318,10 @@ bool isLibraryLoaded(const std::string & library_path, ClassLoader * loader)
 }
 
 std::vector<std::string> getAllLibrariesUsedByClassLoader(const ClassLoader * loader)
-/*****************************************************************************/
 {
   MetaObjectVector all_loader_meta_objs = allMetaObjectsForClassLoader(loader);
   std::vector<std::string> all_libs;
-  for (unsigned int c = 0; c < all_loader_meta_objs.size(); c++) {
+  for (size_t c = 0; c < all_loader_meta_objs.size(); c++) {
     std::string lib_path = all_loader_meta_objs.at(c)->getAssociatedLibraryPath();
     if (std::find(all_libs.begin(), all_libs.end(), lib_path) == all_libs.end()) {
       all_libs.push_back(lib_path);
@@ -369,30 +332,27 @@ std::vector<std::string> getAllLibrariesUsedByClassLoader(const ClassLoader * lo
 
 
 // Implementation of Remaining Core plugin_private Functions
-/*****************************************************************************/
-/*****************************************************************************/
-/*****************************************************************************/
 
 void addClassLoaderOwnerForAllExistingMetaObjectsForLibrary(
   const std::string & library_path, ClassLoader * loader)
-/*****************************************************************************/
 {
   MetaObjectVector all_meta_objs = allMetaObjectsForLibrary(library_path);
-  for (unsigned int c = 0; c < all_meta_objs.size(); c++) {
+  for (size_t c = 0; c < all_meta_objs.size(); c++) {
     AbstractMetaObjectBase * meta_obj = all_meta_objs.at(c);
     CONSOLE_BRIDGE_logDebug(
       "class_loader.class_loader_private: "
       "Tagging existing MetaObject %p (base = %s, derived = %s) with "
       "class loader %p (library path = %s).",
-      meta_obj, meta_obj->baseClassName().c_str(), meta_obj->className().c_str(),
-      loader, loader ? loader->getLibraryPath().c_str() : "NULL");
+      reinterpret_cast<void *>(meta_obj), meta_obj->baseClassName().c_str(),
+      meta_obj->className().c_str(),
+      reinterpret_cast<void *>(loader),
+      nullptr == loader ? loader->getLibraryPath().c_str() : "NULL");
     all_meta_objs.at(c)->addOwningClassLoader(loader);
   }
 }
 
 void revivePreviouslyCreateMetaobjectsFromGraveyard(
   const std::string & library_path, ClassLoader * loader)
-/*****************************************************************************/
 {
   boost::recursive_mutex::scoped_lock b2fmm_lock(getPluginBaseToFactoryMapMapMutex());
   MetaObjectVector & graveyard = getMetaObjectGraveyard();
@@ -404,8 +364,9 @@ void revivePreviouslyCreateMetaobjectsFromGraveyard(
         "class_loader.class_loader_private: "
         "Resurrected factory metaobject from graveyard, class = %s, base_class = %s ptr = %p..."
         "bound to ClassLoader %p (library path = %s)",
-        obj->className().c_str(), obj->baseClassName().c_str(), obj,
-        loader, loader ? loader->getLibraryPath().c_str() : "NULL");
+        obj->className().c_str(), obj->baseClassName().c_str(), reinterpret_cast<void *>(obj),
+        reinterpret_cast<void *>(loader),
+        nullptr == loader ? loader->getLibraryPath().c_str() : "NULL");
 
       obj->addOwningClassLoader(loader);
       assert(obj->typeidBaseClassName() != "UNSET");
@@ -417,7 +378,6 @@ void revivePreviouslyCreateMetaobjectsFromGraveyard(
 
 void purgeGraveyardOfMetaobjects(
   const std::string & library_path, ClassLoader * loader, bool delete_objs)
-/*****************************************************************************/
 {
   MetaObjectVector all_meta_objs = allMetaObjects();
   // Note: Lock must happen after call to allMetaObjects as that will lock
@@ -433,8 +393,9 @@ void purgeGraveyardOfMetaobjects(
         "class_loader.class_loader_private: "
         "Purging factory metaobject from graveyard, class = %s, base_class = %s ptr = %p.."
         ".bound to ClassLoader %p (library path = %s)",
-        obj->className().c_str(), obj->baseClassName().c_str(), obj,
-        loader, loader ? loader->getLibraryPath().c_str() : "NULL");
+        obj->className().c_str(), obj->baseClassName().c_str(), reinterpret_cast<void *>(obj),
+        reinterpret_cast<void *>(loader),
+        nullptr == loader ? loader->getLibraryPath().c_str() : "NULL");
 
       bool is_address_in_graveyard_same_as_global_factory_map =
         std::find(all_meta_objs.begin(), all_meta_objs.end(), *itr) != all_meta_objs.end();
@@ -451,9 +412,16 @@ void purgeGraveyardOfMetaobjects(
             "class_loader.class_loader_private: "
             "Also destroying metaobject %p (class = %s, base_class = %s, library_path = %s) "
             "in addition to purging it from graveyard.",
-            obj, obj->className().c_str(), obj->baseClassName().c_str(),
+            reinterpret_cast<void *>(obj), obj->className().c_str(), obj->baseClassName().c_str(),
             obj->getAssociatedLibraryPath().c_str());
+#ifndef _WIN32
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdelete-non-virtual-dtor"
+#endif
           delete (obj);  // Note: This is the only place where metaobjects can be destroyed
+#ifndef _WIN32
+#pragma GCC diagnostic pop
+#endif
         }
       }
     } else {
@@ -463,13 +431,12 @@ void purgeGraveyardOfMetaobjects(
 }
 
 void loadLibrary(const std::string & library_path, ClassLoader * loader)
-/*****************************************************************************/
 {
   static boost::recursive_mutex loader_mutex;
   CONSOLE_BRIDGE_logDebug(
     "class_loader.class_loader_private: "
     "Attempting to load library %s on behalf of ClassLoader handle %p...\n",
-    library_path.c_str(), loader);
+    library_path.c_str(), reinterpret_cast<void *>(loader));
   boost::recursive_mutex::scoped_lock loader_lock(loader_mutex);
 
   // If it's already open, just update existing metaobjects to have an additional owner.
@@ -482,7 +449,7 @@ void loadLibrary(const std::string & library_path, ClassLoader * loader)
     return;
   }
 
-  Poco::SharedLibrary * library_handle = NULL;
+  Poco::SharedLibrary * library_handle = nullptr;
 
   {
     try {
@@ -491,33 +458,33 @@ void loadLibrary(const std::string & library_path, ClassLoader * loader)
       library_handle = new Poco::SharedLibrary(library_path);
     } catch (const Poco::LibraryLoadException & e) {
       setCurrentlyLoadingLibraryName("");
-      setCurrentlyActiveClassLoader(NULL);
+      setCurrentlyActiveClassLoader(nullptr);
       throw(class_loader::LibraryLoadException(
               "Could not load library (Poco exception = " + std::string(e.message()) + ")"));
     } catch (const Poco::LibraryAlreadyLoadedException & e) {
       setCurrentlyLoadingLibraryName("");
-      setCurrentlyActiveClassLoader(NULL);
+      setCurrentlyActiveClassLoader(nullptr);
       throw(class_loader::LibraryLoadException(
               "Library already loaded (Poco exception = " + std::string(e.message()) + ")"));
     } catch (const Poco::NotFoundException & e) {
       setCurrentlyLoadingLibraryName("");
-      setCurrentlyActiveClassLoader(NULL);
+      setCurrentlyActiveClassLoader(nullptr);
       throw(class_loader::LibraryLoadException(
               "Library not found (Poco exception = " + std::string(e.message()) + ")"));
     }
 
     setCurrentlyLoadingLibraryName("");
-    setCurrentlyActiveClassLoader(NULL);
+    setCurrentlyActiveClassLoader(nullptr);
   }
 
-  assert(library_handle != NULL);
+  assert(library_handle != nullptr);
   CONSOLE_BRIDGE_logDebug(
     "class_loader.class_loader_private: "
     "Successfully loaded library %s into memory (Poco::SharedLibrary handle = %p).",
-    library_path.c_str(), library_handle);
+    library_path.c_str(), reinterpret_cast<void *>(library_handle));
 
   // Graveyard scenario
-  unsigned int num_lib_objs = allMetaObjectsForLibrary(library_path).size();
+  size_t num_lib_objs = allMetaObjectsForLibrary(library_path).size();
   if (0 == num_lib_objs) {
     CONSOLE_BRIDGE_logDebug(
       "class_loader.class_loader_private: "
@@ -536,7 +503,7 @@ void loadLibrary(const std::string & library_path, ClassLoader * loader)
     purgeGraveyardOfMetaobjects(library_path, loader, true);
   }
 
-  // Insert library into global loaded library vectory
+  // Insert library into global loaded library vector
   boost::recursive_mutex::scoped_lock llv_lock(getLoadedLibraryVectorMutex());
   LibraryVector & open_libraries = getLoadedLibraryVector();
   // Note: Poco::SharedLibrary automatically calls load() when library passed to constructor
@@ -544,7 +511,6 @@ void loadLibrary(const std::string & library_path, ClassLoader * loader)
 }
 
 void unloadLibrary(const std::string & library_path, ClassLoader * loader)
-/*****************************************************************************/
 {
   if (hasANonPurePluginLibraryBeenOpened()) {
     CONSOLE_BRIDGE_logDebug(
@@ -560,7 +526,7 @@ void unloadLibrary(const std::string & library_path, ClassLoader * loader)
     CONSOLE_BRIDGE_logDebug(
       "class_loader.class_loader_private: "
       "Unloading library %s on behalf of ClassLoader %p...",
-      library_path.c_str(), loader);
+      library_path.c_str(), reinterpret_cast<void *>(loader));
     boost::recursive_mutex::scoped_lock lock(getLoadedLibraryVectorMutex());
     LibraryVector & open_libraries = getLoadedLibraryVector();
     LibraryVector::iterator itr = findLoadedLibrary(library_path);
@@ -602,41 +568,37 @@ void unloadLibrary(const std::string & library_path, ClassLoader * loader)
 
 
 // Other
-/*****************************************************************************/
-/*****************************************************************************/
-/*****************************************************************************/
 
 void printDebugInfoToScreen()
-/*****************************************************************************/
 {
   printf("*******************************************************************************\n");
-  printf("*****               class_loader_private DEBUG INFORMATION                   *****\n");
+  printf("*****               class_loader_private DEBUG INFORMATION                *****\n");
   printf("*******************************************************************************\n");
 
   printf("OPEN LIBRARIES IN MEMORY:\n");
   printf("--------------------------------------------------------------------------------\n");
   boost::recursive_mutex::scoped_lock lock(getLoadedLibraryVectorMutex());
   LibraryVector libs = getLoadedLibraryVector();
-  for (unsigned int c = 0; c < libs.size(); c++) {
+  for (size_t c = 0; c < libs.size(); c++) {
     printf(
-      "Open library %i = %s (Poco SharedLibrary handle = %p)\n",
-      c, (libs.at(c)).first.c_str(), (libs.at(c)).second);
+      "Open library %zu = %s (Poco SharedLibrary handle = %p)\n",
+      c, (libs.at(c)).first.c_str(), reinterpret_cast<void *>((libs.at(c)).second));
   }
 
   printf("METAOBJECTS (i.e. FACTORIES) IN MEMORY:\n");
   printf("--------------------------------------------------------------------------------\n");
   MetaObjectVector meta_objs = allMetaObjects();
-  for (unsigned int c = 0; c < meta_objs.size(); c++) {
+  for (size_t c = 0; c < meta_objs.size(); c++) {
     AbstractMetaObjectBase * obj = meta_objs.at(c);
-    printf("Metaobject %i (ptr = %p):\n TypeId = %s\n Associated Library = %s\n",
+    printf("Metaobject %zu (ptr = %p):\n TypeId = %s\n Associated Library = %s\n",
       c,
-      obj,
+      reinterpret_cast<void *>(obj),
       (typeid(*obj).name()),
       obj->getAssociatedLibraryPath().c_str());
 
     ClassLoaderVector loaders = obj->getAssociatedClassLoaders();
-    for (unsigned int i = 0; i < loaders.size(); i++) {
-      printf(" Associated Loader %i = %p\n", i, loaders.at(i));
+    for (size_t i = 0; i < loaders.size(); i++) {
+      printf(" Associated Loader %zu = %p\n", i, reinterpret_cast<void *>(loaders.at(i)));
     }
     printf("--------------------------------------------------------------------------------\n");
   }

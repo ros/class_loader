@@ -33,7 +33,6 @@
 #include <string>
 
 #include "class_loader/class_loader_core.h"
-#include "class_loader/console_bridge_compatibility.h"
 
 #include "console_bridge/console.h"
 

@@ -1,5 +1,13 @@
-cmake_minimum_required(VERSION 2.8.3)
-project(class_loader)
+cmake_minimum_required(VERSION 3.5)
+project(class_loader CXX)
+
+# Default to C++14
+if(NOT CMAKE_CXX_STANDARD)
+  set(CMAKE_CXX_STANDARD 14)
+endif()
+if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  add_compile_options(-Wall -Wextra -Wpedantic)
+endif()
 
 find_package(Boost REQUIRED COMPONENTS thread system)
 
@@ -42,7 +50,6 @@ set(${PROJECT_NAME}_HDRS
   include/class_loader/class_loader_core.h
   include/class_loader/class_loader_exceptions.h
   include/class_loader/class_loader_register_macro.h
-  include/class_loader/console_bridge_compatibility.h
   include/class_loader/meta_object.h
   include/class_loader/multi_library_class_loader.h
 )

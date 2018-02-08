@@ -29,6 +29,7 @@
 
 #include <boost/thread.hpp>
 #include <boost/bind.hpp>
+#include <cstddef>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -43,7 +44,6 @@
 const char LIBRARY_1[] = "libclass_loader_TestPlugins1.so";
 const char LIBRARY_2[] = "libclass_loader_TestPlugins2.so";
 
-/*****************************************************************************/
 TEST(ClassLoaderTest, basicLoad) {
   try {
     class_loader::ClassLoader loader1(LIBRARY_1, false);
@@ -55,7 +55,6 @@ TEST(ClassLoaderTest, basicLoad) {
   SUCCEED();
 }
 
-/*****************************************************************************/
 TEST(ClassLoaderTest, correctNonLazyLoadUnload) {
   try {
     ASSERT_FALSE(class_loader::class_loader_private::isLibraryLoadedByAnybody(LIBRARY_1));
@@ -73,7 +72,6 @@ TEST(ClassLoaderTest, correctNonLazyLoadUnload) {
   }
 }
 
-/*****************************************************************************/
 TEST(ClassLoaderTest, correctLazyLoadUnload) {
   try {
     ASSERT_FALSE(class_loader::class_loader_private::isLibraryLoadedByAnybody(LIBRARY_1));
@@ -97,14 +95,12 @@ TEST(ClassLoaderTest, correctLazyLoadUnload) {
   }
 }
 
-/*****************************************************************************/
-
 TEST(ClassLoaderTest, nonExistentPlugin) {
   class_loader::ClassLoader loader1(LIBRARY_1, false);
 
   try {
     boost::shared_ptr<Base> obj = loader1.createInstance<Base>("Bear");
-    if (NULL == obj) {
+    if (nullptr == obj) {
       FAIL() << "Null object being returned instead of exception thrown.";
     }
 
@@ -119,7 +115,6 @@ TEST(ClassLoaderTest, nonExistentPlugin) {
   FAIL() << "Did not throw exception as expected.\n";
 }
 
-/*****************************************************************************/
 TEST(ClassLoaderTest, nonExistentLibrary) {
   try {
     class_loader::ClassLoader loader1("libDoesNotExist.so", false);
@@ -132,8 +127,6 @@ TEST(ClassLoaderTest, nonExistentLibrary) {
 
   FAIL() << "Did not throw exception as expected.\n";
 }
-
-/*****************************************************************************/
 
 class InvalidBase
 {
@@ -157,8 +150,6 @@ TEST(ClassLoaderTest, invalidBase) {
   }
 }
 
-/*****************************************************************************/
-
 void wait(int seconds)
 {
   boost::this_thread::sleep(boost::posix_time::seconds(seconds));
@@ -167,7 +158,7 @@ void wait(int seconds)
 void run(class_loader::ClassLoader * loader)
 {
   std::vector<std::string> classes = loader->getAvailableClasses<Base>();
-  for (unsigned int c = 0; c < classes.size(); c++) {
+  for (size_t c = 0; c < classes.size(); c++) {
     loader->createInstance<Base>(classes.at(c))->saySomething();
   }
 }
@@ -182,15 +173,15 @@ TEST(ClassLoaderTest, threadSafety) {
   try {
     std::vector<boost::thread *> client_threads;
 
-    for (unsigned int c = 0; c < 1000; c++) {
+    for (size_t c = 0; c < 1000; c++) {
       client_threads.push_back(new boost::thread(boost::bind(&run, &loader1)));
     }
 
-    for (unsigned int c = 0; c < client_threads.size(); c++) {
+    for (size_t c = 0; c < client_threads.size(); c++) {
       client_threads.at(c)->join();
     }
 
-    for (unsigned int c = 0; c < client_threads.size(); c++) {
+    for (size_t c = 0; c < client_threads.size(); c++) {
       delete (client_threads.at(c));
     }
 
@@ -202,8 +193,6 @@ TEST(ClassLoaderTest, threadSafety) {
     FAIL() << "Unknown exception.";
   }
 }
-
-/*****************************************************************************/
 
 TEST(ClassLoaderTest, loadRefCountingNonLazy) {
   try {
@@ -238,8 +227,6 @@ TEST(ClassLoaderTest, loadRefCountingNonLazy) {
 
   FAIL() << "Did not throw exception as expected.\n";
 }
-
-/*****************************************************************************/
 
 TEST(ClassLoaderTest, loadRefCountingLazy) {
   try {
@@ -280,9 +267,6 @@ TEST(ClassLoaderTest, loadRefCountingLazy) {
 
   FAIL() << "Did not throw exception as expected.\n";
 }
-
-
-/*****************************************************************************/
 
 void testMultiClassLoader(bool lazy)
 {
@@ -332,8 +316,6 @@ TEST(MultiClassLoaderTest, noWarningOnLazyLoad) {
 
   SUCCEED();
 }
-
-/*****************************************************************************/
 
 // Run all the tests that were declared with TEST()
 int main(int argc, char ** argv)

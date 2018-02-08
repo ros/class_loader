@@ -31,13 +31,12 @@
 #define CLASS_LOADER__MULTI_LIBRARY_CLASS_LOADER_H_
 
 #include <boost/thread.hpp>
+#include <cstddef>
 #include <map>
 #include <string>
 #include <vector>
 
 #include "class_loader/class_loader.h"
-
-// TODO(mikaelarguedas) : replace no lints with the explicit keyword in an ABI breaking release
 
 namespace class_loader
 {
@@ -57,7 +56,7 @@ public:
    * @brief Constructor for the class
    * @param enable_ondemand_loadunload - Flag indicates if classes are to be loaded/unloaded automatically as class_loader are created and destroyed
    */
-  MultiLibraryClassLoader(bool enable_ondemand_loadunload);  // NOLINT(runtime/explicit)
+  explicit MultiLibraryClassLoader(bool enable_ondemand_loadunload);
 
   /**
   * @brief Virtual destructor for class
@@ -79,7 +78,7 @@ public:
       "Attempting to create instance of class type %s.",
       class_name.c_str());
     ClassLoader * loader = getClassLoaderForClass<Base>(class_name);
-    if (NULL == loader) {
+    if (nullptr == loader) {
       throw class_loader::CreateClassException(
               "MultiLibraryClassLoader: Could not create object of class type " +
               class_name +
@@ -103,7 +102,7 @@ public:
   createInstance(const std::string & class_name, const std::string & library_path)
   {
     ClassLoader * loader = getClassLoaderForLibrary(library_path);
-    if (NULL == loader) {
+    if (nullptr == loader) {
       throw class_loader::NoClassLoaderExistsException(
               "Could not create instance as there is no ClassLoader in "
               "MultiLibraryClassLoader bound to library " + library_path +
@@ -172,7 +171,7 @@ public:
   Base * createUnmanagedInstance(const std::string & class_name)
   {
     ClassLoader * loader = getClassLoaderForClass<Base>(class_name);
-    if (NULL == loader) {
+    if (nullptr == loader) {
       throw class_loader::CreateClassException(
               "MultiLibraryClassLoader: Could not create class of type " + class_name);
     }
@@ -191,7 +190,7 @@ public:
   Base * createUnmanagedInstance(const std::string & class_name, const std::string & library_path)
   {
     ClassLoader * loader = getClassLoaderForLibrary(library_path);
-    if (NULL == loader) {
+    if (nullptr == loader) {
       throw class_loader::NoClassLoaderExistsException(
               "Could not create instance as there is no ClassLoader in MultiLibraryClassLoader "
               "bound to library " + library_path +
@@ -231,7 +230,7 @@ public:
   {
     std::vector<std::string> available_classes;
     ClassLoaderVector loaders = getAllAvailableClassLoaders();
-    for (unsigned int c = 0; c < loaders.size(); c++) {
+    for (size_t c = 0; c < loaders.size(); c++) {
       ClassLoader * current = loaders.at(c);
       std::vector<std::string> loader_classes = current->getAvailableClasses<Base>();
       available_classes.insert(
@@ -249,16 +248,13 @@ public:
   std::vector<std::string> getAvailableClassesForLibrary(const std::string & library_path)
   {
     ClassLoader * loader = getClassLoaderForLibrary(library_path);
-    std::vector<std::string> available_classes;
-    if (loader) {
-      available_classes = loader->getAvailableClasses<Base>();
-      return available_classes;
-    } else {
+    if (nullptr == loader) {
       throw class_loader::NoClassLoaderExistsException(
               "There is no ClassLoader in MultiLibraryClassLoader bound to library " +
               library_path +
               " Ensure you called MultiLibraryClassLoader::loadLibrary()");
     }
+    return loader->getAvailableClasses<Base>();
   }
 
   /**
@@ -288,14 +284,14 @@ private:
   /**
    * @brief Gets a handle to the class loader corresponding to a specific runtime library
    * @param library_path - the library from which we want to create the plugin
-   * @return A pointer to the ClassLoader*, == NULL if not found
+   * @return A pointer to the ClassLoader*, == nullptr if not found
    */
   ClassLoader * getClassLoaderForLibrary(const std::string & library_path);
 
   /**
    * @brief Gets a handle to the class loader corresponding to a specific class
    * @param class_name - name of class for which we want to create instance
-   * @return A pointer to the ClassLoader*, == NULL if not found
+   * @return A pointer to the ClassLoader*, == nullptr if not found
    */
   template<typename Base>
   ClassLoader * getClassLoaderForClass(const std::string & class_name)
@@ -309,7 +305,7 @@ private:
         return *i;
       }
     }
-    return NULL;
+    return nullptr;
   }
 
   /**

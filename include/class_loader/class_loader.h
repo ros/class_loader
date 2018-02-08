@@ -33,6 +33,7 @@
 #include <boost/bind.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/thread/recursive_mutex.hpp>
+#include <cstddef>
 #include <string>
 #include <vector>
 
@@ -40,14 +41,11 @@
 
 #include "class_loader/class_loader_core.h"
 #include "class_loader/class_loader_register_macro.h"
-#include "class_loader/console_bridge_compatibility.h"
 
 #if __cplusplus >= 201103L
 #include <memory>
 #include <functional>
 #endif
-
-// TODO(mikaelarguedas) : replace no lints with the explicit keyword in an ABI breaking release
 
 namespace class_loader
 {
@@ -77,7 +75,7 @@ public:
    * @param library_path - The path of the runtime library to load
    * @param ondemand_load_unload - Indicates if on-demand (lazy) unloading/loading of libraries occurs as plugins are created/destroyed
    */
-  ClassLoader(const std::string & library_path, bool ondemand_load_unload = false);  // NOLINT
+  explicit ClassLoader(const std::string & library_path, bool ondemand_load_unload = false);
 
   /**
    * @brief  Destructor for ClassLoader. All libraries opened by this ClassLoader are unloaded automatically.
@@ -210,23 +208,25 @@ private:
   void onPluginDeletion(Base * obj)
   {
     CONSOLE_BRIDGE_logDebug(
-      "class_loader::ClassLoader: Calling onPluginDeletion() for obj ptr = %p.\n", obj);
-    if (obj) {
-      boost::recursive_mutex::scoped_lock lock(plugin_ref_count_mutex_);
-      delete (obj);
-      plugin_ref_count_ = plugin_ref_count_ - 1;
-      assert(plugin_ref_count_ >= 0);
-      if (0 == plugin_ref_count_ && isOnDemandLoadUnloadEnabled()) {
-        if (!ClassLoader::hasUnmanagedInstanceBeenCreated()) {
-          unloadLibraryInternal(false);
-        } else {
-          CONSOLE_BRIDGE_logWarn(
-            "class_loader::ClassLoader: "
-            "Cannot unload library %s even though last shared pointer went out of scope. "
-            "This is because createUnmanagedInstance was used within the scope of this process,"
-            " perhaps by a different ClassLoader. Library will NOT be closed.",
-            getLibraryPath().c_str());
-        }
+      "class_loader::ClassLoader: Calling onPluginDeletion() for obj ptr = %p.\n",
+      reinterpret_cast<void *>(obj));
+    if (nullptr == obj) {
+      return;
+    }
+    boost::recursive_mutex::scoped_lock lock(plugin_ref_count_mutex_);
+    delete (obj);
+    plugin_ref_count_ = plugin_ref_count_ - 1;
+    assert(plugin_ref_count_ >= 0);
+    if (0 == plugin_ref_count_ && isOnDemandLoadUnloadEnabled()) {
+      if (!ClassLoader::hasUnmanagedInstanceBeenCreated()) {
+        unloadLibraryInternal(false);
+      } else {
+        CONSOLE_BRIDGE_logWarn(
+          "class_loader::ClassLoader: "
+          "Cannot unload library %s even though last shared pointer went out of scope. "
+          "This is because createUnmanagedInstance was used within the scope of this process,"
+          " perhaps by a different ClassLoader. Library will NOT be closed.",
+          getLibraryPath().c_str());
       }
     }
   }
@@ -267,7 +267,7 @@ private:
 
     Base * obj =
       class_loader::class_loader_private::createInstance<Base>(derived_class_name, this);
-    assert(obj != NULL);  // Unreachable assertion if createInstance() throws on failure
+    assert(obj != nullptr);  // Unreachable assertion if createInstance() throws on failure
 
     if (managed) {
       boost::recursive_mutex::scoped_lock lock(plugin_ref_count_mutex_);
