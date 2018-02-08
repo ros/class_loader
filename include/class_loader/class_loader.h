@@ -51,9 +51,22 @@ namespace class_loader
 {
 
 /**
-* returns runtime library extension for native os
+ * @brief Returns the default library prefix for the native os
+ */
+std::string systemLibraryPrefix();
+
+/**
+* @brief Returns runtime library extension for native os
 */
 std::string systemLibrarySuffix();
+
+/**
+ * @brief Returns a platform specific version of a basic library name
+ *
+ * On *nix platforms the library name is prefixed with `lib`.
+ * On all platforms the output of class_loader::systemLibrarySuffix() is appended.
+ */
+std::string systemLibraryFormat(const std::string & library_name);
 
 /**
  * @class ClassLoader
