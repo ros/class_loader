@@ -42,8 +42,8 @@
 
 #include "./base.h"
 
-const std::string LIBRARY_1 = class_loader::systemLibraryFormat("class_loader_TestPlugins1");
-const std::string LIBRARY_2 = class_loader::systemLibraryFormat("class_loader_TestPlugins2");
+const std::string LIBRARY_1 = class_loader::systemLibraryFormat("class_loader_TestPlugins1");  // NOLINT
+const std::string LIBRARY_2 = class_loader::systemLibraryFormat("class_loader_TestPlugins2");  // NOLINT
 
 using class_loader::ClassLoader;
 
