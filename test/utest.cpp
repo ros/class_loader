@@ -158,8 +158,8 @@ void wait(int seconds)
 void run(class_loader::ClassLoader * loader)
 {
   std::vector<std::string> classes = loader->getAvailableClasses<Base>();
-  for (size_t c = 0; c < classes.size(); c++) {
-    loader->createInstance<Base>(classes.at(c))->saySomething();
+  for (auto & class_ : classes) {
+    loader->createInstance<Base>(class_)->saySomething();
   }
 }
 
@@ -177,12 +177,12 @@ TEST(ClassLoaderTest, threadSafety) {
       client_threads.push_back(new boost::thread(boost::bind(&run, &loader1)));
     }
 
-    for (size_t c = 0; c < client_threads.size(); c++) {
-      client_threads.at(c)->join();
+    for (auto & client_thread : client_threads) {
+      client_thread->join();
     }
 
-    for (size_t c = 0; c < client_threads.size(); c++) {
-      delete (client_threads.at(c));
+    for (auto & client_thread : client_threads) {
+      delete (client_thread);
     }
 
     loader1.unloadLibrary();

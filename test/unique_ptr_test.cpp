@@ -108,8 +108,8 @@ void wait(int seconds)
 void run(ClassLoader * loader)
 {
   std::vector<std::string> classes = loader->getAvailableClasses<Base>();
-  for (size_t c = 0; c < classes.size(); c++) {
-    loader->createUniqueInstance<Base>(classes.at(c))->saySomething();
+  for (auto & class_ : classes) {
+    loader->createUniqueInstance<Base>(class_)->saySomething();
   }
 }
 
@@ -127,8 +127,8 @@ TEST(ClassLoaderUniquePtrTest, threadSafety) {
       client_threads.emplace_back(std::bind(&run, &loader1));
     }
 
-    for (size_t c = 0; c < client_threads.size(); c++) {
-      client_threads.at(c).join();
+    for (auto & client_thread : client_threads) {
+      client_thread.join();
     }
 
     loader1.unloadLibrary();
