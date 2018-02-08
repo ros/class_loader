@@ -307,8 +307,8 @@ bool isLibraryLoadedByAnybody(const std::string & library_path)
 bool isLibraryLoaded(const std::string & library_path, ClassLoader * loader)
 {
   bool is_lib_loaded_by_anyone = isLibraryLoadedByAnybody(library_path);
-  int num_meta_objs_for_lib = allMetaObjectsForLibrary(library_path).size();
-  int num_meta_objs_for_lib_bound_to_loader =
+  size_t num_meta_objs_for_lib = allMetaObjectsForLibrary(library_path).size();
+  size_t num_meta_objs_for_lib_bound_to_loader =
     allMetaObjectsForLibraryOwnedBy(library_path, loader).size();
   bool are_meta_objs_bound_to_loader =
     (0 == num_meta_objs_for_lib) ? true : (
@@ -321,7 +321,7 @@ std::vector<std::string> getAllLibrariesUsedByClassLoader(const ClassLoader * lo
 {
   MetaObjectVector all_loader_meta_objs = allMetaObjectsForClassLoader(loader);
   std::vector<std::string> all_libs;
-  for (unsigned int c = 0; c < all_loader_meta_objs.size(); c++) {
+  for (size_t c = 0; c < all_loader_meta_objs.size(); c++) {
     std::string lib_path = all_loader_meta_objs.at(c)->getAssociatedLibraryPath();
     if (std::find(all_libs.begin(), all_libs.end(), lib_path) == all_libs.end()) {
       all_libs.push_back(lib_path);
@@ -337,7 +337,7 @@ void addClassLoaderOwnerForAllExistingMetaObjectsForLibrary(
   const std::string & library_path, ClassLoader * loader)
 {
   MetaObjectVector all_meta_objs = allMetaObjectsForLibrary(library_path);
-  for (unsigned int c = 0; c < all_meta_objs.size(); c++) {
+  for (size_t c = 0; c < all_meta_objs.size(); c++) {
     AbstractMetaObjectBase * meta_obj = all_meta_objs.at(c);
     CONSOLE_BRIDGE_logDebug(
       "class_loader.class_loader_private: "
@@ -484,7 +484,7 @@ void loadLibrary(const std::string & library_path, ClassLoader * loader)
     library_path.c_str(), reinterpret_cast<void *>(library_handle));
 
   // Graveyard scenario
-  unsigned int num_lib_objs = allMetaObjectsForLibrary(library_path).size();
+  size_t num_lib_objs = allMetaObjectsForLibrary(library_path).size();
   if (0 == num_lib_objs) {
     CONSOLE_BRIDGE_logDebug(
       "class_loader.class_loader_private: "
@@ -503,7 +503,7 @@ void loadLibrary(const std::string & library_path, ClassLoader * loader)
     purgeGraveyardOfMetaobjects(library_path, loader, true);
   }
 
-  // Insert library into global loaded library vectory
+  // Insert library into global loaded library vector
   boost::recursive_mutex::scoped_lock llv_lock(getLoadedLibraryVectorMutex());
   LibraryVector & open_libraries = getLoadedLibraryVector();
   // Note: Poco::SharedLibrary automatically calls load() when library passed to constructor
@@ -572,33 +572,33 @@ void unloadLibrary(const std::string & library_path, ClassLoader * loader)
 void printDebugInfoToScreen()
 {
   printf("*******************************************************************************\n");
-  printf("*****               class_loader_private DEBUG INFORMATION                   *****\n");
+  printf("*****               class_loader_private DEBUG INFORMATION                *****\n");
   printf("*******************************************************************************\n");
 
   printf("OPEN LIBRARIES IN MEMORY:\n");
   printf("--------------------------------------------------------------------------------\n");
   boost::recursive_mutex::scoped_lock lock(getLoadedLibraryVectorMutex());
   LibraryVector libs = getLoadedLibraryVector();
-  for (unsigned int c = 0; c < libs.size(); c++) {
+  for (size_t c = 0; c < libs.size(); c++) {
     printf(
-      "Open library %i = %s (Poco SharedLibrary handle = %p)\n",
+      "Open library %zu = %s (Poco SharedLibrary handle = %p)\n",
       c, (libs.at(c)).first.c_str(), reinterpret_cast<void *>((libs.at(c)).second));
   }
 
   printf("METAOBJECTS (i.e. FACTORIES) IN MEMORY:\n");
   printf("--------------------------------------------------------------------------------\n");
   MetaObjectVector meta_objs = allMetaObjects();
-  for (unsigned int c = 0; c < meta_objs.size(); c++) {
+  for (size_t c = 0; c < meta_objs.size(); c++) {
     AbstractMetaObjectBase * obj = meta_objs.at(c);
-    printf("Metaobject %i (ptr = %p):\n TypeId = %s\n Associated Library = %s\n",
+    printf("Metaobject %zu (ptr = %p):\n TypeId = %s\n Associated Library = %s\n",
       c,
       reinterpret_cast<void *>(obj),
       (typeid(*obj).name()),
       obj->getAssociatedLibraryPath().c_str());
 
     ClassLoaderVector loaders = obj->getAssociatedClassLoaders();
-    for (unsigned int i = 0; i < loaders.size(); i++) {
-      printf(" Associated Loader %i = %p\n", i, reinterpret_cast<void *>(loaders.at(i)));
+    for (size_t i = 0; i < loaders.size(); i++) {
+      printf(" Associated Loader %zu = %p\n", i, reinterpret_cast<void *>(loaders.at(i)));
     }
     printf("--------------------------------------------------------------------------------\n");
   }

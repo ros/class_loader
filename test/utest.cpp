@@ -158,7 +158,7 @@ void wait(int seconds)
 void run(class_loader::ClassLoader * loader)
 {
   std::vector<std::string> classes = loader->getAvailableClasses<Base>();
-  for (unsigned int c = 0; c < classes.size(); c++) {
+  for (size_t c = 0; c < classes.size(); c++) {
     loader->createInstance<Base>(classes.at(c))->saySomething();
   }
 }
@@ -173,15 +173,15 @@ TEST(ClassLoaderTest, threadSafety) {
   try {
     std::vector<boost::thread *> client_threads;
 
-    for (unsigned int c = 0; c < 1000; c++) {
+    for (size_t c = 0; c < 1000; c++) {
       client_threads.push_back(new boost::thread(boost::bind(&run, &loader1)));
     }
 
-    for (unsigned int c = 0; c < client_threads.size(); c++) {
+    for (size_t c = 0; c < client_threads.size(); c++) {
       client_threads.at(c)->join();
     }
 
-    for (unsigned int c = 0; c < client_threads.size(); c++) {
+    for (size_t c = 0; c < client_threads.size(); c++) {
       delete (client_threads.at(c));
     }
 

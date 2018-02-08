@@ -94,7 +94,7 @@ void MultiLibraryClassLoader::loadLibrary(const std::string & library_path)
 void MultiLibraryClassLoader::shutdownAllClassLoaders()
 {
   std::vector<std::string> available_libraries = getRegisteredLibraries();
-  for (unsigned int c = 0; c < available_libraries.size(); c++) {
+  for (size_t c = 0; c < available_libraries.size(); c++) {
     unloadLibrary(available_libraries.at(c));
   }
 }

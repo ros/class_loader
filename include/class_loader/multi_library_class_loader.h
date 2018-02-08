@@ -230,7 +230,7 @@ public:
   {
     std::vector<std::string> available_classes;
     ClassLoaderVector loaders = getAllAvailableClassLoaders();
-    for (unsigned int c = 0; c < loaders.size(); c++) {
+    for (size_t c = 0; c < loaders.size(); c++) {
       ClassLoader * current = loaders.at(c);
       std::vector<std::string> loader_classes = current->getAvailableClasses<Base>();
       available_classes.insert(
