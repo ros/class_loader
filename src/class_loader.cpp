@@ -41,9 +41,23 @@ bool ClassLoader::hasUnmanagedInstanceBeenCreated()
   return ClassLoader::has_unmananged_instance_been_created_;
 }
 
+std::string systemLibraryPrefix()
+{
+#ifndef _WIN32
+  return "lib";
+#endif
+  return "";
+}
+
 std::string systemLibrarySuffix()
 {
   return Poco::SharedLibrary::suffix();
+}
+
+
+std::string systemLibraryFormat(const std::string & library_name)
+{
+  return systemLibraryPrefix() + library_name + systemLibrarySuffix();
 }
 
 ClassLoader::ClassLoader(const std::string & library_path, bool ondemand_load_unload)
