@@ -139,12 +139,8 @@ void hasANonPurePluginLibraryBeenOpened(bool hasIt)
 MetaObjectVector allMetaObjects(const FactoryMap & factories)
 {
   MetaObjectVector all_meta_objs;
-  for (
-    FactoryMap::const_iterator factoryItr = factories.begin();
-    factoryItr != factories.end(); factoryItr++
-  )
-  {
-    all_meta_objs.push_back(factoryItr->second);
+  for (auto & it : factories) {
+    all_meta_objs.push_back(it.second);
   }
   return all_meta_objs;
 }
@@ -157,8 +153,8 @@ MetaObjectVector allMetaObjects()
   BaseToFactoryMapMap & factory_map_map = getGlobalPluginBaseToFactoryMapMap();
   BaseToFactoryMapMap::iterator itr;
 
-  for (itr = factory_map_map.begin(); itr != factory_map_map.end(); itr++) {
-    MetaObjectVector objs = allMetaObjects(itr->second);
+  for (auto & it : factory_map_map) {
+    MetaObjectVector objs = allMetaObjects(it.second);
     all_meta_objs.insert(all_meta_objs.end(), objs.begin(), objs.end());
   }
   return all_meta_objs;
@@ -168,9 +164,9 @@ MetaObjectVector
 filterAllMetaObjectsOwnedBy(const MetaObjectVector & to_filter, const ClassLoader * owner)
 {
   MetaObjectVector filtered_objs;
-  for (unsigned int c = 0; c < to_filter.size(); c++) {
-    if (to_filter.at(c)->isOwnedBy(owner)) {
-      filtered_objs.push_back(to_filter.at(c));
+  for (auto & f : to_filter) {
+    if (f->isOwnedBy(owner)) {
+      filtered_objs.push_back(f);
     }
   }
   return filtered_objs;
@@ -181,9 +177,9 @@ filterAllMetaObjectsAssociatedWithLibrary(
   const MetaObjectVector & to_filter, const std::string & library_path)
 {
   MetaObjectVector filtered_objs;
-  for (unsigned int c = 0; c < to_filter.size(); c++) {
-    if (to_filter.at(c)->getAssociatedLibraryPath() == library_path) {
-      filtered_objs.push_back(to_filter.at(c));
+  for (auto & f : to_filter) {
+    if (f->getAssociatedLibraryPath() == library_path) {
+      filtered_objs.push_back(f);
     }
   }
   return filtered_objs;
@@ -263,9 +259,8 @@ void destroyMetaObjectsForLibrary(const std::string & library_path, const ClassL
 
   // We have to walk through all FactoryMaps to be sure
   BaseToFactoryMapMap & factory_map_map = getGlobalPluginBaseToFactoryMapMap();
-  BaseToFactoryMapMap::iterator itr;
-  for (itr = factory_map_map.begin(); itr != factory_map_map.end(); itr++) {
-    destroyMetaObjectsForLibrary(library_path, itr->second, loader);
+  for (auto & it : factory_map_map) {
+    destroyMetaObjectsForLibrary(library_path, it.second, loader);
   }
 
   CONSOLE_BRIDGE_logDebug("%s", "class_loader.class_loader_private: Metaobjects removed.");
@@ -280,13 +275,12 @@ bool areThereAnyExistingMetaObjectsForLibrary(const std::string & library_path)
 LibraryVector::iterator findLoadedLibrary(const std::string & library_path)
 {
   LibraryVector & open_libraries = getLoadedLibraryVector();
-  LibraryVector::iterator itr;
-  for (itr = open_libraries.begin(); itr != open_libraries.end(); itr++) {
-    if (itr->first == library_path) {
-      break;
+  for (auto it = open_libraries.begin(); it != open_libraries.end(); ++it) {
+    if (it->first == library_path) {
+      return it;
     }
   }
-  return itr;
+  return open_libraries.end();
 }
 
 bool isLibraryLoadedByAnybody(const std::string & library_path)
@@ -321,8 +315,8 @@ std::vector<std::string> getAllLibrariesUsedByClassLoader(const ClassLoader * lo
 {
   MetaObjectVector all_loader_meta_objs = allMetaObjectsForClassLoader(loader);
   std::vector<std::string> all_libs;
-  for (size_t c = 0; c < all_loader_meta_objs.size(); c++) {
-    std::string lib_path = all_loader_meta_objs.at(c)->getAssociatedLibraryPath();
+  for (auto & meta_obj : all_loader_meta_objs) {
+    std::string lib_path = meta_obj->getAssociatedLibraryPath();
     if (std::find(all_libs.begin(), all_libs.end(), lib_path) == all_libs.end()) {
       all_libs.push_back(lib_path);
     }
@@ -337,8 +331,7 @@ void addClassLoaderOwnerForAllExistingMetaObjectsForLibrary(
   const std::string & library_path, ClassLoader * loader)
 {
   MetaObjectVector all_meta_objs = allMetaObjectsForLibrary(library_path);
-  for (size_t c = 0; c < all_meta_objs.size(); c++) {
-    AbstractMetaObjectBase * meta_obj = all_meta_objs.at(c);
+  for (auto & meta_obj : all_meta_objs) {
     CONSOLE_BRIDGE_logDebug(
       "class_loader.class_loader_private: "
       "Tagging existing MetaObject %p (base = %s, derived = %s) with "
@@ -347,7 +340,7 @@ void addClassLoaderOwnerForAllExistingMetaObjectsForLibrary(
       meta_obj->className().c_str(),
       reinterpret_cast<void *>(loader),
       nullptr == loader ? loader->getLibraryPath().c_str() : "NULL");
-    all_meta_objs.at(c)->addOwningClassLoader(loader);
+    meta_obj->addOwningClassLoader(loader);
   }
 }
 
@@ -357,8 +350,7 @@ void revivePreviouslyCreateMetaobjectsFromGraveyard(
   boost::recursive_mutex::scoped_lock b2fmm_lock(getPluginBaseToFactoryMapMapMutex());
   MetaObjectVector & graveyard = getMetaObjectGraveyard();
 
-  for (MetaObjectVector::iterator itr = graveyard.begin(); itr != graveyard.end(); itr++) {
-    AbstractMetaObjectBase * obj = *itr;
+  for (auto & obj : graveyard) {
     if (obj->getAssociatedLibraryPath() == library_path) {
       CONSOLE_BRIDGE_logDebug(
         "class_loader.class_loader_private: "

@@ -285,12 +285,12 @@ std::vector<std::string> getAvailableClasses(ClassLoader * loader)
   std::vector<std::string> classes;
   std::vector<std::string> classes_with_no_owner;
 
-  for (FactoryMap::const_iterator itr = factory_map.begin(); itr != factory_map.end(); ++itr) {
-    AbstractMetaObjectBase * factory = itr->second;
+  for (auto & it : factory_map) {
+    AbstractMetaObjectBase * factory = it.second;
     if (factory->isOwnedBy(loader)) {
-      classes.push_back(itr->first);
+      classes.push_back(it.first);
     } else if (factory->isOwnedBy(nullptr)) {
-      classes_with_no_owner.push_back(itr->first);
+      classes_with_no_owner.push_back(it.first);
     }
   }
 

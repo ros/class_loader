@@ -229,10 +229,8 @@ public:
   std::vector<std::string> getAvailableClasses()
   {
     std::vector<std::string> available_classes;
-    ClassLoaderVector loaders = getAllAvailableClassLoaders();
-    for (size_t c = 0; c < loaders.size(); c++) {
-      ClassLoader * current = loaders.at(c);
-      std::vector<std::string> loader_classes = current->getAvailableClasses<Base>();
+    for (auto & loader : getAllAvailableClassLoaders()) {
+      std::vector<std::string> loader_classes = loader->getAvailableClasses<Base>();
       available_classes.insert(
         available_classes.end(), loader_classes.begin(), loader_classes.end());
     }
