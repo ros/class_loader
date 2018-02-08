@@ -208,30 +208,32 @@ private:
   void onPluginDeletion(Base * obj)
   {
     CONSOLE_BRIDGE_logDebug(
-      "class_loader::ClassLoader: Calling onPluginDeletion() for obj ptr = %p.\n", obj);
-    if (obj) {
-      boost::recursive_mutex::scoped_lock lock(plugin_ref_count_mutex_);
+      "class_loader::ClassLoader: Calling onPluginDeletion() for obj ptr = %p.\n",
+      reinterpret_cast<void *>(obj));
+    if (nullptr == obj) {
+      return;
+    }
+    boost::recursive_mutex::scoped_lock lock(plugin_ref_count_mutex_);
 #ifndef _WIN32
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdelete-non-virtual-dtor"
 #endif
-      delete (obj);
+    delete (obj);
 #ifndef _WIN32
 #pragma GCC diagnostic pop
 #endif
-      plugin_ref_count_ = plugin_ref_count_ - 1;
-      assert(plugin_ref_count_ >= 0);
-      if (0 == plugin_ref_count_ && isOnDemandLoadUnloadEnabled()) {
-        if (!ClassLoader::hasUnmanagedInstanceBeenCreated()) {
-          unloadLibraryInternal(false);
-        } else {
-          CONSOLE_BRIDGE_logWarn(
-            "class_loader::ClassLoader: "
-            "Cannot unload library %s even though last shared pointer went out of scope. "
-            "This is because createUnmanagedInstance was used within the scope of this process,"
-            " perhaps by a different ClassLoader. Library will NOT be closed.",
-            getLibraryPath().c_str());
-        }
+    plugin_ref_count_ = plugin_ref_count_ - 1;
+    assert(plugin_ref_count_ >= 0);
+    if (0 == plugin_ref_count_ && isOnDemandLoadUnloadEnabled()) {
+      if (!ClassLoader::hasUnmanagedInstanceBeenCreated()) {
+        unloadLibraryInternal(false);
+      } else {
+        CONSOLE_BRIDGE_logWarn(
+          "class_loader::ClassLoader: "
+          "Cannot unload library %s even though last shared pointer went out of scope. "
+          "This is because createUnmanagedInstance was used within the scope of this process,"
+          " perhaps by a different ClassLoader. Library will NOT be closed.",
+          getLibraryPath().c_str());
       }
     }
   }

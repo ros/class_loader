@@ -248,16 +248,13 @@ public:
   std::vector<std::string> getAvailableClassesForLibrary(const std::string & library_path)
   {
     ClassLoader * loader = getClassLoaderForLibrary(library_path);
-    std::vector<std::string> available_classes;
-    if (loader) {
-      available_classes = loader->getAvailableClasses<Base>();
-      return available_classes;
-    } else {
+    if (nullptr == loader) {
       throw class_loader::NoClassLoaderExistsException(
               "There is no ClassLoader in MultiLibraryClassLoader bound to library " +
               library_path +
               " Ensure you called MultiLibraryClassLoader::loadLibrary()");
     }
+    return loader->getAvailableClasses<Base>();
   }
 
   /**
