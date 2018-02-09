@@ -1,4 +1,6 @@
 /*
+ * Software License Agreement (BSD License)
+ *
  * Copyright (c) 2012, Willow Garage, Inc.
  * All rights reserved.
  *
@@ -10,7 +12,7 @@
  *     * Redistributions in binary form must reproduce the above copyright
  *       notice, this list of conditions and the following disclaimer in the
  *       documentation and/or other materials provided with the distribution.
- *     * Neither the name of the Willow Garage, Inc. nor the names of its
+ *     * Neither the name of the copyright holders nor the names of its
  *       contributors may be used to endorse or promote products derived from
  *       this software without specific prior written permission.
  *
@@ -27,8 +29,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef CLASS_LOADER__MULTI_LIBRARY_CLASS_LOADER_H_
-#define CLASS_LOADER__MULTI_LIBRARY_CLASS_LOADER_H_
+#ifndef CLASS_LOADER__MULTI_LIBRARY_CLASS_LOADER_HPP_
+#define CLASS_LOADER__MULTI_LIBRARY_CLASS_LOADER_HPP_
 
 #include <boost/thread.hpp>
 #include <cstddef>
@@ -36,7 +38,8 @@
 #include <string>
 #include <vector>
 
-#include "class_loader/class_loader.h"
+#include "console_bridge/console.h"
+#include "class_loader/class_loader.hpp"
 
 namespace class_loader
 {
@@ -324,4 +327,4 @@ private:
 
 
 }  // namespace class_loader
-#endif  // CLASS_LOADER__MULTI_LIBRARY_CLASS_LOADER_H_
+#endif  // CLASS_LOADER__MULTI_LIBRARY_CLASS_LOADER_HPP_

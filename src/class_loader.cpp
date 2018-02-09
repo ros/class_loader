@@ -27,7 +27,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "class_loader/class_loader.h"
+#include "class_loader/class_loader.hpp"
 
 #include <string>
 
