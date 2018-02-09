@@ -27,8 +27,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef BASE_H_
-#define BASE_H_
+#ifndef BASE_HPP_
+#define BASE_HPP_
 
 class Base
 {
@@ -37,4 +37,4 @@ public:
   virtual void saySomething() = 0;
 };
 
-#endif  // BASE_H_
+#endif  // BASE_HPP_

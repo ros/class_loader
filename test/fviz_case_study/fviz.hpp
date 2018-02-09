@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef FVIZ_CASE_STUDY__FVIZ_H_
-#define FVIZ_CASE_STUDY__FVIZ_H_
+#ifndef FVIZ_CASE_STUDY__FVIZ_HPP_
+#define FVIZ_CASE_STUDY__FVIZ_HPP_
 
 #if defined(WIN32)
 #ifdef FVIZ_BUILDING_DLL
@@ -31,4 +31,4 @@
 FVIZ_PUBLIC
 void foo(std::string msg);
 
-#endif  // FVIZ_CASE_STUDY__FVIZ_H_
+#endif  // FVIZ_CASE_STUDY__FVIZ_HPP_

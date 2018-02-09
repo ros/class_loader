@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <class_loader/class_loader.h>
+#include <class_loader/class_loader.hpp>
 
-#include "./fviz.h"  // For foo()
-#include "./fviz_plugin_base.h"
+#include "./fviz.hpp"  // For foo()
+#include "./fviz_plugin_base.hpp"
 
 class Bar : public FvizPluginBase
 {

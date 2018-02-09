@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef FVIZ_CASE_STUDY__FVIZ_PLUGIN_BASE_H_
-#define FVIZ_CASE_STUDY__FVIZ_PLUGIN_BASE_H_
+#ifndef FVIZ_CASE_STUDY__FVIZ_PLUGIN_BASE_HPP_
+#define FVIZ_CASE_STUDY__FVIZ_PLUGIN_BASE_HPP_
 
 class FvizPluginBase
 {
@@ -22,4 +22,4 @@ public:
   virtual void speak() = 0;
 };
 
-#endif  // FVIZ_CASE_STUDY__FVIZ_PLUGIN_BASE_H_
+#endif  // FVIZ_CASE_STUDY__FVIZ_PLUGIN_BASE_HPP_

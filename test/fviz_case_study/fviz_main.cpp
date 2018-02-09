@@ -15,10 +15,10 @@
 #include <cstdio>
 #include <string>
 
-#include "class_loader/class_loader.h"
+#include "class_loader/class_loader.hpp"
 
-#include "./fviz.h"
-#include "./fviz_plugin_base.h"
+#include "./fviz.hpp"
+#include "./fviz_plugin_base.hpp"
 
 const std::string name = class_loader::systemLibraryFormat("class_loader_Test_FvizDefaultPlugin");  // NOLINT
 

@@ -35,12 +35,12 @@
 #include <thread>
 #include <vector>
 
-#include "class_loader/class_loader.h"
-#include "class_loader/multi_library_class_loader.h"
+#include "class_loader/class_loader.hpp"
+#include "class_loader/multi_library_class_loader.hpp"
 
 #include "gtest/gtest.h"
 
-#include "./base.h"
+#include "./base.hpp"
 
 const std::string LIBRARY_1 = class_loader::systemLibraryFormat("class_loader_TestPlugins1");  // NOLINT
 const std::string LIBRARY_2 = class_loader::systemLibraryFormat("class_loader_TestPlugins2");  // NOLINT

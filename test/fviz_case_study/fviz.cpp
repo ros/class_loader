@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "./fviz.h" // NOLINT
+#include "./fviz.hpp" // NOLINT
 
 #include <cstdio>
 #include <string>
