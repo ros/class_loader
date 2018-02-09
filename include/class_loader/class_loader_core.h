@@ -27,20 +27,22 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef __class_loader__class_loader_core__h__
-#define __class_loader__class_loader_core__h__
+#ifndef CLASS_LOADER__CLASS_LOADER_CORE_H_
+#define CLASS_LOADER__CLASS_LOADER_CORE_H_
 
 #include <cstdio>
 #include <map>
 #include <mutex>
 #include <string>
 #include <typeinfo>
+#include <utility>
+#include <vector>
 
-#include <console_bridge/console.h>
+#include "console_bridge/console.h"
 
-#include "class_loader_exceptions.h"
-#include "meta_object.h"
-#include "visibility.h"
+#include "class_loader/class_loader_exceptions.h"
+#include "class_loader/meta_object.h"
+#include "class_loader/visibility.h"
 
 // Forward declaration to avoid including poco headers directly.
 namespace Poco
@@ -57,11 +59,12 @@ class SharedLibrary;
 namespace class_loader
 {
 
-class ClassLoader;
+class ClassLoader;  // Forward declaration
 
 namespace impl
 {
 
+// Typedefs
 typedef std::string LibraryPath;
 typedef std::string ClassName;
 typedef std::string BaseClassName;
@@ -74,19 +77,21 @@ typedef std::vector<AbstractMetaObjectBase *> MetaObjectVector;
 CLASS_LOADER_PUBLIC
 void printDebugInfoToScreen();
 
+// Global storage
+
 /**
  * @brief Gets a handle to a global data structure that holds a map of base class names (Base class describes plugin interface) to a FactoryMap which holds the factories for the various different concrete classes that can be instantiated. Note that the Base class is NOT THE LITERAL CLASSNAME, but rather the result of typeid(Base).name() which sometimes is the literal class name (as on Windows) but is often in mangled form (as on Linux).
  * @return A reference to the global base to factory map
  */
 CLASS_LOADER_PUBLIC
-BaseToFactoryMapMap& getGlobalPluginBaseToFactoryMapMap();
+BaseToFactoryMapMap & getGlobalPluginBaseToFactoryMapMap();
 
 /**
  * @brief Gets a handle to a list of open libraries in the form of LibraryPairs which encode the library path+name and the handle to the underlying Poco::SharedLibrary
  * @return A reference to the global vector that tracks loaded libraries
  */
 CLASS_LOADER_PUBLIC
-LibraryVector& getLoadedLibraryVector();
+LibraryVector & getLoadedLibraryVector();
 
 /**
  * @brief When a library is being loaded, in order for factories to know which library they are being associated with, they use this function to query which library is being loaded.
@@ -123,14 +128,14 @@ void setCurrentlyActiveClassLoader(ClassLoader * loader);
  * @return A reference to the FactoryMap contained within the global Base-to-FactoryMap map.
  */
 CLASS_LOADER_PUBLIC
-FactoryMap& getFactoryMapForBaseClass(const std::string & typeid_base_class_name);
+FactoryMap & getFactoryMapForBaseClass(const std::string & typeid_base_class_name);
 
 /**
  * @brief Same as above but uses a type parameter instead of string for more safety if info is available.
  * @return A reference to the FactoryMap contained within the global Base-to-FactoryMap map.
  */
-template <typename Base>
-FactoryMap& getFactoryMapForBaseClass()
+template<typename Base>
+FactoryMap & getFactoryMapForBaseClass()
 {
   return getFactoryMapForBaseClass(typeid(Base).name());
 }
@@ -140,9 +145,9 @@ FactoryMap& getFactoryMapForBaseClass()
  * @return A reference to the global mutex
  */
 CLASS_LOADER_PUBLIC
-std::recursive_mutex& getLoadedLibraryVectorMutex();
+std::recursive_mutex & getLoadedLibraryVectorMutex();
 CLASS_LOADER_PUBLIC
-std::recursive_mutex& getPluginBaseToFactoryMapMapMutex();
+std::recursive_mutex & getPluginBaseToFactoryMapMapMutex();
 
 /**
  * @brief Indicates if a library containing more than just plugins has been opened by the running process
@@ -158,6 +163,8 @@ bool hasANonPurePluginLibraryBeenOpened();
 CLASS_LOADER_PUBLIC
 void hasANonPurePluginLibraryBeenOpened(bool hasIt);
 
+// Plugin Functions
+
 /**
  * @brief This function is called by the CLASS_LOADER_REGISTER_CLASS macro in plugin_register_macro.h to register factories.
  * Classes that use that macro will cause this function to be invoked when the library is loaded. The function will create a MetaObject (i.e. factory) for the corresponding Derived class and insert it into the appropriate FactoryMap in the global Base-to-FactoryMap map. Note that the passed class_name is the literal class name and not the mangled version.
@@ -165,18 +172,19 @@ void hasANonPurePluginLibraryBeenOpened(bool hasIt);
  * @param Base - parameteric type indicating base type of plugin
  * @param class_name - the literal name of the class being registered (NOT MANGLED)
  */
-template <typename Derived, typename Base>
+template<typename Derived, typename Base>
 void registerPlugin(const std::string & class_name, const std::string & base_class_name)
 {
-  //Note: This function will be automatically invoked when a dlopen() call
-  //opens a library. Normally it will happen within the scope of loadLibrary(),
-  //but that may not be guaranteed.
+  // Note: This function will be automatically invoked when a dlopen() call
+  // opens a library. Normally it will happen within the scope of loadLibrary(),
+  // but that may not be guaranteed.
   CONSOLE_BRIDGE_logDebug(
     "class_loader.impl: "
-    "Registering plugin factory for class = %s, ClassLoader * = %p and library name %s.",
-    class_name.c_str(), getCurrentlyActiveClassLoader(), getCurrentlyLoadingLibraryName().c_str());
+    "Registering plugin factory for class = %s, ClassLoader* = %p and library name %s.",
+    class_name.c_str(), getCurrentlyActiveClassLoader(),
+    getCurrentlyLoadingLibraryName().c_str());
 
-  if (getCurrentlyActiveClassLoader() == nullptr) {
+  if (nullptr == getCurrentlyActiveClassLoader()) {
     CONSOLE_BRIDGE_logDebug("%s",
       "class_loader.impl: ALERT!!! "
       "A library containing plugins has been opened through a means other than through the "
@@ -196,17 +204,17 @@ void registerPlugin(const std::string & class_name, const std::string & base_cla
     hasANonPurePluginLibraryBeenOpened(true);
   }
 
-  //Create factory
+  // Create factory
   impl::AbstractMetaObject<Base> * new_factory =
     new impl::MetaObject<Derived, Base>(class_name, base_class_name);
   new_factory->addOwningClassLoader(getCurrentlyActiveClassLoader());
   new_factory->setAssociatedLibraryPath(getCurrentlyLoadingLibraryName());
 
 
-  //Add it to global factory map map
+  // Add it to global factory map map
   getPluginBaseToFactoryMapMapMutex().lock();
-  FactoryMap& factoryMap = getFactoryMapForBaseClass<Base>();
-  if (factoryMap.find(class_name) != factoryMap.end())
+  FactoryMap & factoryMap = getFactoryMapForBaseClass<Base>();
+  if (factoryMap.find(class_name) != factoryMap.end()) {
     CONSOLE_BRIDGE_logWarn(
       "class_loader.impl: SEVERE WARNING!!! "
       "A namespace collision has occured with plugin factory for class %s. "
@@ -216,12 +224,14 @@ void registerPlugin(const std::string & class_name, const std::string & base_cla
       "Please separate plugins out into their own library or just don't link against the library "
       "and use either class_loader::ClassLoader/MultiLibraryClassLoader to open.",
       class_name.c_str());
+  }
   factoryMap[class_name] = new_factory;
   getPluginBaseToFactoryMapMapMutex().unlock();
 
   CONSOLE_BRIDGE_logDebug(
-    "class_loader.impl: Registration of %s complete (Metaobject Address = %p)",
-    class_name.c_str(), new_factory);
+    "class_loader.impl: "
+    "Registration of %s complete (Metaobject Address = %p)",
+    class_name.c_str(), reinterpret_cast<void *>(new_factory));
 }
 
 /**
@@ -230,15 +240,15 @@ void registerPlugin(const std::string & class_name, const std::string & base_cla
  * @param loader - The ClassLoader whose scope we are within
  * @return A pointer to newly created plugin, note caller is responsible for object destruction
  */
-template <typename Base>
+template<typename Base>
 Base * createInstance(const std::string & derived_class_name, ClassLoader * loader)
 {
   AbstractMetaObject<Base> * factory = nullptr;
 
   getPluginBaseToFactoryMapMapMutex().lock();
-  FactoryMap& factoryMap = getFactoryMapForBaseClass<Base>();
+  FactoryMap & factoryMap = getFactoryMapForBaseClass<Base>();
   if (factoryMap.find(derived_class_name) != factoryMap.end()) {
-    factory = dynamic_cast<impl::AbstractMetaObject<Base>*>(factoryMap[derived_class_name]);
+    factory = dynamic_cast<impl::AbstractMetaObject<Base> *>(factoryMap[derived_class_name]);
   } else {
     CONSOLE_BRIDGE_logError(
       "class_loader.impl: No metaobject exists for class type %s.", derived_class_name.c_str());
@@ -250,7 +260,7 @@ Base * createInstance(const std::string & derived_class_name, ClassLoader * load
     obj = factory->create();
   }
 
-  if (obj == nullptr) {  // Was never created
+  if (nullptr == obj) {  // Was never created
     if (factory && factory->isOwnedBy(nullptr)) {
       CONSOLE_BRIDGE_logDebug("%s",
         "class_loader.impl: ALERT!!! "
@@ -265,8 +275,8 @@ Base * createInstance(const std::string & derived_class_name, ClassLoader * load
 
       obj = factory->create();
     } else {
-      throw class_loader::CreateClassException(
-        "Could not create instance of type " + derived_class_name);
+      throw(class_loader::CreateClassException(
+              "Could not create instance of type " + derived_class_name));
     }
   }
 
@@ -282,12 +292,12 @@ Base * createInstance(const std::string & derived_class_name, ClassLoader * load
  * @param loader - The pointer to the ClassLoader whose scope we are within,
  * @return A vector of strings where each string is a plugin we can create
  */
-template <typename Base>
+template<typename Base>
 std::vector<std::string> getAvailableClasses(const ClassLoader * loader)
 {
   std::lock_guard<std::recursive_mutex> lock(getPluginBaseToFactoryMapMapMutex());
 
-  FactoryMap& factory_map = getFactoryMapForBaseClass<Base>();
+  FactoryMap & factory_map = getFactoryMapForBaseClass<Base>();
   std::vector<std::string> classes;
   std::vector<std::string> classes_with_no_owner;
 
@@ -300,8 +310,8 @@ std::vector<std::string> getAvailableClasses(const ClassLoader * loader)
     }
   }
 
-  //Added classes not associated with a class loader (Which can happen through
-  //an unexpected dlopen() to the library)
+  // Added classes not associated with a class loader (Which can happen through
+  // an unexpected dlopen() to the library)
   classes.insert(classes.end(), classes_with_no_owner.begin(), classes_with_no_owner.end());
   return classes;
 }
@@ -350,4 +360,4 @@ void unloadLibrary(const std::string & library_path, ClassLoader * loader);
 }  // namespace impl
 }  // namespace class_loader
 
-#endif  // __class_loader__class_loader_core__h__
+#endif  // CLASS_LOADER__CLASS_LOADER_CORE_H_

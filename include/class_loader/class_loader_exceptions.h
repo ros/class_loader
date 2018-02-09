@@ -27,13 +27,13 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef __class_loader__exceptions__h__
-#define __class_loader__exceptions__h__
+#ifndef CLASS_LOADER__CLASS_LOADER_EXCEPTIONS_H_
+#define CLASS_LOADER__CLASS_LOADER_EXCEPTIONS_H_
 
 #include <stdexcept>
 #include <string>
 
-#include "visibility.h"
+#include "class_loader/visibility.h"
 
 namespace class_loader
 {
@@ -42,11 +42,10 @@ namespace class_loader
  * @class ClassLoader sException
  * @brief A base class for all class_loader exceptions that inherits from std::runtime_exception
  */
-class ClassLoaderException
-: public std::runtime_error
+class ClassLoaderException : public std::runtime_error
 {
 public:
-  inline ClassLoaderException(const std::string & error_desc)
+  explicit inline ClassLoaderException(const std::string & error_desc)
   : std::runtime_error(error_desc)
   {}
 };
@@ -55,11 +54,10 @@ public:
  * @class LibraryLoadException
  * @brief An exception class thrown when class_loader is unable to load a runtime library
  */
-class LibraryLoadException
-: public ClassLoaderException
+class LibraryLoadException : public ClassLoaderException
 {
 public:
-  inline LibraryLoadException(const std::string & error_desc)
+  explicit inline LibraryLoadException(const std::string & error_desc)
   : ClassLoaderException(error_desc)
   {}
 };
@@ -68,11 +66,10 @@ public:
  * @class LibraryUnloadException
  * @brief An exception class thrown when class_loader is unable to unload a runtime library
  */
-class LibraryUnloadException
-: public ClassLoaderException
+class LibraryUnloadException : public ClassLoaderException
 {
 public:
-  inline LibraryUnloadException(const std::string & error_desc)
+  explicit inline LibraryUnloadException(const std::string & error_desc)
   : ClassLoaderException(error_desc)
   {}
 };
@@ -81,11 +78,10 @@ public:
  * @class CreateClassException
  * @brief An exception class thrown when class_loader is unable to create a plugin
  */
-class CreateClassException
-: public ClassLoaderException
+class CreateClassException : public ClassLoaderException
 {
 public:
-  inline CreateClassException(const std::string & error_desc)
+  explicit inline CreateClassException(const std::string & error_desc)
   : ClassLoaderException(error_desc)
   {}
 };
@@ -94,15 +90,13 @@ public:
  * @class NoClassLoaderExistsException
  * @brief An exception class thrown when a multilibrary class loader does not have a ClassLoader bound to it
  */
-class NoClassLoaderExistsException
-: public ClassLoaderException
+class NoClassLoaderExistsException : public ClassLoaderException
 {
 public:
-  inline NoClassLoaderExistsException(const std::string & error_desc)
+  explicit inline NoClassLoaderExistsException(const std::string & error_desc)
   : ClassLoaderException(error_desc)
   {}
 };
 
 }  // namespace class_loader
-
-#endif  // __class_loader__exceptions__h__
+#endif  // CLASS_LOADER__CLASS_LOADER_EXCEPTIONS_H_

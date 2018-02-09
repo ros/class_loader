@@ -27,20 +27,21 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef __class_loader__register_macros__h__
-#define __class_loader__register_macros__h__
+#ifndef CLASS_LOADER__CLASS_LOADER_REGISTER_MACRO_H_
+#define CLASS_LOADER__CLASS_LOADER_REGISTER_MACRO_H_
 
-#include <console_bridge/console.h>
+#include <string>
 
-#include "class_loader_core.h"
+#include "console_bridge/console.h"
+#include "class_loader/class_loader_core.h"
 
 #define CLASS_LOADER_REGISTER_CLASS_INTERNAL_WITH_MESSAGE(Derived, Base, UniqueID, Message) \
-namespace \
-{\
-  struct ProxyExec##UniqueID \
+  namespace \
   { \
-    typedef Derived _derived; \
-    typedef Base _base; \
+  struct ProxyExec ## UniqueID \
+  { \
+    typedef  Derived _derived; \
+    typedef  Base _base; \
     ProxyExec ## UniqueID() \
     { \
       if (std::string(Message) != "") { \
@@ -50,7 +51,7 @@ namespace \
     } \
   }; \
   static ProxyExec ## UniqueID g_register_plugin_ ## UniqueID; \
-}
+  }  // namespace
 
 #define CLASS_LOADER_REGISTER_CLASS_INTERNAL_HOP1_WITH_MESSAGE(Derived, Base, UniqueID, Message) \
   CLASS_LOADER_REGISTER_CLASS_INTERNAL_WITH_MESSAGE(Derived, Base, UniqueID, Message)
@@ -69,4 +70,4 @@ namespace \
 #define CLASS_LOADER_REGISTER_CLASS(Derived, Base) \
   CLASS_LOADER_REGISTER_CLASS_WITH_MESSAGE(Derived, Base, "")
 
-#endif  // __class_loader__register_macros__h__
+#endif  // CLASS_LOADER__CLASS_LOADER_REGISTER_MACRO_H_
