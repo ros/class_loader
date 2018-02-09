@@ -40,7 +40,16 @@
 #include <string>
 #include <vector>
 
+// TODO(mikaelarguedas) remove this once class loader complies with this
+// see https://github.com/ros/console_bridge/issues/55
+#ifdef __clang__
+# pragma clang diagnostic push
+# pragma clang diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
+#endif
 #include "console_bridge/console.h"
+#ifdef __clang__
+# pragma clang diagnostic pop
+#endif
 
 #include "class_loader/class_loader_core.hpp"
 #include "class_loader/register_macro.hpp"
