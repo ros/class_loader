@@ -27,8 +27,11 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "class_loader/class_loader_core.h"
-#include "class_loader/class_loader.h"
+#include "class_loader/class_loader_core.hpp"
+#include "class_loader/class_loader.hpp"
+
+#include <Poco/SharedLibrary.h>
+
 #include <cassert>
 #include <string>
 #include <vector>

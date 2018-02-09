@@ -33,12 +33,12 @@
 #include <string>
 #include <vector>
 
-#include "class_loader/class_loader.h"
-#include "class_loader/multi_library_class_loader.h"
+#include "class_loader/class_loader.hpp"
+#include "class_loader/multi_library_class_loader.hpp"
 
 #include "gtest/gtest.h"
 
-#include "./base.h"
+#include "./base.hpp"
 
 const char LIBRARY_1[] = "libclass_loader_TestPlugins1.so";
 const char LIBRARY_2[] = "libclass_loader_TestPlugins2.so";

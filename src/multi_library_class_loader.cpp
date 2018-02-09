@@ -27,7 +27,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "class_loader/multi_library_class_loader.h"
+#include "class_loader/multi_library_class_loader.hpp"
 
 #include <string>
 #include <vector>
