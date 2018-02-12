@@ -32,6 +32,7 @@
 #ifndef CLASS_LOADER__CLASS_LOADER_CORE_HPP_
 #define CLASS_LOADER__CLASS_LOADER_CORE_HPP_
 
+#include <cstddef>
 #include <cstdio>
 #include <map>
 #include <mutex>

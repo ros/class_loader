@@ -32,6 +32,7 @@
 #ifndef CLASS_LOADER__MULTI_LIBRARY_CLASS_LOADER_HPP_
 #define CLASS_LOADER__MULTI_LIBRARY_CLASS_LOADER_HPP_
 
+#include <cstddef>
 #include <map>
 #include <memory>
 #include <string>
