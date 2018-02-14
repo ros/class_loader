@@ -43,7 +43,7 @@ namespace class_loader
 class ClassLoaderException : public std::runtime_error
 {
 public:
-  explicit ClassLoaderException(const std::string error_desc)
+  explicit inline ClassLoaderException(const std::string error_desc)
   : std::runtime_error(error_desc) {}
 };
 
@@ -54,7 +54,7 @@ public:
 class LibraryLoadException : public ClassLoaderException
 {
 public:
-  explicit LibraryLoadException(const std::string error_desc)
+  explicit inline LibraryLoadException(const std::string error_desc)
   : ClassLoaderException(error_desc) {}
 };
 
@@ -65,7 +65,7 @@ public:
 class LibraryUnloadException : public ClassLoaderException
 {
 public:
-  explicit LibraryUnloadException(const std::string error_desc)
+  explicit inline LibraryUnloadException(const std::string error_desc)
   : ClassLoaderException(error_desc) {}
 };
 
@@ -76,7 +76,7 @@ public:
 class CreateClassException : public ClassLoaderException
 {
 public:
-  explicit CreateClassException(const std::string error_desc)
+  explicit inline CreateClassException(const std::string error_desc)
   : ClassLoaderException(error_desc) {}
 };
 
@@ -87,7 +87,7 @@ public:
 class NoClassLoaderExistsException : public ClassLoaderException
 {
 public:
-  explicit NoClassLoaderExistsException(const std::string error_desc)
+  explicit inline NoClassLoaderExistsException(const std::string error_desc)
   : ClassLoaderException(error_desc) {}
 };
 
