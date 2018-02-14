@@ -44,7 +44,6 @@ if(WIN32)
 endif()
 
 if(BUILD_TESTING)
-  # TODO(mikaelarguedas) add copyright test once the linter accepts /** block comments
   find_package(ament_lint_auto QUIET)
   if(ament_lint_auto_FOUND)
     # TODO(mikaelarguedas) add copyright test once the linter accepts /** block comments

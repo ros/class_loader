@@ -32,7 +32,7 @@
 
 #include <string>
 
-// TODO(mikaelarguedas) remove this once class loader complies with this
+// TODO(mikaelarguedas) remove this once console_bridge complies with this
 // see https://github.com/ros/console_bridge/issues/55
 #ifdef __clang__
 # pragma clang diagnostic push
