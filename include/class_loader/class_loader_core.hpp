@@ -287,8 +287,8 @@ Base * createInstance(const std::string & derived_class_name, ClassLoader * load
 
       obj = factory->create();
     } else {
-      throw(class_loader::CreateClassException(
-              "Could not create instance of type " + derived_class_name));
+      throw class_loader::CreateClassException(
+              "Could not create instance of type " + derived_class_name);
     }
   }
 
