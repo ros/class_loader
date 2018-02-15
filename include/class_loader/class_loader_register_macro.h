@@ -1,5 +1,7 @@
 /*
- * Copyright (c) 2012, Willow Garage, Inc.
+ * Software License Agreement (BSD License)
+ *
+ * Copyright (c) 2018, Open Source Robotics Foundation, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -10,7 +12,7 @@
  *     * Redistributions in binary form must reproduce the above copyright
  *       notice, this list of conditions and the following disclaimer in the
  *       documentation and/or other materials provided with the distribution.
- *     * Neither the name of the Willow Garage, Inc. nor the names of its
+ *     * Neither the name of the copyright holders nor the names of its
  *       contributors may be used to endorse or promote products derived from
  *       this software without specific prior written permission.
  *
@@ -30,44 +32,10 @@
 #ifndef CLASS_LOADER__CLASS_LOADER_REGISTER_MACRO_H_
 #define CLASS_LOADER__CLASS_LOADER_REGISTER_MACRO_H_
 
-#include <string>
+// *INDENT-OFF* (prevent uncrustify from adding indention below)
+#warning Including header <class_loader/class_loader_register_macro.h> is deprecated, \
+include <class_loader/register_macro.hpp> instead.
 
-#include "class_loader/class_loader_core.h"
-
-#include "console_bridge/console.h"
-
-#define CLASS_LOADER_REGISTER_CLASS_INTERNAL_WITH_MESSAGE(Derived, Base, UniqueID, Message) \
-  namespace \
-  { \
-  struct ProxyExec ## UniqueID \
-  { \
-    typedef  Derived _derived; \
-    typedef  Base _base; \
-    ProxyExec ## UniqueID() \
-    { \
-      if (!std::string(Message).empty()) { \
-        CONSOLE_BRIDGE_logInform("%s", Message);} \
-      class_loader::class_loader_private::registerPlugin<_derived, _base>(#Derived, #Base); \
-    } \
-  }; \
-  static ProxyExec ## UniqueID g_register_plugin_ ## UniqueID; \
-  }  // namespace
-
-#define CLASS_LOADER_REGISTER_CLASS_INTERNAL_HOP1_WITH_MESSAGE(Derived, Base, UniqueID, Message) \
-  CLASS_LOADER_REGISTER_CLASS_INTERNAL_WITH_MESSAGE(Derived, Base, UniqueID, Message)
-
-/**
-* @macro This macro is same as CLASS_LOADER_REGISTER_CLASS, but will spit out a message when the plugin is registered
-* at library load time
-*/
-#define CLASS_LOADER_REGISTER_CLASS_WITH_MESSAGE(Derived, Base, Message) \
-  CLASS_LOADER_REGISTER_CLASS_INTERNAL_HOP1_WITH_MESSAGE(Derived, Base, __COUNTER__, Message)
-
-/**
-* @macro This is the macro which must be declared within the source (.cpp) file for each class that is to be exported as plugin.
-* The macro utilizes a trick where a new struct is generated along with a declaration of static global variable of same type after it. The struct's constructor invokes a registration function with the plugin system. When the plugin system loads a library with registered classes in it, the initialization of static variables forces the invocation of the struct constructors, and all exported classes are automatically registerd.
-*/
-#define CLASS_LOADER_REGISTER_CLASS(Derived, Base) \
-  CLASS_LOADER_REGISTER_CLASS_WITH_MESSAGE(Derived, Base, "")
+#include "./register_macro.hpp"
 
 #endif  // CLASS_LOADER__CLASS_LOADER_REGISTER_MACRO_H_
