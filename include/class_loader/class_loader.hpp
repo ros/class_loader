@@ -36,6 +36,8 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/thread/recursive_mutex.hpp>
 #include <cstddef>
+#include <functional>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -43,11 +45,6 @@
 
 #include "class_loader/class_loader_core.hpp"
 #include "class_loader/register_macro.hpp"
-
-#if __cplusplus >= 201103L
-#include <memory>
-#include <functional>
-#endif
 
 namespace class_loader
 {
@@ -77,13 +74,11 @@ std::string systemLibraryFormat(const std::string & library_name);
 class ClassLoader
 {
 public:
-#if __cplusplus >= 201103L
   template<typename Base>
   using DeleterType = std::function<void(Base *)>;
 
   template<typename Base>
   using UniquePtr = std::unique_ptr<Base, DeleterType<Base>>;
-#endif
 
   /**
    * @brief  Constructor for ClassLoader
@@ -129,7 +124,6 @@ public:
       boost::bind(&ClassLoader::onPluginDeletion<Base>, this, _1));
   }
 
-#if __cplusplus >= 201103L
   /**
    * @brief  Generates an instance of loadable classes (i.e. class_loader).
    *
@@ -150,7 +144,6 @@ public:
       raw,
       boost::bind(&ClassLoader::onPluginDeletion<Base>, this, _1));
   }
-#endif
 
   /**
    * @brief  Generates an instance of loadable classes (i.e. class_loader).
