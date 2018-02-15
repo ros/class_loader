@@ -2,8 +2,8 @@
 Changelog for package class_loader
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.4.0 (2018-02-15)
+------------------
 * Stop checking for c++11 support (`#87 <https://github.com/ros/class_loader/pull/87>`_)
   all Melodic targeted platforms use gnu++14 so checking and forcing -std=c++11 doesn't make sense anymore
 * [ABI breaking] use std::string references for exceptions (`#86 <https://github.com/ros/class_loader/issues/86>`_)
