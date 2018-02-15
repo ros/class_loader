@@ -29,9 +29,9 @@
 
 #include <iostream>
 
-#include "class_loader/class_loader.h"
+#include "class_loader/class_loader.hpp"
 
-#include "./base.h"
+#include "./base.hpp"
 
 class Robot : public Base
 {

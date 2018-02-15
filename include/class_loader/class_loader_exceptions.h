@@ -1,5 +1,7 @@
 /*
- * Copyright (c) 2012, Willow Garage, Inc.
+ * Software License Agreement (BSD License)
+ *
+ * Copyright (c) 2018, Open Source Robotics Foundation, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -10,7 +12,7 @@
  *     * Redistributions in binary form must reproduce the above copyright
  *       notice, this list of conditions and the following disclaimer in the
  *       documentation and/or other materials provided with the distribution.
- *     * Neither the name of the Willow Garage, Inc. nor the names of its
+ *     * Neither the name of the copyright holders nor the names of its
  *       contributors may be used to endorse or promote products derived from
  *       this software without specific prior written permission.
  *
@@ -30,68 +32,6 @@
 #ifndef CLASS_LOADER__CLASS_LOADER_EXCEPTIONS_H_
 #define CLASS_LOADER__CLASS_LOADER_EXCEPTIONS_H_
 
-#include <exception>
-#include <string>
+#include "./exceptions.hpp"
 
-// TODO(mikaelarguedas) : replace no lints with the explicit keyword in an ABI breaking release
-
-namespace class_loader
-{
-
-/**
- * @class ClassLoader sException
- * @brief A base class for all class_loader exceptions that inherits from std::runtime_exception
- */
-class ClassLoaderException : public std::runtime_error
-{
-public:
-  ClassLoaderException(const std::string error_desc)    // NOLINT(runtime/explicit)
-  : std::runtime_error(error_desc) {}
-};
-
-/**
- * @class LibraryLoadException
- * @brief An exception class thrown when class_loader is unable to load a runtime library
- */
-class LibraryLoadException : public ClassLoaderException
-{
-public:
-  LibraryLoadException(const std::string error_desc)    // NOLINT(runtime/explicit)
-  : ClassLoaderException(error_desc) {}
-};
-
-/**
- * @class LibraryUnloadException
- * @brief An exception class thrown when class_loader is unable to unload a runtime library
- */
-class LibraryUnloadException : public ClassLoaderException
-{
-public:
-  LibraryUnloadException(const std::string error_desc)    // NOLINT(runtime/explicit)
-  : ClassLoaderException(error_desc) {}
-};
-
-/**
- * @class CreateClassException
- * @brief An exception class thrown when class_loader is unable to create a plugin
- */
-class CreateClassException : public ClassLoaderException
-{
-public:
-  CreateClassException(const std::string error_desc)    // NOLINT(runtime/explicit)
-  : ClassLoaderException(error_desc) {}
-};
-
-/**
- * @class NoClassLoaderExistsException
- * @brief An exception class thrown when a multilibrary class loader does not have a ClassLoader bound to it
- */
-class NoClassLoaderExistsException : public ClassLoaderException
-{
-public:
-  NoClassLoaderExistsException(const std::string error_desc)    // NOLINT(runtime/explicit)
-  : ClassLoaderException(error_desc) {}
-};
-
-}  // namespace class_loader
 #endif  // CLASS_LOADER__CLASS_LOADER_EXCEPTIONS_H_
