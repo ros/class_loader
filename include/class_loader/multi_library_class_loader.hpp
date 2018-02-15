@@ -114,7 +114,6 @@ public:
     return loader->createInstance<Base>(class_name);
   }
 
-#if __cplusplus >= 201103L
   /**
    * @brief Creates an instance of an object of given class name with ancestor class Base
    * This version does not look in a specific library for the factory, but rather the first open library that defines the classs
@@ -160,7 +159,6 @@ public:
     }
     return loader->createUniqueInstance<Base>(class_name);
   }
-#endif
 
   /**
    * @brief Creates an instance of an object of given class name with ancestor class Base
