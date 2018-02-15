@@ -10,7 +10,7 @@
  *     * Redistributions in binary form must reproduce the above copyright
  *       notice, this list of conditions and the following disclaimer in the
  *       documentation and/or other materials provided with the distribution.
- *     * Neither the name of the Willow Garage, Inc. nor the names of its
+ *     * Neither the name of the copyright holders nor the names of its
  *       contributors may be used to endorse or promote products derived from
  *       this software without specific prior written permission.
  *
@@ -27,20 +27,30 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef __class_loader__register_macros__h__
-#define __class_loader__register_macros__h__
+#ifndef CLASS_LOADER__REGISTER_MACRO_HPP_
+#define CLASS_LOADER__REGISTER_MACRO_HPP_
 
-#include <console_bridge/console.h>
+#include <string>
 
-#include "class_loader_core.h"
+// TODO(mikaelarguedas) remove this once console_bridge complies with this
+// see https://github.com/ros/console_bridge/issues/55
+#ifdef __clang__
+# pragma clang diagnostic push
+# pragma clang diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
+#endif
+#include "console_bridge/console.h"
+#ifdef __clang__
+# pragma clang diagnostic pop
+#endif
+#include "class_loader/class_loader_core.hpp"
 
 #define CLASS_LOADER_REGISTER_CLASS_INTERNAL_WITH_MESSAGE(Derived, Base, UniqueID, Message) \
-namespace \
-{\
-  struct ProxyExec##UniqueID \
+  namespace \
   { \
-    typedef Derived _derived; \
-    typedef Base _base; \
+  struct ProxyExec ## UniqueID \
+  { \
+    typedef  Derived _derived; \
+    typedef  Base _base; \
     ProxyExec ## UniqueID() \
     { \
       if (std::string(Message) != "") { \
@@ -50,7 +60,7 @@ namespace \
     } \
   }; \
   static ProxyExec ## UniqueID g_register_plugin_ ## UniqueID; \
-}
+  }  // namespace
 
 #define CLASS_LOADER_REGISTER_CLASS_INTERNAL_HOP1_WITH_MESSAGE(Derived, Base, UniqueID, Message) \
   CLASS_LOADER_REGISTER_CLASS_INTERNAL_WITH_MESSAGE(Derived, Base, UniqueID, Message)
@@ -69,4 +79,4 @@ namespace \
 #define CLASS_LOADER_REGISTER_CLASS(Derived, Base) \
   CLASS_LOADER_REGISTER_CLASS_WITH_MESSAGE(Derived, Base, "")
 
-#endif  // __class_loader__register_macros__h__
+#endif  // CLASS_LOADER__REGISTER_MACRO_HPP_

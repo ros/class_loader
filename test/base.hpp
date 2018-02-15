@@ -27,50 +27,14 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <iostream>
+#ifndef BASE_HPP_
+#define BASE_HPP_
 
-#include "class_loader/class_loader.hpp"
-
-#include "./base.hpp"
-
-class Robot : public Base
+class Base
 {
 public:
-  void saySomething()
-  {
-    printf("Beep boop\n");
-  }
+  virtual ~Base() {}
+  virtual void saySomething() = 0;
 };
 
-class Alien : public Base
-{
-public:
-  void saySomething()
-  {
-    printf("Znornoff!!!\n");
-  }
-};
-
-class Monster : public Base
-{
-public:
-  void saySomething()
-  {
-    printf("BEAAAHHHH\n");
-  }
-};
-
-class Zombie : public Base
-{
-public:
-  void saySomething()
-  {
-    printf("Brains!!!\n");
-  }
-};
-
-
-CLASS_LOADER_REGISTER_CLASS(Robot, Base)
-CLASS_LOADER_REGISTER_CLASS(Alien, Base)
-CLASS_LOADER_REGISTER_CLASS(Monster, Base)
-CLASS_LOADER_REGISTER_CLASS(Zombie, Base)
+#endif  // BASE_HPP_

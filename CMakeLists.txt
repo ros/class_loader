@@ -7,7 +7,7 @@ if(NOT CMAKE_CXX_STANDARD)
   set(CMAKE_CXX_STANDARD 14)
 endif()
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  add_compile_options(-Wall -Wextra)
+  add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
 set(CLASS_LOADER_IGNORE_AMENT FALSE CACHE BOOL
@@ -44,6 +44,12 @@ if(WIN32)
 endif()
 
 if(BUILD_TESTING)
+  find_package(ament_lint_auto QUIET)
+  if(ament_lint_auto_FOUND)
+    # TODO(mikaelarguedas) add copyright test once the linter accepts /** block comments
+    set(ament_cmake_copyright_FOUND TRUE)
+    ament_lint_auto_find_test_dependencies()
+  endif()
   add_subdirectory(test)
 endif()
 

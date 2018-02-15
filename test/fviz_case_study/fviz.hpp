@@ -12,23 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <gtest/gtest.h>
+#ifndef FVIZ_CASE_STUDY__FVIZ_HPP_
+#define FVIZ_CASE_STUDY__FVIZ_HPP_
 
-#include <class_loader/class_loader.hpp>
+#if defined(WIN32)
+#ifdef FVIZ_BUILDING_DLL
+#define FVIZ_PUBLIC __declspec(dllexport)
+#else
+#define FVIZ_PUBLIC __declspec(dllimport)
+#endif
+#else
+#define FVIZ_PUBLIC
+#endif
 
-#include "./fviz.hpp"
-#include "./fviz_plugin_base.hpp"
 
-const std::string name = class_loader::systemLibraryFormat("class_loader_Test_FvizDefaultPlugin"); // NOLINT
+#include <string>
 
-TEST(FvizTest, basic_test) {
-  try {
-    class_loader::ClassLoader loader(name);
-    loader.createInstance<FvizPluginBase>("Bar")->speak();
-    loader.createInstance<FvizPluginBase>("Baz")->speak();
-  } catch (const class_loader::ClassLoaderException & e) {
-    FAIL() << "ClassLoaderException: " << e.what() << "\n";
-  }
+FVIZ_PUBLIC
+void foo(std::string msg);
 
-  SUCCEED();
-}
+#endif  // FVIZ_CASE_STUDY__FVIZ_HPP_

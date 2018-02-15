@@ -27,8 +27,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef __class_loader__visibility__h__
-#define __class_loader__visibility__h__
+#ifndef CLASS_LOADER__VISIBILITY_CONTROL_HPP_
+#define CLASS_LOADER__VISIBILITY_CONTROL_HPP_
 
 // This logic was borrowed (then namespaced) from the examples on the gcc wiki:
 //     https://gcc.gnu.org/wiki/Visibility
@@ -61,4 +61,4 @@
   #define CLASS_LOADER_PUBLIC_TYPE
 #endif
 
-#endif  // __class_loader__visibility__h__
+#endif  // CLASS_LOADER__VISIBILITY_CONTROL_HPP_

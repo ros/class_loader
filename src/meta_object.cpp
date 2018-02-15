@@ -27,8 +27,11 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "class_loader/meta_object.h"
-#include "class_loader/class_loader.h"
+#include <string>
+#include <vector>
+
+#include "class_loader/meta_object.hpp"
+#include "class_loader/class_loader.hpp"
 
 namespace class_loader
 {
@@ -47,20 +50,27 @@ public:
   std::string typeid_base_class_name_;
 };
 
-AbstractMetaObjectBase::AbstractMetaObjectBase(const std::string & class_name, const std::string & base_class_name, const std::string & typeid_base_class_name) :
-impl_(new AbstractMetaObjectBaseImpl())
+AbstractMetaObjectBase::AbstractMetaObjectBase(
+  const std::string & class_name, const std::string & base_class_name,
+  const std::string & typeid_base_class_name)
+: impl_(new AbstractMetaObjectBaseImpl())
 {
   impl_->associated_library_path_ = "Unknown";
   impl_->base_class_name_ = base_class_name;
   impl_->class_name_ = class_name;
   impl_->typeid_base_class_name_ = typeid_base_class_name;
-  CONSOLE_BRIDGE_logDebug("class_loader.private.AbstractMetaObjectBase: Creating MetaObject %p (base = %s, derived = %s, library path = %s)", this, baseClassName().c_str(), className().c_str(), getAssociatedLibraryPath().c_str());
+  CONSOLE_BRIDGE_logDebug(
+    "class_loader.impl.AbstractMetaObjectBase: Creating MetaObject %p "
+    "(base = %s, derived = %s, library path = %s)",
+    this, baseClassName().c_str(), className().c_str(), getAssociatedLibraryPath().c_str());
 }
 
 AbstractMetaObjectBase::~AbstractMetaObjectBase()
 {
-  CONSOLE_BRIDGE_logDebug("class_loader.private.AbstractMetaObjectBase: Destroying MetaObject %p (base = %s, derived = %s, library path = %s)", this, baseClassName().c_str(), className().c_str(), getAssociatedLibraryPath().c_str());
-  delete impl_;
+  CONSOLE_BRIDGE_logDebug(
+    "class_loader.impl.AbstractMetaObjectBase: "
+    "Destroying MetaObject %p (base = %s, derived = %s, library path = %s)",
+    this, baseClassName().c_str(), className().c_str(), getAssociatedLibraryPath().c_str());
 }
 
 const std::string & AbstractMetaObjectBase::className() const
@@ -90,7 +100,7 @@ void AbstractMetaObjectBase::setAssociatedLibraryPath(const std::string & librar
 
 void AbstractMetaObjectBase::addOwningClassLoader(ClassLoader * loader)
 {
-  ClassLoaderVector& v = impl_->associated_class_loaders_;
+  ClassLoaderVector & v = impl_->associated_class_loaders_;
   if (std::find(v.begin(), v.end(), loader) == v.end()) {
     v.push_back(loader);
   }
@@ -98,7 +108,7 @@ void AbstractMetaObjectBase::addOwningClassLoader(ClassLoader * loader)
 
 void AbstractMetaObjectBase::removeOwningClassLoader(const ClassLoader * loader)
 {
-  ClassLoaderVector& v = impl_->associated_class_loaders_;
+  ClassLoaderVector & v = impl_->associated_class_loaders_;
   ClassLoaderVector::iterator itr = std::find(v.begin(), v.end(), loader);
   if (itr != v.end()) {
     v.erase(itr);

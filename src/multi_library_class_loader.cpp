@@ -27,9 +27,12 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "class_loader/multi_library_class_loader.h"
+#include "class_loader/multi_library_class_loader.hpp"
 
+#include <cstddef>
 #include <mutex>
+#include <string>
+#include <vector>
 
 namespace class_loader
 {
@@ -109,7 +112,7 @@ int MultiLibraryClassLoader::unloadLibrary(const std::string & library_path)
     remaining_unloads = loader->unloadLibrary();
     if (remaining_unloads == 0) {
       impl_->active_class_loaders_[library_path] = nullptr;
-      delete(loader);
+      delete (loader);
     }
   }
   return remaining_unloads;

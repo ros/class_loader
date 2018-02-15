@@ -1,19 +1,51 @@
+/*
+ * Copyright (c) 2012, Willow Garage, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above copyright
+ *       notice, this list of conditions and the following disclaimer in the
+ *       documentation and/or other materials provided with the distribution.
+ *     * Neither the name of the Willow Garage, Inc. nor the names of its
+ *       contributors may be used to endorse or promote products derived from
+ *       this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ */
+
 #include <chrono>
+#include <cstddef>
 #include <iostream>
+#include <memory>
+#include <string>
 #include <thread>
+#include <vector>
 
-#include <class_loader/class_loader.h>
-#include <class_loader/multi_library_class_loader.h>
+#include "class_loader/class_loader.hpp"
+#include "class_loader/multi_library_class_loader.hpp"
 
-#include <gtest/gtest.h>
+#include "gtest/gtest.h"
 
-#include "base.h"
+#include "./base.hpp"
 
-const std::string LIBRARY_1 = class_loader::systemLibraryFormat("class_loader_TestPlugins1");
-const std::string LIBRARY_2 = class_loader::systemLibraryFormat("class_loader_TestPlugins2");
+const std::string LIBRARY_1 = class_loader::systemLibraryFormat("class_loader_TestPlugins1");  // NOLINT
+const std::string LIBRARY_2 = class_loader::systemLibraryFormat("class_loader_TestPlugins2");  // NOLINT
 
-TEST(ClassLoaderTest, basicLoad)
-{
+TEST(ClassLoaderTest, basicLoad) {
   try {
     class_loader::ClassLoader loader1(LIBRARY_1, false);
     loader1.createInstance<Base>("Cat")->saySomething();  // See if lazy load works
@@ -24,8 +56,7 @@ TEST(ClassLoaderTest, basicLoad)
   SUCCEED();
 }
 
-TEST(ClassLoaderTest, correctNonLazyLoadUnload)
-{
+TEST(ClassLoaderTest, correctNonLazyLoadUnload) {
   try {
     ASSERT_FALSE(class_loader::impl::isLibraryLoadedByAnybody(LIBRARY_1));
     class_loader::ClassLoader loader1(LIBRARY_1, false);
@@ -34,6 +65,7 @@ TEST(ClassLoaderTest, correctNonLazyLoadUnload)
     loader1.unloadLibrary();
     ASSERT_FALSE(class_loader::impl::isLibraryLoadedByAnybody(LIBRARY_1));
     ASSERT_FALSE(loader1.isLibraryLoaded());
+    return;
   } catch (class_loader::ClassLoaderException & e) {
     FAIL() << "ClassLoaderException: " << e.what() << "\n";
   } catch (...) {
@@ -41,8 +73,7 @@ TEST(ClassLoaderTest, correctNonLazyLoadUnload)
   }
 }
 
-TEST(ClassLoaderTest, correctLazyLoadUnload)
-{
+TEST(ClassLoaderTest, correctLazyLoadUnload) {
   try {
     ASSERT_FALSE(class_loader::impl::isLibraryLoadedByAnybody(LIBRARY_1));
     class_loader::ClassLoader loader1(LIBRARY_1, true);
@@ -57,6 +88,7 @@ TEST(ClassLoaderTest, correctLazyLoadUnload)
 
     // The library will unload automatically when the only plugin object left is destroyed
     ASSERT_FALSE(class_loader::impl::isLibraryLoadedByAnybody(LIBRARY_1));
+    return;
   } catch (class_loader::ClassLoaderException & e) {
     FAIL() << "ClassLoaderException: " << e.what() << "\n";
   } catch (...) {
@@ -64,13 +96,12 @@ TEST(ClassLoaderTest, correctLazyLoadUnload)
   }
 }
 
-TEST(ClassLoaderTest, nonExistentPlugin)
-{
+TEST(ClassLoaderTest, nonExistentPlugin) {
   class_loader::ClassLoader loader1(LIBRARY_1, false);
 
   try {
     std::shared_ptr<Base> obj = loader1.createInstance<Base>("Bear");
-    if (obj == nullptr) {
+    if (nullptr == obj) {
       FAIL() << "Null object being returned instead of exception thrown.";
     }
 
@@ -85,8 +116,7 @@ TEST(ClassLoaderTest, nonExistentPlugin)
   FAIL() << "Did not throw exception as expected.\n";
 }
 
-TEST(ClassLoaderTest, nonExistentLibrary)
-{
+TEST(ClassLoaderTest, nonExistentLibrary) {
   try {
     class_loader::ClassLoader loader1("libDoesNotExist.so", false);
   } catch (const class_loader::LibraryLoadException &) {
@@ -99,13 +129,11 @@ TEST(ClassLoaderTest, nonExistentLibrary)
   FAIL() << "Did not throw exception as expected.\n";
 }
 
-
 class InvalidBase
 {
 };
 
-TEST(ClassLoaderTest, invalidBase)
-{
+TEST(ClassLoaderTest, invalidBase) {
   try {
     class_loader::ClassLoader loader1(LIBRARY_1, false);
     if (loader1.isClassAvailable<InvalidBase>("Cat")) {
@@ -131,13 +159,12 @@ void wait(int seconds)
 void run(class_loader::ClassLoader * loader)
 {
   std::vector<std::string> classes = loader->getAvailableClasses<Base>();
-  for (size_t c = 0; c < classes.size(); ++c) {
-    loader->createInstance<Base>(classes.at(c))->saySomething();
+  for (auto & class_ : classes) {
+    loader->createInstance<Base>(class_)->saySomething();
   }
 }
 
-TEST(ClassLoaderTest, threadSafety)
-{
+TEST(ClassLoaderTest, threadSafety) {
   class_loader::ClassLoader loader1(LIBRARY_1);
   ASSERT_TRUE(loader1.isLibraryLoaded());
 
@@ -145,7 +172,7 @@ TEST(ClassLoaderTest, threadSafety)
   // The hope is this test is hard enough that once in a while it'll segfault
   // or something if there's some implementation error.
   try {
-    std::vector<std::thread*> client_threads;
+    std::vector<std::thread *> client_threads;
 
     for (size_t c = 0; c < 1000; ++c) {
       client_threads.push_back(new std::thread(std::bind(&run, &loader1)));
@@ -156,12 +183,11 @@ TEST(ClassLoaderTest, threadSafety)
     }
 
     for (auto & client_thread : client_threads) {
-      delete(client_thread);
+      delete (client_thread);
     }
 
     loader1.unloadLibrary();
     ASSERT_FALSE(loader1.isLibraryLoaded());
-
   } catch (const class_loader::ClassLoaderException &) {
     FAIL() << "Unexpected ClassLoaderException.";
   } catch (...) {
@@ -169,8 +195,7 @@ TEST(ClassLoaderTest, threadSafety)
   }
 }
 
-TEST(ClassLoaderTest, loadRefCountingNonLazy)
-{
+TEST(ClassLoaderTest, loadRefCountingNonLazy) {
   try {
     class_loader::ClassLoader loader1(LIBRARY_1, false);
     ASSERT_TRUE(loader1.isLibraryLoaded());
@@ -204,8 +229,7 @@ TEST(ClassLoaderTest, loadRefCountingNonLazy)
   FAIL() << "Did not throw exception as expected.\n";
 }
 
-TEST(ClassLoaderTest, loadRefCountingLazy)
-{
+TEST(ClassLoaderTest, loadRefCountingLazy) {
   try {
     class_loader::ClassLoader loader1(LIBRARY_1, true);
     ASSERT_FALSE(loader1.isLibraryLoaded());
@@ -263,20 +287,16 @@ void testMultiClassLoader(bool lazy)
   SUCCEED();
 }
 
-TEST(MultiClassLoaderTest, lazyLoad)
-{
+TEST(MultiClassLoaderTest, lazyLoad) {
   testMultiClassLoader(true);
 }
-TEST(MultiClassLoaderTest, lazyLoadSecondTime)
-{
+TEST(MultiClassLoaderTest, lazyLoadSecondTime) {
   testMultiClassLoader(true);
 }
-TEST(MultiClassLoaderTest, nonLazyLoad)
-{
+TEST(MultiClassLoaderTest, nonLazyLoad) {
   testMultiClassLoader(false);
 }
-TEST(MultiClassLoaderTest, noWarningOnLazyLoad)
-{
+TEST(MultiClassLoaderTest, noWarningOnLazyLoad) {
   try {
     std::shared_ptr<Base> cat, dog, rob;
     {
@@ -296,4 +316,11 @@ TEST(MultiClassLoaderTest, noWarningOnLazyLoad)
   }
 
   SUCCEED();
+}
+
+// Run all the tests that were declared with TEST()
+int main(int argc, char ** argv)
+{
+  testing::InitGoogleTest(&argc, argv);
+  return RUN_ALL_TESTS();
 }

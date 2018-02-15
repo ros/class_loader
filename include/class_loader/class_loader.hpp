@@ -1,4 +1,6 @@
 /*
+ * Software License Agreement (BSD License)
+ *
  * Copyright (c) 2012, Willow Garage, Inc.
  * All rights reserved.
  *
@@ -10,7 +12,7 @@
  *     * Redistributions in binary form must reproduce the above copyright
  *       notice, this list of conditions and the following disclaimer in the
  *       documentation and/or other materials provided with the distribution.
- *     * Neither the name of the Willow Garage, Inc. nor the names of its
+ *     * Neither the name of the copyright holders nor the names of its
  *       contributors may be used to endorse or promote products derived from
  *       this software without specific prior written permission.
  *
@@ -27,41 +29,46 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef __class_loader__class_loader__h__
-#define __class_loader__class_loader__h__
+#ifndef CLASS_LOADER__CLASS_LOADER_HPP_
+#define CLASS_LOADER__CLASS_LOADER_HPP_
 
 #include <algorithm>
 #include <cassert>
+#include <cstddef>
 #include <functional>
 #include <memory>
 #include <mutex>
 #include <string>
 #include <vector>
 
-#include <console_bridge/console.h>
+// TODO(mikaelarguedas) remove this once console_bridge complies with this
+// see https://github.com/ros/console_bridge/issues/55
+#ifdef __clang__
+# pragma clang diagnostic push
+# pragma clang diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
+#endif
+#include "console_bridge/console.h"
+#ifdef __clang__
+# pragma clang diagnostic pop
+#endif
 
-#include "class_loader_core.h"
-#include "class_loader_register_macro.h"
-#include "visibility.h"
+#include "class_loader/class_loader_core.hpp"
+#include "class_loader/register_macro.hpp"
+#include "class_loader/visibility_control.hpp"
 
 namespace class_loader
 {
 
-/**
- * returns the default library prefix for the native os
- */
+/// Returns the default library prefix for the native os
 CLASS_LOADER_PUBLIC
 std::string systemLibraryPrefix();
 
-/**
- * returns runtime library extension for native os
- */
+/// Returns runtime library extension for native os
 CLASS_LOADER_PUBLIC
 std::string systemLibrarySuffix();
 
+/// Returns a platform specific version of a basic library name
 /**
- * returns a platform specific version of a basic library name
- *
  * On *nix platforms the library name is prefixed with `lib`.
  * On all platforms the output of class_loader::systemLibrarySuffix() is appended.
  */
@@ -76,7 +83,7 @@ class ClassLoader
 {
 public:
   template<typename Base>
-  using DeleterType = std::function<void (Base *)>;
+  using DeleterType = std::function<void(Base *)>;
 
   template<typename Base>
   using UniquePtr = std::unique_ptr<Base, DeleterType<Base>>;
@@ -87,7 +94,7 @@ public:
    * @param ondemand_load_unload - Indicates if on-demand (lazy) unloading/loading of libraries occurs as plugins are created/destroyed
    */
   CLASS_LOADER_PUBLIC
-  ClassLoader(const std::string & library_path, bool ondemand_load_unload = false);
+  explicit ClassLoader(const std::string & library_path, bool ondemand_load_unload = false);
 
   /**
    * @brief  Destructor for ClassLoader. All libraries opened by this ClassLoader are unloaded automatically.
@@ -99,7 +106,7 @@ public:
    * @brief  Indicates which classes (i.e. class_loader) that can be loaded by this object
    * @return vector of strings indicating names of instantiable classes derived from <Base>
    */
-  template <class Base>
+  template<class Base>
   std::vector<std::string> getAvailableClasses() const
   {
     return class_loader::impl::getAvailableClasses<Base>(this);
@@ -114,7 +121,7 @@ public:
    * @param  derived_class_name The name of the class we want to create (@see getAvailableClasses())
    * @return A std::shared_ptr<Base> to newly created plugin object
    */
-  template <class Base>
+  template<class Base>
   std::shared_ptr<Base> createInstance(const std::string & derived_class_name)
   {
     return std::shared_ptr<Base>(
@@ -137,7 +144,7 @@ public:
    * @return A std::unique_ptr<Base> to newly created plugin object.
    */
   template<class Base>
-  UniquePtr<Base> createUniqueInstance(const std::string& derived_class_name)
+  UniquePtr<Base> createUniqueInstance(const std::string & derived_class_name)
   {
     Base * raw = createRawInstance<Base>(derived_class_name, true);
     return std::unique_ptr<Base, DeleterType<Base>>(
@@ -152,15 +159,14 @@ public:
    * invoked automatically if the library is not yet loaded (which typically
    * happens when in "On Demand Load/Unload" mode).
    *
-   * Creating an unmanaged instance disables dynamically unloading libraries
-   * when managed pointers go out of scope for all class loaders in this
-   * process.
+   * Creating an unmanaged instance disables dynamically unloading libraries when
+   * managed pointers go out of scope for all class loaders in this process.
    *
    * @param derived_class_name
    *   The name of the class we want to create (@see getAvailableClasses()).
    * @return An unmanaged (i.e. not a shared_ptr) Base* to newly created plugin object.
    */
-  template <class Base>
+  template<class Base>
   Base * createUnmanagedInstance(const std::string & derived_class_name)
   {
     return createRawInstance<Base>(derived_class_name, false);
@@ -172,7 +178,7 @@ public:
    * @param class_name - the name of the plugin class
    * @return true if yes it is available, false otherwise
    */
-  template <class Base>
+  template<class Base>
   bool isClassAvailable(const std::string & class_name) const
   {
     std::vector<std::string> available_classes = getAvailableClasses<Base>();
@@ -207,14 +213,14 @@ public:
   CLASS_LOADER_PUBLIC
   bool isOnDemandLoadUnloadEnabled() const;
 
-   /**
+  /**
    * @brief  Attempts to load a library on behalf of the ClassLoader. If the library is already opened, this method has no effect. If the library has been already opened by some other entity (i.e. another ClassLoader or global interface), this object is given permissions to access any plugin classes loaded by that other entity. This is
    * @param  library_path The path to the library to load
    */
   CLASS_LOADER_PUBLIC
   void loadLibrary();
 
-   /**
+  /**
    * @brief  Attempts to unload a library loaded within scope of the ClassLoader. If the library is not opened, this method has no effect. If the library is opened by other another ClassLoader, the library will NOT be unloaded internally -- however this ClassLoader will no longer be able to instantiate class_loader bound to that library. If there are plugin objects that exist in memory created by this classloader, a warning message will appear and the library will not be unloaded. If loadLibrary() was called multiple times (e.g. in the case of multiple threads or purposefully in a single thread), the user is responsible for calling unloadLibrary() the same number of times. The library will not be unloaded within the context of this classloader until the number of unload calls matches the number of loads.
    * @return The number of times more unloadLibrary() has to be called for it to be unbound from this ClassLoader
    */
@@ -226,15 +232,17 @@ private:
    * @brief Callback method when a plugin created by this class loader is destroyed
    * @param obj - A pointer to the deleted object
    */
-  template <class Base>
+  template<class Base>
   void onPluginDeletion(Base * obj)
   {
-    CONSOLE_BRIDGE_logDebug("class_loader::ClassLoader: Calling onPluginDeletion() for obj ptr = %p.\n", obj);
-    if (!obj) {
+    CONSOLE_BRIDGE_logDebug(
+      "class_loader::ClassLoader: Calling onPluginDeletion() for obj ptr = %p.\n",
+      reinterpret_cast<void *>(obj));
+    if (nullptr == obj) {
       return;
     }
     std::lock_guard<std::recursive_mutex> lock(plugin_ref_count_mutex_);
-    delete(obj);
+    delete (obj);
     assert(plugin_ref_count_ > 0);
     --plugin_ref_count_;
     if (plugin_ref_count_ == 0 && isOnDemandLoadUnloadEnabled()) {
@@ -265,8 +273,8 @@ private:
    *   pointer by the caller.
    * @return A Base* to newly created plugin object.
    */
-  template <class Base>
-  Base* createRawInstance(const std::string& derived_class_name, bool managed)
+  template<class Base>
+  Base * createRawInstance(const std::string & derived_class_name, bool managed)
   {
     if (!managed) {
       this->setUnmanagedInstanceBeenCreated(true);
@@ -285,16 +293,14 @@ private:
         "final plugin destruction if on demand (lazy) loading/unloading mode is used."
       );
     }
-
     if (!isLibraryLoaded()) {
       loadLibrary();
     }
 
-    Base* obj = class_loader::impl::createInstance<Base>(derived_class_name, this);
+    Base * obj = class_loader::impl::createInstance<Base>(derived_class_name, this);
     assert(obj != NULL);  // Unreachable assertion if createInstance() throws on failure.
 
-    if (managed)
-    {
+    if (managed) {
       std::lock_guard<std::recursive_mutex> lock(plugin_ref_count_mutex_);
       ++plugin_ref_count_;
     }
@@ -320,7 +326,6 @@ private:
   int unloadLibraryInternal(bool lock_plugin_ref_count);
 
 private:
-
   bool ondemand_load_unload_;
   std::string library_path_;
   int load_ref_count_;
@@ -332,4 +337,5 @@ private:
 
 }  // namespace class_loader
 
-#endif  // __class_loader__class_loader__h__
+
+#endif  // CLASS_LOADER__CLASS_LOADER_HPP_

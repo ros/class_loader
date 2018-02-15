@@ -27,9 +27,11 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <class_loader/class_loader.h>
+#include "class_loader/class_loader.hpp"
 
 #include <Poco/SharedLibrary.h>
+
+#include <string>
 
 namespace class_loader
 {
@@ -48,7 +50,7 @@ void ClassLoader::setUnmanagedInstanceBeenCreated(bool state)
 
 std::string systemLibraryPrefix()
 {
-#if !defined(WIN32)
+#ifndef _WIN32
   return "lib";
 #endif
   return "";
@@ -81,7 +83,10 @@ ClassLoader::ClassLoader(const std::string & library_path, bool ondemand_load_un
   load_ref_count_(0),
   plugin_ref_count_(0)
 {
-  CONSOLE_BRIDGE_logDebug("class_loader.ClassLoader: Constructing new ClassLoader (%p) bound to library %s.", this, library_path.c_str());
+  CONSOLE_BRIDGE_logDebug(
+    "class_loader.ClassLoader: "
+    "Constructing new ClassLoader (%p) bound to library %s.",
+    this, library_path.c_str());
   if (!isOnDemandLoadUnloadEnabled()) {
     loadLibrary();
   }
@@ -89,8 +94,11 @@ ClassLoader::ClassLoader(const std::string & library_path, bool ondemand_load_un
 
 ClassLoader::~ClassLoader()
 {
-  CONSOLE_BRIDGE_logDebug("%s", "class_loader.ClassLoader: Destroying class loader, unloading associated library...\n");
-  unloadLibrary(); //TODO: while(unloadLibrary() > 0){} ??
+  CONSOLE_BRIDGE_logDebug(
+    "%s",
+    "class_loader.ClassLoader: Destroying class loader, "
+    "unloading associated library...\n");
+  unloadLibrary();  // TODO(mikaelarguedas): while(unloadLibrary() > 0){} ??
 }
 
 const std::string & ClassLoader::getLibraryPath() const
@@ -142,7 +150,12 @@ int ClassLoader::unloadLibraryInternal(bool lock_plugin_ref_count)
 
   try {
     if (plugin_ref_count_ > 0) {
-      CONSOLE_BRIDGE_logWarn("%s", "class_loader.ClassLoader: SEVERE WARNING!!! Attempting to unload library while objects created by this loader exist in the heap! You should delete your objects before attempting to unload the library or destroying the ClassLoader. The library will NOT be unloaded.");
+      CONSOLE_BRIDGE_logWarn(
+        "%s",
+        "class_loader.ClassLoader: SEVERE WARNING!!! "
+        "Attempting to unload library while objects created by this loader exist in the heap! "
+        "You should delete your objects before attempting to unload the library or destroying "
+        "the ClassLoader. The library will NOT be unloaded.");
     } else {
       load_ref_count_ = load_ref_count_ - 1;
       if (load_ref_count_ == 0) {
