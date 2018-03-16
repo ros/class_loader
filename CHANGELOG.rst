@@ -2,8 +2,8 @@
 Changelog for package class_loader
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.3.9 (2018-03-16)
+------------------
 * [bugfix] define PACKAGE_X_DESTINATION to match catkin behavior (`#88 <https://github.com/ros/class_loader/issues/88>`_)
 * [migration] Provide alternative headers (`#84 <https://github.com/ros/class_loader/issues/84>`_)
 * [style] comply with package format2 xsd (`#83 <https://github.com/ros/class_loader/issues/83>`_) (`#85 <https://github.com/ros/class_loader/issues/85>`_)
