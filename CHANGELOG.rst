@@ -2,6 +2,17 @@
 Changelog for package class_loader
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* [bugfix] define PACKAGE_X_DESTINATION to match catkin behavior (`#88 <https://github.com/ros/class_loader/issues/88>`_)
+* [migration] Provide alternative headers (`#84 <https://github.com/ros/class_loader/issues/84>`_)
+* [style] comply with package format2 xsd (`#83 <https://github.com/ros/class_loader/issues/83>`_) (`#85 <https://github.com/ros/class_loader/issues/85>`_)
+* [warnings] c++11 requires at least one argument for ... (`#71 <https://github.com/ros/class_loader/issues/71>`_)
+* [style] Use std::string::empty instead comparing with an empty string (`#69 <https://github.com/ros/class_loader/issues/69>`_)
+* [style] wrap console bridge invocation lines (`#68 <https://github.com/ros/class_loader/issues/68>`_)
+* [copyright] OSRF and not willow in licence header (`#67 <https://github.com/ros/class_loader/issues/67>`_)
+* Contributors: David Wagner, Diego Cesar, Mikael Arguedas
+
 0.3.8 (2017-11-16)
 ------------------
 * Fix console_bridge marcos definition (`#66 <https://github.com/ros/class_loader/issues/66>`_)
