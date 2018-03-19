@@ -328,7 +328,7 @@ std::vector<std::string> getAllLibrariesUsedByClassLoader(const ClassLoader * lo
 }
 
 
-// Implementation of Remaining Core plugin_private Functions
+// Implementation of Remaining Core plugin impl Functions
 
 void addClassLoaderOwnerForAllExistingMetaObjectsForLibrary(
   const std::string & library_path, ClassLoader * loader)
@@ -567,7 +567,7 @@ void unloadLibrary(const std::string & library_path, ClassLoader * loader)
 void printDebugInfoToScreen()
 {
   printf("*******************************************************************************\n");
-  printf("*****               impl DEBUG INFORMATION                *****\n");
+  printf("*****                 class_loader impl DEBUG INFORMATION                 *****\n");
   printf("*******************************************************************************\n");
 
   printf("OPEN LIBRARIES IN MEMORY:\n");
