@@ -290,7 +290,7 @@ private:
 
     if (managed) {
       boost::recursive_mutex::scoped_lock lock(plugin_ref_count_mutex_);
-      plugin_ref_count_ = plugin_ref_count_ + 1;
+      ++plugin_ref_count_;
     }
 
     return obj;

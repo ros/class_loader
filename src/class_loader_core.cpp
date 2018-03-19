@@ -242,10 +242,10 @@ void destroyMetaObjectsForLibrary(
         // We require using the former as the which is required to support RTTI
         insertMetaObjectIntoGraveyard(meta_obj);
       } else {
-        factory_itr++;
+        ++factory_itr;
       }
     } else {
-      factory_itr++;
+      ++factory_itr;
     }
   }
 }
