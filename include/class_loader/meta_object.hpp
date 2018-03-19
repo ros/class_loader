@@ -45,7 +45,7 @@ namespace class_loader
 
 class ClassLoader;  // Forward declaration
 
-namespace class_loader_private
+namespace impl
 {
 
 typedef std::vector<class_loader::ClassLoader *> ClassLoaderVector;
@@ -197,7 +197,7 @@ public:
   }
 };
 
-}  // namespace class_loader_private
+}  // namespace impl
 }  // namespace class_loader
 
 #endif  // CLASS_LOADER__META_OBJECT_HPP_

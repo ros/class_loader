@@ -46,7 +46,7 @@
     { \
       if (!std::string(Message).empty()) { \
         CONSOLE_BRIDGE_logInform("%s", Message);} \
-      class_loader::class_loader_private::registerPlugin<_derived, _base>(#Derived, #Base); \
+      class_loader::impl::registerPlugin<_derived, _base>(#Derived, #Base); \
     } \
   }; \
   static ProxyExec ## UniqueID g_register_plugin_ ## UniqueID; \

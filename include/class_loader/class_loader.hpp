@@ -105,7 +105,7 @@ public:
   template<class Base>
   std::vector<std::string> getAvailableClasses()
   {
-    return class_loader::class_loader_private::getAvailableClasses<Base>(this);
+    return class_loader::impl::getAvailableClasses<Base>(this);
   }
 
   /**
@@ -285,7 +285,7 @@ private:
     }
 
     Base * obj =
-      class_loader::class_loader_private::createInstance<Base>(derived_class_name, this);
+      class_loader::impl::createInstance<Base>(derived_class_name, this);
     assert(obj != nullptr);  // Unreachable assertion if createInstance() throws on failure
 
     if (managed) {

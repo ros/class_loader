@@ -57,12 +57,12 @@ TEST(ClassLoaderTest, basicLoad) {
 
 TEST(ClassLoaderTest, correctNonLazyLoadUnload) {
   try {
-    ASSERT_FALSE(class_loader::class_loader_private::isLibraryLoadedByAnybody(LIBRARY_1));
+    ASSERT_FALSE(class_loader::impl::isLibraryLoadedByAnybody(LIBRARY_1));
     class_loader::ClassLoader loader1(LIBRARY_1, false);
-    ASSERT_TRUE(class_loader::class_loader_private::isLibraryLoadedByAnybody(LIBRARY_1));
+    ASSERT_TRUE(class_loader::impl::isLibraryLoadedByAnybody(LIBRARY_1));
     ASSERT_TRUE(loader1.isLibraryLoaded());
     loader1.unloadLibrary();
-    ASSERT_FALSE(class_loader::class_loader_private::isLibraryLoadedByAnybody(LIBRARY_1));
+    ASSERT_FALSE(class_loader::impl::isLibraryLoadedByAnybody(LIBRARY_1));
     ASSERT_FALSE(loader1.isLibraryLoaded());
     return;
   } catch (class_loader::ClassLoaderException & e) {
@@ -74,19 +74,19 @@ TEST(ClassLoaderTest, correctNonLazyLoadUnload) {
 
 TEST(ClassLoaderTest, correctLazyLoadUnload) {
   try {
-    ASSERT_FALSE(class_loader::class_loader_private::isLibraryLoadedByAnybody(LIBRARY_1));
+    ASSERT_FALSE(class_loader::impl::isLibraryLoadedByAnybody(LIBRARY_1));
     class_loader::ClassLoader loader1(LIBRARY_1, true);
-    ASSERT_FALSE(class_loader::class_loader_private::isLibraryLoadedByAnybody(LIBRARY_1));
+    ASSERT_FALSE(class_loader::impl::isLibraryLoadedByAnybody(LIBRARY_1));
     ASSERT_FALSE(loader1.isLibraryLoaded());
 
     {
       boost::shared_ptr<Base> obj = loader1.createInstance<Base>("Cat");
-      ASSERT_TRUE(class_loader::class_loader_private::isLibraryLoadedByAnybody(LIBRARY_1));
+      ASSERT_TRUE(class_loader::impl::isLibraryLoadedByAnybody(LIBRARY_1));
       ASSERT_TRUE(loader1.isLibraryLoaded());
     }
 
     // The library will unload automatically when the only plugin object left is destroyed
-    ASSERT_FALSE(class_loader::class_loader_private::isLibraryLoadedByAnybody(LIBRARY_1));
+    ASSERT_FALSE(class_loader::impl::isLibraryLoadedByAnybody(LIBRARY_1));
     return;
   } catch (class_loader::ClassLoaderException & e) {
     FAIL() << "ClassLoaderException: " << e.what() << "\n";
