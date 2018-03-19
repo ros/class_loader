@@ -285,8 +285,7 @@ private:
       loadLibrary();
     }
 
-    Base * obj =
-      class_loader::impl::createInstance<Base>(derived_class_name, this);
+    Base * obj = class_loader::impl::createInstance<Base>(derived_class_name, this);
     assert(obj != nullptr);  // Unreachable assertion if createInstance() throws on failure
 
     if (managed) {

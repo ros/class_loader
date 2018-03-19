@@ -244,12 +244,10 @@ Base * createInstance(const std::string & derived_class_name, ClassLoader * load
   getPluginBaseToFactoryMapMapMutex().lock();
   FactoryMap & factoryMap = getFactoryMapForBaseClass<Base>();
   if (factoryMap.find(derived_class_name) != factoryMap.end()) {
-    factory = dynamic_cast<impl::AbstractMetaObject<Base> *>(
-      factoryMap[derived_class_name]);
+    factory = dynamic_cast<impl::AbstractMetaObject<Base> *>(factoryMap[derived_class_name]);
   } else {
     CONSOLE_BRIDGE_logError(
-      "class_loader.impl: No metaobject exists for class type %s.",
-      derived_class_name.c_str());
+      "class_loader.impl: No metaobject exists for class type %s.", derived_class_name.c_str());
   }
   getPluginBaseToFactoryMapMapMutex().unlock();
 
@@ -279,8 +277,7 @@ Base * createInstance(const std::string & derived_class_name, ClassLoader * load
   }
 
   CONSOLE_BRIDGE_logDebug(
-    "class_loader.impl: "
-    "Created instance of type %s and object pointer = %p",
+    "class_loader.impl: Created instance of type %s and object pointer = %p",
     (typeid(obj).name()), reinterpret_cast<void *>(obj));
 
   return obj;
@@ -355,7 +352,6 @@ void loadLibrary(const std::string & library_path, ClassLoader * loader);
  */
 CLASS_LOADER_PUBLIC
 void unloadLibrary(const std::string & library_path, ClassLoader * loader);
-
 
 }  // namespace impl
 }  // namespace class_loader

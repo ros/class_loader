@@ -46,7 +46,8 @@ class ClassLoaderException : public std::runtime_error
 {
 public:
   explicit inline ClassLoaderException(const std::string & error_desc)
-  : std::runtime_error(error_desc) {}
+  : std::runtime_error(error_desc)
+  {}
 };
 
 /**
@@ -57,7 +58,8 @@ class LibraryLoadException : public ClassLoaderException
 {
 public:
   explicit inline LibraryLoadException(const std::string & error_desc)
-  : ClassLoaderException(error_desc) {}
+  : ClassLoaderException(error_desc)
+  {}
 };
 
 /**
@@ -68,7 +70,8 @@ class LibraryUnloadException : public ClassLoaderException
 {
 public:
   explicit inline LibraryUnloadException(const std::string & error_desc)
-  : ClassLoaderException(error_desc) {}
+  : ClassLoaderException(error_desc)
+  {}
 };
 
 /**
@@ -79,7 +82,8 @@ class CreateClassException : public ClassLoaderException
 {
 public:
   explicit inline CreateClassException(const std::string & error_desc)
-  : ClassLoaderException(error_desc) {}
+  : ClassLoaderException(error_desc)
+  {}
 };
 
 /**
@@ -90,7 +94,8 @@ class NoClassLoaderExistsException : public ClassLoaderException
 {
 public:
   explicit inline NoClassLoaderExistsException(const std::string & error_desc)
-  : ClassLoaderException(error_desc) {}
+  : ClassLoaderException(error_desc)
+  {}
 };
 
 }  // namespace class_loader
