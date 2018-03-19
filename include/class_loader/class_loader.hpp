@@ -111,6 +111,7 @@ public:
   /**
    * @brief Gets the full-qualified path and name of the library associated with this class loader
    */
+  CLASS_LOADER_PUBLIC
   std::string getLibraryPath() {return library_path_;}
 
   /**
