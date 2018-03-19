@@ -54,7 +54,7 @@ typedef std::vector<class_loader::ClassLoader *> ClassLoaderVector;
  * @class AbstractMetaObjectBase
  * @brief A base class for MetaObjects that excludes a polymorphic type parameter. Subclasses are class templates though.
  */
-class CLASS_LOADER_PUBLIC AbstractMetaObjectBase
+class AbstractMetaObjectBase
 {
 public:
   /**
