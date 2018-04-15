@@ -45,7 +45,7 @@
 const std::string LIBRARY_1 = class_loader::systemLibraryFormat("class_loader_TestPlugins1");  // NOLINT
 const std::string LIBRARY_2 = class_loader::systemLibraryFormat("class_loader_TestPlugins2");  // NOLINT
 
-TEST(ClassLoaderTest, basicLoad) {
+TEST(ClassLoaderSharedPtrTest, basicLoad) {
   try {
     class_loader::ClassLoader loader1(LIBRARY_1, false);
     loader1.createSharedInstance<Base>("Cat")->saySomething();  // See if lazy load works
@@ -56,7 +56,7 @@ TEST(ClassLoaderTest, basicLoad) {
   SUCCEED();
 }
 
-TEST(ClassLoaderTest, correctNonLazyLoadUnload) {
+TEST(ClassLoaderSharedPtrTest, correctNonLazyLoadUnload) {
   try {
     ASSERT_FALSE(class_loader::class_loader_private::isLibraryLoadedByAnybody(LIBRARY_1));
     class_loader::ClassLoader loader1(LIBRARY_1, false);
@@ -73,7 +73,7 @@ TEST(ClassLoaderTest, correctNonLazyLoadUnload) {
   }
 }
 
-TEST(ClassLoaderTest, correctLazyLoadUnload) {
+TEST(ClassLoaderSharedPtrTest, correctLazyLoadUnload) {
   try {
     ASSERT_FALSE(class_loader::class_loader_private::isLibraryLoadedByAnybody(LIBRARY_1));
     class_loader::ClassLoader loader1(LIBRARY_1, true);
@@ -96,7 +96,7 @@ TEST(ClassLoaderTest, correctLazyLoadUnload) {
   }
 }
 
-TEST(ClassLoaderTest, nonExistentPlugin) {
+TEST(ClassLoaderSharedPtrTest, nonExistentPlugin) {
   class_loader::ClassLoader loader1(LIBRARY_1, false);
 
   try {
@@ -116,7 +116,7 @@ TEST(ClassLoaderTest, nonExistentPlugin) {
   FAIL() << "Did not throw exception as expected.\n";
 }
 
-TEST(ClassLoaderTest, nonExistentLibrary) {
+TEST(ClassLoaderSharedPtrTest, nonExistentLibrary) {
   try {
     class_loader::ClassLoader loader1("libDoesNotExist.so", false);
   } catch (const class_loader::LibraryLoadException &) {
@@ -133,7 +133,7 @@ class InvalidBase
 {
 };
 
-TEST(ClassLoaderTest, invalidBase) {
+TEST(ClassLoaderSharedPtrTest, invalidBase) {
   try {
     class_loader::ClassLoader loader1(LIBRARY_1, false);
     if (loader1.isClassAvailable<InvalidBase>("Cat")) {
@@ -164,7 +164,7 @@ void run(class_loader::ClassLoader * loader)
   }
 }
 
-TEST(ClassLoaderTest, threadSafety) {
+TEST(ClassLoaderSharedPtrTest, threadSafety) {
   class_loader::ClassLoader loader1(LIBRARY_1);
   ASSERT_TRUE(loader1.isLibraryLoaded());
 
@@ -195,7 +195,7 @@ TEST(ClassLoaderTest, threadSafety) {
   }
 }
 
-TEST(ClassLoaderTest, loadRefCountingNonLazy) {
+TEST(ClassLoaderSharedPtrTest, loadRefCountingNonLazy) {
   try {
     class_loader::ClassLoader loader1(LIBRARY_1, false);
     ASSERT_TRUE(loader1.isLibraryLoaded());
@@ -229,7 +229,7 @@ TEST(ClassLoaderTest, loadRefCountingNonLazy) {
   FAIL() << "Did not throw exception as expected.\n";
 }
 
-TEST(ClassLoaderTest, loadRefCountingLazy) {
+TEST(ClassLoaderSharedPtrTest, loadRefCountingLazy) {
   try {
     class_loader::ClassLoader loader1(LIBRARY_1, true);
     ASSERT_FALSE(loader1.isLibraryLoaded());
