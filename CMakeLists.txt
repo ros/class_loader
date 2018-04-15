@@ -46,12 +46,12 @@ set(${PROJECT_NAME}_SRCS
   src/multi_library_class_loader.cpp
 )
 set(${PROJECT_NAME}_HDRS
-  include/class_loader/class_loader.h
-  include/class_loader/class_loader_core.h
-  include/class_loader/class_loader_exceptions.h
-  include/class_loader/class_loader_register_macro.h
-  include/class_loader/meta_object.h
-  include/class_loader/multi_library_class_loader.h
+  include/class_loader/class_loader.hpp
+  include/class_loader/class_loader_core.hpp
+  include/class_loader/exceptions.hpp
+  include/class_loader/meta_object.hpp
+  include/class_loader/multi_library_class_loader.hpp
+  include/class_loader/register_macro.hpp
 )
 add_library(${PROJECT_NAME} ${${PROJECT_NAME}_SRCS} ${${PROJECT_NAME}_HDRS})
 target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES} ${console_bridge_LIBRARIES} ${Poco_LIBRARIES})
