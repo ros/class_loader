@@ -32,12 +32,13 @@
 #include <class_loader/multi_library_class_loader.hpp>
 
 #include <gtest/gtest.h>
-#include <boost/thread.hpp>
 
+#include <chrono>
 #include <cstddef>
 #include <functional>
 #include <iostream>
 #include <string>
+#include <thread>
 #include <vector>
 
 #include "./base.hpp"
@@ -102,7 +103,7 @@ TEST(ClassLoaderUniquePtrTest, nonExistentPlugin) {
 
 void wait(int seconds)
 {
-  boost::this_thread::sleep(boost::posix_time::seconds(seconds));
+  std::this_thread::sleep_for(std::chrono::seconds(seconds));
 }
 
 void run(ClassLoader * loader)
@@ -121,7 +122,7 @@ TEST(ClassLoaderUniquePtrTest, threadSafety) {
   // The hope is this test is hard enough that once in a while it'll segfault
   // or something if there's some implementation error.
   try {
-    std::vector<boost::thread> client_threads;
+    std::vector<std::thread> client_threads;
 
     for (size_t c = 0; c < 1000; c++) {
       client_threads.emplace_back(std::bind(&run, &loader1));
