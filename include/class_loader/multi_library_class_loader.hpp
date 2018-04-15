@@ -120,6 +120,54 @@ public:
    * This version does not look in a specific library for the factory, but rather the first open library that defines the classs
    * @param Base - polymorphic type indicating base class
    * @param class_name - the name of the concrete plugin class we want to instantiate
+   * @return A std::shared_ptr<Base> to newly created plugin
+   */
+  template<class Base>
+  std::shared_ptr<Base> createSharedInstance(const std::string & class_name)
+  {
+    CONSOLE_BRIDGE_logDebug(
+      "class_loader::MultiLibraryClassLoader: "
+      "Attempting to create instance of class type %s.",
+      class_name.c_str());
+    ClassLoader * loader = getClassLoaderForClass<Base>(class_name);
+    if (nullptr == loader) {
+      throw class_loader::CreateClassException(
+              "MultiLibraryClassLoader: Could not create object of class type " +
+              class_name +
+              " as no factory exists for it. Make sure that the library exists and "
+              "was explicitly loaded through MultiLibraryClassLoader::loadLibrary()");
+    }
+
+    return loader->createSharedInstance<Base>(class_name);
+  }
+
+  /**
+   * @brief Creates an instance of an object of given class name with ancestor class Base
+   * This version takes a specific library to make explicit the factory being used
+   * @param Base - polymorphic type indicating base class
+   * @param class_name - the name of the concrete plugin class we want to instantiate
+   * @param library_path - the library from which we want to create the plugin
+   * @return A std::shared_ptr<Base> to newly created plugin
+   */
+  template<class Base>
+  std::shared_ptr<Base>
+  createSharedInstance(const std::string & class_name, const std::string & library_path)
+  {
+    ClassLoader * loader = getClassLoaderForLibrary(library_path);
+    if (nullptr == loader) {
+      throw class_loader::NoClassLoaderExistsException(
+              "Could not create instance as there is no ClassLoader in "
+              "MultiLibraryClassLoader bound to library " + library_path +
+              " Ensure you called MultiLibraryClassLoader::loadLibrary()");
+    }
+    return loader->createSharedInstance<Base>(class_name);
+  }
+
+  /**
+   * @brief Creates an instance of an object of given class name with ancestor class Base
+   * This version does not look in a specific library for the factory, but rather the first open library that defines the classs
+   * @param Base - polymorphic type indicating base class
+   * @param class_name - the name of the concrete plugin class we want to instantiate
    * @return A unique pointer to newly created plugin
    */
   template<class Base>
