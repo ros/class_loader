@@ -55,6 +55,11 @@ set(${PROJECT_NAME}_HDRS
 )
 add_library(${PROJECT_NAME} ${${PROJECT_NAME}_SRCS} ${${PROJECT_NAME}_HDRS})
 target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES} ${console_bridge_LIBRARIES} ${Poco_LIBRARIES})
+if(WIN32)
+  # Causes the visibility macros to use dllexport rather than dllimport
+  # which is appropriate when building the dll but not consuming it.
+  target_compile_definitions(${PROJECT_NAME} PRIVATE "CLASS_LOADER_BUILDING_DLL")
+endif()
 
 install(TARGETS ${PROJECT_NAME}
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}

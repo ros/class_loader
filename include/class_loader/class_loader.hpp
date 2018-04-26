@@ -45,6 +45,7 @@
 
 #include "class_loader/class_loader_core.hpp"
 #include "class_loader/register_macro.hpp"
+#include "class_loader/visibility_control.hpp"
 
 namespace class_loader
 {
@@ -52,11 +53,13 @@ namespace class_loader
 /**
  * @brief Returns the default library prefix for the native os
  */
+CLASS_LOADER_PUBLIC
 std::string systemLibraryPrefix();
 
 /**
 * @brief Returns runtime library extension for native os
 */
+CLASS_LOADER_PUBLIC
 std::string systemLibrarySuffix();
 
 /**
@@ -65,6 +68,7 @@ std::string systemLibrarySuffix();
  * On *nix platforms the library name is prefixed with `lib`.
  * On all platforms the output of class_loader::systemLibrarySuffix() is appended.
  */
+CLASS_LOADER_PUBLIC
 std::string systemLibraryFormat(const std::string & library_name);
 
 /**
@@ -85,11 +89,13 @@ public:
    * @param library_path - The path of the runtime library to load
    * @param ondemand_load_unload - Indicates if on-demand (lazy) unloading/loading of libraries occurs as plugins are created/destroyed
    */
+  CLASS_LOADER_PUBLIC
   explicit ClassLoader(const std::string & library_path, bool ondemand_load_unload = false);
 
   /**
    * @brief  Destructor for ClassLoader. All libraries opened by this ClassLoader are unloaded automatically.
    */
+  CLASS_LOADER_PUBLIC
   virtual ~ClassLoader();
 
   /**
@@ -99,12 +105,13 @@ public:
   template<class Base>
   std::vector<std::string> getAvailableClasses()
   {
-    return class_loader::class_loader_private::getAvailableClasses<Base>(this);
+    return class_loader::impl::getAvailableClasses<Base>(this);
   }
 
   /**
    * @brief Gets the full-qualified path and name of the library associated with this class loader
    */
+  CLASS_LOADER_PUBLIC
   std::string getLibraryPath() {return library_path_;}
 
   /**
@@ -182,29 +189,34 @@ public:
    * @param  library_path The path to the library to load
    * @return true if library is loaded within this ClassLoader object's scope, otherwise false
    */
+  CLASS_LOADER_PUBLIC
   bool isLibraryLoaded();
 
   /**
    * @brief  Indicates if a library is loaded by some entity in the plugin system (another ClassLoader), but not necessarily loaded by this ClassLoader
    * @return true if library is loaded within the scope of the plugin system, otherwise false
    */
+  CLASS_LOADER_PUBLIC
   bool isLibraryLoadedByAnyClassloader();
 
   /**
    * @brief Indicates if the library is to be loaded/unloaded on demand...meaning that only to load a lib when the first plugin is created and automatically shut it down when last active plugin is destroyed.
    */
+  CLASS_LOADER_PUBLIC
   bool isOnDemandLoadUnloadEnabled() {return ondemand_load_unload_;}
 
   /**
    * @brief  Attempts to load a library on behalf of the ClassLoader. If the library is already opened, this method has no effect. If the library has been already opened by some other entity (i.e. another ClassLoader or global interface), this object is given permissions to access any plugin classes loaded by that other entity. This is
    * @param  library_path The path to the library to load
    */
+  CLASS_LOADER_PUBLIC
   void loadLibrary();
 
   /**
    * @brief  Attempts to unload a library loaded within scope of the ClassLoader. If the library is not opened, this method has no effect. If the library is opened by other another ClassLoader, the library will NOT be unloaded internally -- however this ClassLoader will no longer be able to instantiate class_loader bound to that library. If there are plugin objects that exist in memory created by this classloader, a warning message will appear and the library will not be unloaded. If loadLibrary() was called multiple times (e.g. in the case of multiple threads or purposefully in a single thread), the user is responsible for calling unloadLibrary() the same number of times. The library will not be unloaded within the context of this classloader until the number of unload calls matches the number of loads.
    * @return The number of times more unloadLibrary() has to be called for it to be unbound from this ClassLoader
    */
+  CLASS_LOADER_PUBLIC
   int unloadLibrary();
 
 private:
@@ -273,13 +285,12 @@ private:
       loadLibrary();
     }
 
-    Base * obj =
-      class_loader::class_loader_private::createInstance<Base>(derived_class_name, this);
+    Base * obj = class_loader::impl::createInstance<Base>(derived_class_name, this);
     assert(obj != nullptr);  // Unreachable assertion if createInstance() throws on failure
 
     if (managed) {
       boost::recursive_mutex::scoped_lock lock(plugin_ref_count_mutex_);
-      plugin_ref_count_ = plugin_ref_count_ + 1;
+      ++plugin_ref_count_;
     }
 
     return obj;
@@ -288,6 +299,7 @@ private:
   /**
   * @brief Getter for if an unmanaged (i.e. unsafe) instance has been created flag
   */
+  CLASS_LOADER_PUBLIC
   static bool hasUnmanagedInstanceBeenCreated();
 
   /**
@@ -295,6 +307,7 @@ private:
    * @param lock_plugin_ref_count - Set to true if plugin_ref_count_mutex_ should be locked, else false
    * @return The number of times unloadLibraryInternal has to be called again for it to be unbound from this ClassLoader
    */
+  CLASS_LOADER_PUBLIC
   int unloadLibraryInternal(bool lock_plugin_ref_count);
 
 private:

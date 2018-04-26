@@ -34,7 +34,7 @@
 
 namespace class_loader
 {
-namespace class_loader_private
+namespace impl
 {
 
 AbstractMetaObjectBase::AbstractMetaObjectBase(
@@ -45,7 +45,7 @@ AbstractMetaObjectBase::AbstractMetaObjectBase(
   typeid_base_class_name_("UNSET")
 {
   CONSOLE_BRIDGE_logDebug(
-    "class_loader.class_loader_private.AbstractMetaObjectBase: "
+    "class_loader.impl.AbstractMetaObjectBase: "
     "Creating MetaObject %p (base = %s, derived = %s, library path = %s)",
     this, baseClassName().c_str(), className().c_str(), getAssociatedLibraryPath().c_str());
 }
@@ -53,7 +53,7 @@ AbstractMetaObjectBase::AbstractMetaObjectBase(
 AbstractMetaObjectBase::~AbstractMetaObjectBase()
 {
   CONSOLE_BRIDGE_logDebug(
-    "class_loader.class_loader_private.AbstractMetaObjectBase: "
+    "class_loader.impl.AbstractMetaObjectBase: "
     "Destroying MetaObject %p (base = %s, derived = %s, library path = %s)",
     this, baseClassName().c_str(), className().c_str(), getAssociatedLibraryPath().c_str());
 }
@@ -117,5 +117,5 @@ ClassLoaderVector AbstractMetaObjectBase::getAssociatedClassLoaders()
   return associated_class_loaders_;
 }
 
-}  // namespace class_loader_private
+}  // namespace impl
 }  // namespace class_loader

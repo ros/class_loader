@@ -45,6 +45,7 @@
 
 #include "class_loader/exceptions.hpp"
 #include "class_loader/meta_object.hpp"
+#include "class_loader/visibility_control.hpp"
 
 /**
  * @note This header file is the internal implementation of the plugin system which is exposed via the ClassLoader class
@@ -55,20 +56,21 @@ namespace class_loader
 
 class ClassLoader;  // Forward declaration
 
-namespace class_loader_private
+namespace impl
 {
 
 // Typedefs
 typedef std::string LibraryPath;
 typedef std::string ClassName;
 typedef std::string BaseClassName;
-typedef std::map<ClassName, class_loader_private::AbstractMetaObjectBase *> FactoryMap;
+typedef std::map<ClassName, impl::AbstractMetaObjectBase *> FactoryMap;
 typedef std::map<BaseClassName, FactoryMap> BaseToFactoryMapMap;
 typedef std::pair<LibraryPath, Poco::SharedLibrary *> LibraryPair;
 typedef std::vector<LibraryPair> LibraryVector;
 typedef std::vector<AbstractMetaObjectBase *> MetaObjectVector;
 
 // Debug
+CLASS_LOADER_PUBLIC
 void printDebugInfoToScreen();
 
 // Global storage
@@ -77,24 +79,28 @@ void printDebugInfoToScreen();
  * @brief Gets a handle to a global data structure that holds a map of base class names (Base class describes plugin interface) to a FactoryMap which holds the factories for the various different concrete classes that can be instantiated. Note that the Base class is NOT THE LITERAL CLASSNAME, but rather the result of typeid(Base).name() which sometimes is the literal class name (as on Windows) but is often in mangled form (as on Linux).
  * @return A reference to the global base to factory map
  */
+CLASS_LOADER_PUBLIC
 BaseToFactoryMapMap & getGlobalPluginBaseToFactoryMapMap();
 
 /**
  * @brief Gets a handle to a list of open libraries in the form of LibraryPairs which encode the library path+name and the handle to the underlying Poco::SharedLibrary
  * @return A reference to the global vector that tracks loaded libraries
  */
+CLASS_LOADER_PUBLIC
 LibraryVector & getLoadedLibraryVector();
 
 /**
  * @brief When a library is being loaded, in order for factories to know which library they are being associated with, they use this function to query which library is being loaded.
  * @return The currently set loading library name as a string
  */
+CLASS_LOADER_PUBLIC
 std::string getCurrentlyLoadingLibraryName();
 
 /**
  * @brief When a library is being loaded, in order for factories to know which library they are being associated with, this function is called to set the name of the library currently being loaded.
  * @param library_name - The name of library that is being loaded currently
  */
+CLASS_LOADER_PUBLIC
 void setCurrentlyLoadingLibraryName(const std::string & library_name);
 
 
@@ -102,12 +108,14 @@ void setCurrentlyLoadingLibraryName(const std::string & library_name);
  * @brief Gets the ClassLoader currently in scope which used when a library is being loaded.
  * @return A pointer to the currently active ClassLoader.
  */
+CLASS_LOADER_PUBLIC
 ClassLoader * getCurrentlyActiveClassLoader();
 
 /**
  * @brief Sets the ClassLoader currently in scope which used when a library is being loaded.
  * @param loader - pointer to the currently active ClassLoader.
  */
+CLASS_LOADER_PUBLIC
 void setCurrentlyActiveClassLoader(ClassLoader * loader);
 
 
@@ -115,6 +123,7 @@ void setCurrentlyActiveClassLoader(ClassLoader * loader);
  * @brief This function extracts a reference to the FactoryMap for appropriate base class out of the global plugin base to factory map. This function should be used by functions in this namespace that need to access the various factories so as to make sure the right key is generated to index into the global map.
  * @return A reference to the FactoryMap contained within the global Base-to-FactoryMap map.
  */
+CLASS_LOADER_PUBLIC
 FactoryMap & getFactoryMapForBaseClass(const std::string & typeid_base_class_name);
 
 /**
@@ -131,19 +140,23 @@ FactoryMap & getFactoryMapForBaseClass()
  * @brief To provide thread safety, all exposed plugin functions can only be run serially by multiple threads. This is implemented by using critical sections enforced by a single mutex which is locked and released with the following two functions
  * @return A reference to the global mutex
  */
+CLASS_LOADER_PUBLIC
 boost::recursive_mutex & getLoadedLibraryVectorMutex();
+CLASS_LOADER_PUBLIC
 boost::recursive_mutex & getPluginBaseToFactoryMapMapMutex();
 
 /**
  * @brief Indicates if a library containing more than just plugins has been opened by the running process
  * @return True if a non-pure plugin library has been opened, otherwise false
  */
+CLASS_LOADER_PUBLIC
 bool hasANonPurePluginLibraryBeenOpened();
 
 /**
  * @brief Sets a flag indicating if a library containing more than just plugins has been opened by the running process
  * @param hasIt - The flag
  */
+CLASS_LOADER_PUBLIC
 void hasANonPurePluginLibraryBeenOpened(bool hasIt);
 
 // Plugin Functions
@@ -162,7 +175,7 @@ void registerPlugin(const std::string & class_name, const std::string & base_cla
   // opens a library. Normally it will happen within the scope of loadLibrary(),
   // but that may not be guaranteed.
   CONSOLE_BRIDGE_logDebug(
-    "class_loader.class_loader_private: "
+    "class_loader.impl: "
     "Registering plugin factory for class = %s, ClassLoader* = %p and library name %s.",
     class_name.c_str(), getCurrentlyActiveClassLoader(),
     getCurrentlyLoadingLibraryName().c_str());
@@ -188,8 +201,8 @@ void registerPlugin(const std::string & class_name, const std::string & base_cla
   }
 
   // Create factory
-  class_loader_private::AbstractMetaObject<Base> * new_factory =
-    new class_loader_private::MetaObject<Derived, Base>(class_name, base_class_name);
+  impl::AbstractMetaObject<Base> * new_factory =
+    new impl::MetaObject<Derived, Base>(class_name, base_class_name);
   new_factory->addOwningClassLoader(getCurrentlyActiveClassLoader());
   new_factory->setAssociatedLibraryPath(getCurrentlyLoadingLibraryName());
 
@@ -212,7 +225,7 @@ void registerPlugin(const std::string & class_name, const std::string & base_cla
   getPluginBaseToFactoryMapMapMutex().unlock();
 
   CONSOLE_BRIDGE_logDebug(
-    "class_loader.class_loader_private: "
+    "class_loader.impl: "
     "Registration of %s complete (Metaobject Address = %p)",
     class_name.c_str(), reinterpret_cast<void *>(new_factory));
 }
@@ -231,12 +244,10 @@ Base * createInstance(const std::string & derived_class_name, ClassLoader * load
   getPluginBaseToFactoryMapMapMutex().lock();
   FactoryMap & factoryMap = getFactoryMapForBaseClass<Base>();
   if (factoryMap.find(derived_class_name) != factoryMap.end()) {
-    factory = dynamic_cast<class_loader_private::AbstractMetaObject<Base> *>(
-      factoryMap[derived_class_name]);
+    factory = dynamic_cast<impl::AbstractMetaObject<Base> *>(factoryMap[derived_class_name]);
   } else {
     CONSOLE_BRIDGE_logError(
-      "class_loader.class_loader_private: No metaobject exists for class type %s.",
-      derived_class_name.c_str());
+      "class_loader.impl: No metaobject exists for class type %s.", derived_class_name.c_str());
   }
   getPluginBaseToFactoryMapMapMutex().unlock();
 
@@ -266,8 +277,7 @@ Base * createInstance(const std::string & derived_class_name, ClassLoader * load
   }
 
   CONSOLE_BRIDGE_logDebug(
-    "class_loader.class_loader_private: "
-    "Created instance of type %s and object pointer = %p",
+    "class_loader.impl: Created instance of type %s and object pointer = %p",
     (typeid(obj).name()), reinterpret_cast<void *>(obj));
 
   return obj;
@@ -307,6 +317,7 @@ std::vector<std::string> getAvailableClasses(ClassLoader * loader)
  * @param loader - The ClassLoader whose scope we are within
  * @return A vector of strings where each string is the path+name of each library that are within a ClassLoader's visible scope
  */
+CLASS_LOADER_PUBLIC
 std::vector<std::string> getAllLibrariesUsedByClassLoader(const ClassLoader * loader);
 
 /**
@@ -315,6 +326,7 @@ std::vector<std::string> getAllLibrariesUsedByClassLoader(const ClassLoader * lo
  * @param loader - The pointer to the ClassLoader whose scope we are within
  * @return true if the library is loaded within loader's scope, else false
  */
+CLASS_LOADER_PUBLIC
 bool isLibraryLoaded(const std::string & library_path, ClassLoader * loader);
 
 /**
@@ -322,6 +334,7 @@ bool isLibraryLoaded(const std::string & library_path, ClassLoader * loader);
  * @param library_path - The name of the library we wish to check is open
  * @return true if the library is loaded in memory, otherwise false
  */
+CLASS_LOADER_PUBLIC
 bool isLibraryLoadedByAnybody(const std::string & library_path);
 
 /**
@@ -329,6 +342,7 @@ bool isLibraryLoadedByAnybody(const std::string & library_path);
  * @param library_path - The name of the library to open
  * @param loader - The pointer to the ClassLoader whose scope we are within
  */
+CLASS_LOADER_PUBLIC
 void loadLibrary(const std::string & library_path, ClassLoader * loader);
 
 /**
@@ -336,10 +350,10 @@ void loadLibrary(const std::string & library_path, ClassLoader * loader);
  * @param library_path - The name of the library to open
  * @param loader - The pointer to the ClassLoader whose scope we are within
  */
+CLASS_LOADER_PUBLIC
 void unloadLibrary(const std::string & library_path, ClassLoader * loader);
 
-
-}  // namespace class_loader_private
+}  // namespace impl
 }  // namespace class_loader
 
 #endif  // CLASS_LOADER__CLASS_LOADER_CORE_HPP_
