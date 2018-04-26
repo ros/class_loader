@@ -99,7 +99,7 @@ public:
    * @param Base - polymorphic type indicating base class
    * @param class_name - the name of the concrete plugin class we want to instantiate
    * @param library_path - the library from which we want to create the plugin
-   * @return A boost::shared_ptr<Base> to newly created plugin
+   * @return A std::shared_ptr<Base> to newly created plugin
    */
   template<class Base>
   std::shared_ptr<Base>
