@@ -2,8 +2,8 @@
 Changelog for package class_loader
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.4.1 (2018-04-27)
+------------------
 * Provide std::shared_ptr interface (`#95 <https://github.com/ros/class_loader/issues/95>`_)
 * Windows compat and style fixups (`#90 <https://github.com/ros/class_loader/issues/90>`_)
   * add visibility macros to public functions
