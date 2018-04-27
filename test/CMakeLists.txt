@@ -18,6 +18,12 @@ if(TARGET ${PROJECT_NAME}_utest)
   add_dependencies(${PROJECT_NAME}_utest ${PROJECT_NAME}_TestPlugins1 ${PROJECT_NAME}_TestPlugins2)
 endif()
 
+catkin_add_gtest(${PROJECT_NAME}_shared_ptr_test shared_ptr_test.cpp)
+if(TARGET ${PROJECT_NAME}_shared_ptr_test)
+  target_link_libraries(${PROJECT_NAME}_shared_ptr_test ${Boost_LIBRARIES} ${class_loader_LIBRARIES})
+  add_dependencies(${PROJECT_NAME}_shared_ptr_test ${PROJECT_NAME}_TestPlugins1 ${PROJECT_NAME}_TestPlugins2)
+endif()
+
 catkin_add_gtest(${PROJECT_NAME}_unique_ptr_test unique_ptr_test.cpp)
 if(TARGET ${PROJECT_NAME}_unique_ptr_test)
   target_link_libraries(${PROJECT_NAME}_unique_ptr_test ${Boost_LIBRARIES} ${class_loader_LIBRARIES})

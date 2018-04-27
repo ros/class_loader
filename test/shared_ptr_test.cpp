@@ -45,10 +45,10 @@
 const std::string LIBRARY_1 = class_loader::systemLibraryFormat("class_loader_TestPlugins1");  // NOLINT
 const std::string LIBRARY_2 = class_loader::systemLibraryFormat("class_loader_TestPlugins2");  // NOLINT
 
-TEST(ClassLoaderTest, basicLoad) {
+TEST(ClassLoaderSharedPtrTest, basicLoad) {
   try {
     class_loader::ClassLoader loader1(LIBRARY_1, false);
-    loader1.createInstance<Base>("Cat")->saySomething();  // See if lazy load works
+    loader1.createSharedInstance<Base>("Cat")->saySomething();  // See if lazy load works
   } catch (class_loader::ClassLoaderException & e) {
     FAIL() << "ClassLoaderException: " << e.what() << "\n";
   }
@@ -56,7 +56,7 @@ TEST(ClassLoaderTest, basicLoad) {
   SUCCEED();
 }
 
-TEST(ClassLoaderTest, correctNonLazyLoadUnload) {
+TEST(ClassLoaderSharedPtrTest, correctNonLazyLoadUnload) {
   try {
     ASSERT_FALSE(class_loader::impl::isLibraryLoadedByAnybody(LIBRARY_1));
     class_loader::ClassLoader loader1(LIBRARY_1, false);
@@ -73,7 +73,7 @@ TEST(ClassLoaderTest, correctNonLazyLoadUnload) {
   }
 }
 
-TEST(ClassLoaderTest, correctLazyLoadUnload) {
+TEST(ClassLoaderSharedPtrTest, correctLazyLoadUnload) {
   try {
     ASSERT_FALSE(class_loader::impl::isLibraryLoadedByAnybody(LIBRARY_1));
     class_loader::ClassLoader loader1(LIBRARY_1, true);
@@ -81,7 +81,7 @@ TEST(ClassLoaderTest, correctLazyLoadUnload) {
     ASSERT_FALSE(loader1.isLibraryLoaded());
 
     {
-      boost::shared_ptr<Base> obj = loader1.createInstance<Base>("Cat");
+      std::shared_ptr<Base> obj = loader1.createSharedInstance<Base>("Cat");
       ASSERT_TRUE(class_loader::impl::isLibraryLoadedByAnybody(LIBRARY_1));
       ASSERT_TRUE(loader1.isLibraryLoaded());
     }
@@ -96,11 +96,11 @@ TEST(ClassLoaderTest, correctLazyLoadUnload) {
   }
 }
 
-TEST(ClassLoaderTest, nonExistentPlugin) {
+TEST(ClassLoaderSharedPtrTest, nonExistentPlugin) {
   class_loader::ClassLoader loader1(LIBRARY_1, false);
 
   try {
-    boost::shared_ptr<Base> obj = loader1.createInstance<Base>("Bear");
+    std::shared_ptr<Base> obj = loader1.createSharedInstance<Base>("Bear");
     if (nullptr == obj) {
       FAIL() << "Null object being returned instead of exception thrown.";
     }
@@ -116,7 +116,7 @@ TEST(ClassLoaderTest, nonExistentPlugin) {
   FAIL() << "Did not throw exception as expected.\n";
 }
 
-TEST(ClassLoaderTest, nonExistentLibrary) {
+TEST(ClassLoaderSharedPtrTest, nonExistentLibrary) {
   try {
     class_loader::ClassLoader loader1("libDoesNotExist.so", false);
   } catch (const class_loader::LibraryLoadException &) {
@@ -133,7 +133,7 @@ class InvalidBase
 {
 };
 
-TEST(ClassLoaderTest, invalidBase) {
+TEST(ClassLoaderSharedPtrTest, invalidBase) {
   try {
     class_loader::ClassLoader loader1(LIBRARY_1, false);
     if (loader1.isClassAvailable<InvalidBase>("Cat")) {
@@ -160,11 +160,11 @@ void run(class_loader::ClassLoader * loader)
 {
   std::vector<std::string> classes = loader->getAvailableClasses<Base>();
   for (auto & class_ : classes) {
-    loader->createInstance<Base>(class_)->saySomething();
+    loader->createSharedInstance<Base>(class_)->saySomething();
   }
 }
 
-TEST(ClassLoaderTest, threadSafety) {
+TEST(ClassLoaderSharedPtrTest, threadSafety) {
   class_loader::ClassLoader loader1(LIBRARY_1);
   ASSERT_TRUE(loader1.isLibraryLoaded());
 
@@ -195,7 +195,7 @@ TEST(ClassLoaderTest, threadSafety) {
   }
 }
 
-TEST(ClassLoaderTest, loadRefCountingNonLazy) {
+TEST(ClassLoaderSharedPtrTest, loadRefCountingNonLazy) {
   try {
     class_loader::ClassLoader loader1(LIBRARY_1, false);
     ASSERT_TRUE(loader1.isLibraryLoaded());
@@ -229,13 +229,13 @@ TEST(ClassLoaderTest, loadRefCountingNonLazy) {
   FAIL() << "Did not throw exception as expected.\n";
 }
 
-TEST(ClassLoaderTest, loadRefCountingLazy) {
+TEST(ClassLoaderSharedPtrTest, loadRefCountingLazy) {
   try {
     class_loader::ClassLoader loader1(LIBRARY_1, true);
     ASSERT_FALSE(loader1.isLibraryLoaded());
 
     {
-      boost::shared_ptr<Base> obj = loader1.createInstance<Base>("Dog");
+      std::shared_ptr<Base> obj = loader1.createSharedInstance<Base>("Dog");
       ASSERT_TRUE(loader1.isLibraryLoaded());
     }
 
@@ -276,9 +276,9 @@ void testMultiClassLoader(bool lazy)
     loader.loadLibrary(LIBRARY_1);
     loader.loadLibrary(LIBRARY_2);
     for (int i = 0; i < 2; ++i) {
-      loader.createInstance<Base>("Cat")->saySomething();
-      loader.createInstance<Base>("Dog")->saySomething();
-      loader.createInstance<Base>("Robot")->saySomething();
+      loader.createSharedInstance<Base>("Cat")->saySomething();
+      loader.createSharedInstance<Base>("Dog")->saySomething();
+      loader.createSharedInstance<Base>("Robot")->saySomething();
     }
   } catch (class_loader::ClassLoaderException & e) {
     FAIL() << "ClassLoaderException: " << e.what() << "\n";
@@ -298,15 +298,15 @@ TEST(MultiClassLoaderTest, nonLazyLoad) {
 }
 TEST(MultiClassLoaderTest, noWarningOnLazyLoad) {
   try {
-    boost::shared_ptr<Base> cat, dog, rob;
+    std::shared_ptr<Base> cat, dog, rob;
     {
       class_loader::MultiLibraryClassLoader loader(true);
       loader.loadLibrary(LIBRARY_1);
       loader.loadLibrary(LIBRARY_2);
 
-      cat = loader.createInstance<Base>("Cat");
-      dog = loader.createInstance<Base>("Dog");
-      rob = loader.createInstance<Base>("Robot");
+      cat = loader.createSharedInstance<Base>("Cat");
+      dog = loader.createSharedInstance<Base>("Dog");
+      rob = loader.createSharedInstance<Base>("Robot");
     }
     cat->saySomething();
     dog->saySomething();

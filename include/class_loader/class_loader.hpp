@@ -121,7 +121,20 @@ public:
    * if the library is not yet loaded (which typically happens when in "On Demand Load/Unload" mode).
    *
    * @param  derived_class_name The name of the class we want to create (@see getAvailableClasses())
-   * @return A boost::shared_ptr<Base> to newly created plugin object
+   * @return A std::shared_ptr<Base> to newly created plugin object
+   */
+  template<class Base>
+  std::shared_ptr<Base> createSharedInstance(const std::string & derived_class_name)
+  {
+    return std::shared_ptr<Base>(
+      createRawInstance<Base>(derived_class_name, true),
+      boost::bind(&ClassLoader::onPluginDeletion<Base>, this, _1));
+  }
+
+  /**
+   * @brief  Generates an instance of loadable classes (i.e. class_loader).
+   *
+   * Same as createSharedInstance() except it returns a boost::shared_ptr.
    */
   template<class Base>
   boost::shared_ptr<Base> createInstance(const std::string & derived_class_name)
