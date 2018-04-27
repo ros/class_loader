@@ -2,6 +2,15 @@
 Changelog for package class_loader
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Provide std::shared_ptr interface (`#95 <https://github.com/ros/class_loader/issues/95>`_)
+* Windows compat and style fixups (`#90 <https://github.com/ros/class_loader/issues/90>`_)
+  * add visibility macros to public functions
+  * rename private namespace 'class_loader_private' to 'impl' to match ros2 branch
+* use new headers to build library (`#93 <https://github.com/ros/class_loader/issues/93>`_)
+* Contributors: Mikael Arguedas
+
 0.4.0 (2018-02-15)
 ------------------
 * Stop checking for c++11 support (`#87 <https://github.com/ros/class_loader/pull/87>`_)
