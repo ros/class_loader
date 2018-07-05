@@ -15,11 +15,13 @@
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
-  <build_depend>console_bridge</build_depend>
+  <build_depend>console_bridge_vendor</build_depend>
+  <build_depend>libconsole-bridge-dev</build_depend>
   <build_depend>libpoco-dev</build_depend>
   <build_depend>poco_vendor</build_depend>
 
-  <exec_depend>console_bridge</exec_depend>
+  <exec_depend>console_bridge_vendor</exec_depend>
+  <exec_depend>libconsole-bridge-dev</exec_depend>
   <exec_depend>libpoco-dev</exec_depend>
   <exec_depend>poco_vendor</exec_depend>
 
