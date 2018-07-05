@@ -16,6 +16,7 @@ if(NOT CLASS_LOADER_IGNORE_AMENT)
   find_package(ament_cmake)
 endif()
 
+find_package(console_bridge_vendor REQUIRED) # Provides console_bridge 0.4.0 on platforms without it.
 find_package(console_bridge REQUIRED)
 find_package(poco_vendor REQUIRED)  # Provides FindPoco.cmake and Poco on platforms without it.
 find_package(Poco REQUIRED COMPONENTS Foundation)
