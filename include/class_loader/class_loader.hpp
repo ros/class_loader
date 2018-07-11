@@ -83,7 +83,7 @@ class ClassLoader
 {
 public:
   template<typename Base>
-  using DeleterType = std::function<void(Base *)>;
+  using DeleterType = std::function<void (Base *)>;
 
   template<typename Base>
   using UniquePtr = std::unique_ptr<Base, DeleterType<Base>>;
