@@ -330,6 +330,8 @@ private:
   boost::recursive_mutex load_ref_count_mutex_;
   int plugin_ref_count_;
   boost::recursive_mutex plugin_ref_count_mutex_;
+
+  CLASS_LOADER_PUBLIC
   static bool has_unmananged_instance_been_created_;
 };
 
