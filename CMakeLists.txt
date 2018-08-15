@@ -56,7 +56,12 @@ set(${PROJECT_NAME}_HDRS
   include/class_loader/multi_library_class_loader.hpp
   include/class_loader/register_macro.hpp
 )
-add_library(${PROJECT_NAME} ${${PROJECT_NAME}_SRCS} ${${PROJECT_NAME}_HDRS})
+if(WIN32)
+  add_library(${PROJECT_NAME} SHARED ${${PROJECT_NAME}_SRCS} ${${PROJECT_NAME}_HDRS})
+else()
+  add_library(${PROJECT_NAME} ${${PROJECT_NAME}_SRCS} ${${PROJECT_NAME}_HDRS})
+endif()
+
 target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES} ${console_bridge_LIBRARIES} ${Poco_LIBRARIES})
 if(WIN32)
   # Causes the visibility macros to use dllexport rather than dllimport
