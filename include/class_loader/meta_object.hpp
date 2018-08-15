@@ -36,6 +36,8 @@
 #define CLASS_LOADER__META_OBJECT_HPP_
 
 #include <console_bridge/console.h>
+#include "class_loader/visibility_control.hpp"
+
 #include <typeinfo>
 #include <string>
 #include <vector>
@@ -54,7 +56,7 @@ typedef std::vector<class_loader::ClassLoader *> ClassLoaderVector;
  * @class AbstractMetaObjectBase
  * @brief A base class for MetaObjects that excludes a polymorphic type parameter. Subclasses are class templates though.
  */
-class AbstractMetaObjectBase
+class CLASS_LOADER_PUBLIC AbstractMetaObjectBase
 {
 public:
   /**
