@@ -7,9 +7,21 @@ include_directories(${catkin_INCLUDE_DIRS})
 
 add_library(${PROJECT_NAME}_TestPlugins1 EXCLUDE_FROM_ALL plugins1.cpp)
 target_link_libraries(${PROJECT_NAME}_TestPlugins1 ${PROJECT_NAME})
+if(WIN32)
+  # On Windows, default library runtime output set to CATKIN_GLOBAL_BIN_DESTINATION,
+  # change it back to CATKIN_PACKAGE_LIB_DESTINATION so the test can run correctly
+  set_target_properties(${PROJECT_NAME}_TestPlugins1 PROPERTIES 
+    RUNTIME_OUTPUT_DIRECTORY ${CATKIN_DEVEL_PREFIX}/${CATKIN_PACKAGE_LIB_DESTINATION})
+endif()
 class_loader_hide_library_symbols(${PROJECT_NAME}_TestPlugins1)
 add_library(${PROJECT_NAME}_TestPlugins2 EXCLUDE_FROM_ALL plugins2.cpp)
 target_link_libraries(${PROJECT_NAME}_TestPlugins2 ${PROJECT_NAME})
+if(WIN32)
+  # On Windows, default library runtime output set to CATKIN_GLOBAL_BIN_DESTINATION,
+  # change it back to CATKIN_PACKAGE_LIB_DESTINATION so the test can run correctly
+  set_target_properties(${PROJECT_NAME}_TestPlugins2 PROPERTIES 
+    RUNTIME_OUTPUT_DIRECTORY ${CATKIN_DEVEL_PREFIX}/${CATKIN_PACKAGE_LIB_DESTINATION})
+endif()
 class_loader_hide_library_symbols(${PROJECT_NAME}_TestPlugins2)
 
 catkin_add_gtest(${PROJECT_NAME}_utest utest.cpp)
