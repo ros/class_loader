@@ -82,7 +82,7 @@ public:
   using DeleterType = std::function<void(Base *)>;
 
   template<typename Base>
-  using UniquePtr = std::unique_ptr<Base, DeleterType<Base>>;
+  using UniquePtr = std::unique_ptr<Base, DeleterType<Base> >;
 
   /**
    * @brief  Constructor for ClassLoader
@@ -160,7 +160,7 @@ public:
   UniquePtr<Base> createUniqueInstance(const std::string & derived_class_name)
   {
     Base * raw = createRawInstance<Base>(derived_class_name, true);
-    return std::unique_ptr<Base, DeleterType<Base>>(
+    return std::unique_ptr<Base, DeleterType<Base> >(
       raw,
       boost::bind(&ClassLoader::onPluginDeletion<Base>, this, _1));
   }
