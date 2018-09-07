@@ -24,6 +24,7 @@ install:
   - cd src
   - python -c "import shutil; shutil.copytree('../..', './class_loader', ignore=shutil.ignore_patterns('build'))"
   - git clone https://github.com/ros/console_bridge.git
+  - git clone https://github.com/ros2/console_bridge_vendor.git
   - git clone https://github.com/ros2/poco_vendor.git
   - mkdir ament
   - cd ament
