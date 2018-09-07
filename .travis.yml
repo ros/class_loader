@@ -20,6 +20,7 @@ install:
     else
       if ! brew ls --version cmake &>/dev/null; then brew install cmake; fi
     fi
+  - pip install catkin_pkg
 script:
   - mkdir -p build/src/ament
   - cd build
