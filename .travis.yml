@@ -20,6 +20,7 @@ install:
     else
       if ! brew ls --version cmake &>/dev/null; then brew install cmake; fi
     fi
+  - pip install catkin_pkg
 script:
   - mkdir -p build/src/ament
   - cd build
@@ -33,6 +34,7 @@ script:
   - git clone https://github.com/ament/googletest
   - cd ..
   - git clone https://github.com/ros/console_bridge.git
+  - git clone https://github.com/ros2/console_bridge_vendor.git
   - git clone https://github.com/ros2/poco_vendor.git
   - cd ..
   # Link source into workspace's source space
