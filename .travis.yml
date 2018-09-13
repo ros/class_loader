@@ -1,15 +1,19 @@
 sudo: required
-language: python
-python:
-  - 3.5
+language: generic
 os:
   - linux
   - osx
-dist: trusty
+dist: xenial
 env:
   global:
     - AMENT_WS=~/ament_ws
     - AMENT_WS_SRC=${AMENT_WS}/src
+before_install:
+  - |
+    if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
+        bash ./.travis/wait_for_apt.sh
+    fi
+
 install:
   - |
     if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
