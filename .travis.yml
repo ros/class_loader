@@ -11,14 +11,15 @@ env:
     - AMENT_WS=~/ament_ws
     - AMENT_WS_SRC=${AMENT_WS}/src
 install:
-  - make -f .travis/Makefile install_deps
   - |
-    if [[ "${TRAVIS_OS_NAME}" == "linux" ]]; then
-      CMAKE_URL="http://www.cmake.org/files/v3.5/cmake-3.5.2-Linux-x86_64.tar.gz"
-      mkdir cmake35 && travis_retry wget --no-check-certificate --quiet -O - ${CMAKE_URL} | tar --strip-components=1 -xz -C cmake35
-      export PATH=`pwd`/cmake35/bin:${PATH}
+    if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
+        sudo apt-get update -qq
+        sudo apt-get install cmake cppcheck libxml2-utils libpoco-dev python3 python3-pip python3-empy python3-pyparsing python3-setuptools wget
     else
-      if ! brew ls --version cmake &>/dev/null; then brew install cmake; fi
+        brew update
+        brew outdated cmake || brew upgrade cmake || brew install cmake
+        brew install cppcheck console_bridge poco uncrustify
+        brew outdated python3 || brew upgrade python3 || brew install python3
     fi
   - python3 --version
   - sudo -H python3 -m pip install -U setuptools pip pyparsing
@@ -31,12 +32,12 @@ script:
   # Fetch dependencies into the workspace
   - cd $AMENT_WS_SRC/ament
   - git clone https://github.com/ament/ament_cmake.git
+  - git clone https://github.com/ament/ament_lint.git
   - git clone https://github.com/ament/ament_package.git
-  - git clone https://github.com/ament/ament_tools.git
-  - git clone https://github.com/osrf/osrf_pycommon.git
-  - git clone https://github.com/ament/googletest
-  - cd ..
-  - git clone https://github.com/ros/console_bridge.git
+  - git clone https://github.com/ament/googletest.git
+  - git clone https://github.com/ament/uncrustify_vendor.git
+  - cd $AMENT_WS_SRC/ros2
+  - git clone https://github.com/ros2/console_bridge_vendor.git
   - git clone https://github.com/ros2/poco_vendor.git
   - cd $AMENT_WS
   # Link source into workspace's source space
