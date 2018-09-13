@@ -2,7 +2,7 @@ version: 1.0.{build}
 pull_requests:
   do_not_increment_build_number: true
 skip_tags: true
-os: Visual Studio 2015
+os: Visual Studio 2017
 init:
   - cmd: rd /s /q %CHOCOLATEYINSTALL%
   - ps: iex ((new-object net.webclient).DownloadString('https://chocolatey.org/install.ps1'))
@@ -35,7 +35,7 @@ install:
   - git clone https://github.com/ros2/console_bridge_vendor.git
   - git clone https://github.com/ros2/poco_vendor.git
   - cd ..\..\..
-  - '"%VS140COMNTOOLS%\..\..\VC\vcvarsall.bat" x86_amd64'
+  - call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat" x86_amd64
   - set "PATH=%PATH%;C:\Python37;C:\Python37\Scripts"
 build_script:
   - cd build
