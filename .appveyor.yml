@@ -11,7 +11,7 @@ install:
   - set "PATH=%PATH%;C:\Program Files\CMake\bin"
   - cmake --version
   - .\.appveyor\remove_python27_from_path.bat
-  - set "PATH=%PATH%;C:\Python35"
+  - set "PATH=%PATH%;C:\Python37"
   - python --version
   - python -m pip install -U setuptools pip
   - python -m pip install EmPy
@@ -36,7 +36,7 @@ install:
   - git clone https://github.com/ros2/poco_vendor.git
   - cd ..\..\..
   - '"%VS140COMNTOOLS%\..\..\VC\vcvarsall.bat" x86_amd64'
-  - set "PATH=%PATH%;C:\Python35"
+  - set "PATH=%PATH%;C:\Python37;C:\Python37\Scripts"
 build_script:
   - cd build
   - colcon build --packages-up-to class_loader --packages-skip class_loader
