@@ -20,12 +20,16 @@ install:
     else
       if ! brew ls --version cmake &>/dev/null; then brew install cmake; fi
     fi
+  - python3 --version
+  - sudo -H python3 -m pip install -U setuptools pip pyparsing
+  - sudo -H python3 -m pip install catkin_pkg EmPy
+  - sudo -H python3 -m pip install -U colcon-bash colcon-core colcon-defaults colcon-library-path colcon-metadata colcon-output colcon-package-information colcon-package-selection colcon-parallel-executor colcon-python-setup-py colcon-recursive-crawl colcon-test-result colcon-cmake colcon-ros
+  - sudo -H python3 -m pip install -U flake8 flake8-blind-except flake8-builtins flake8-class-newline flake8-comprehensions flake8-deprecated flake8-docstrings flake8-import-order flake8-quotes pytest pytest-repeat pytest-rerunfailures pytest-cov pytest-runner setuptools
 script:
-  - mkdir -p build/src/ament
-  - cd build
-  - touch AMENT_IGNORE
+  - mkdir -p $AMENT_WS_SRC/ament
+  - mkdir -p $AMENT_WS_SRC/ros2
   # Fetch dependencies into the workspace
-  - cd src/ament
+  - cd $AMENT_WS_SRC/ament
   - git clone https://github.com/ament/ament_cmake.git
   - git clone https://github.com/ament/ament_package.git
   - git clone https://github.com/ament/ament_tools.git
@@ -34,10 +38,12 @@ script:
   - cd ..
   - git clone https://github.com/ros/console_bridge.git
   - git clone https://github.com/ros2/poco_vendor.git
-  - cd ..
+  - cd $AMENT_WS
   # Link source into workspace's source space
   - ln -s $TRAVIS_BUILD_DIR ./src
   # Build
-  - python3 -u ./src/ament/ament_tools/scripts/ament.py build --build-tests --ament-cmake-args -DPYTHON_VERSION=3 -- --end-with class_loader
+  - colcon build --packages-up-to class_loader --packages-skip class_loader
+  - colcon build --packages-select class_loader --event-handlers console_direct+
   # Test
-  - python3 -u ./src/ament/ament_tools/scripts/ament.py test --skip-build --skip-install --only class_loader
+  - colcon test --packages-select class_loader --event-handlers console_direct+
+  - colcon test-result --test-result-base build
