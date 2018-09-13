@@ -15,8 +15,8 @@ install:
   - python --version
   - python -m pip install -U setuptools pip
   - python -m pip install EmPy
-  - python -m pip install trollius
   - python -m pip install pyparsing
+  - python -m pip install colcon-core colcon-defaults colcon-library-path colcon-metadata colcon-output colcon-package-information colcon-package-selection colcon-parallel-executor colcon-powershell colcon-python-setup-py colcon-recursive-crawl colcon-test-result colcon-cmake colcon-ros
   - mkdir build
   - cd build
   - mkdir src
@@ -36,8 +36,9 @@ install:
   - set "PATH=%PATH%;C:\Python35"
 build_script:
   - cd build
-  - |
-    python -u src\ament\ament_tools\scripts\ament.py build --build-tests
-  - python -u src\ament\ament_tools\scripts\ament.py test --skip-build --skip-install --only class_loader
+  - colcon build --packages-up-to class_loader --packages-skip class_loader
+  - colcon build --packages-select class_loader --event-handlers console_direct+
+  - colcon test --packages-select class_loader --event-handlers console_direct+ --ctest-args -E cppcheck
+  - colcon test-result --test-result-base build
 deploy: off
 test: off
