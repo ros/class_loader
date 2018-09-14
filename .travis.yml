@@ -1,43 +1,54 @@
 sudo: required
-language: python
-python:
-  - 3.5
+language: generic
 os:
   - linux
   - osx
-dist: trusty
+dist: xenial
 env:
   global:
     - AMENT_WS=~/ament_ws
     - AMENT_WS_SRC=${AMENT_WS}/src
-install:
-  - make -f .travis/Makefile install_deps
+before_install:
   - |
-    if [[ "${TRAVIS_OS_NAME}" == "linux" ]]; then
-      CMAKE_URL="http://www.cmake.org/files/v3.5/cmake-3.5.2-Linux-x86_64.tar.gz"
-      mkdir cmake35 && travis_retry wget --no-check-certificate --quiet -O - ${CMAKE_URL} | tar --strip-components=1 -xz -C cmake35
-      export PATH=`pwd`/cmake35/bin:${PATH}
-    else
-      if ! brew ls --version cmake &>/dev/null; then brew install cmake; fi
+    if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
+        bash ./.travis/wait_for_apt.sh
     fi
+
+install:
+  - |
+    if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
+        sudo apt-get update -qq
+        sudo apt-get install cmake cppcheck libxml2-utils libpoco-dev python3 python3-pip python3-empy python3-pyparsing python3-setuptools wget
+    else
+        brew update
+        brew outdated cmake || brew upgrade cmake || brew install cmake
+        brew install cppcheck console_bridge poco uncrustify
+        brew outdated python3 || brew upgrade python3 || brew install python3
+    fi
+  - python3 --version
+  - sudo -H python3 -m pip install -U setuptools pip pyparsing
+  - sudo -H python3 -m pip install catkin_pkg EmPy
+  - sudo -H python3 -m pip install -U colcon-bash colcon-core colcon-defaults colcon-library-path colcon-metadata colcon-output colcon-package-information colcon-package-selection colcon-parallel-executor colcon-python-setup-py colcon-recursive-crawl colcon-test-result colcon-cmake colcon-ros
+  - sudo -H python3 -m pip install -U flake8 flake8-blind-except flake8-builtins flake8-class-newline flake8-comprehensions flake8-deprecated flake8-docstrings flake8-import-order flake8-quotes pytest pytest-repeat pytest-rerunfailures pytest-cov pytest-runner setuptools
 script:
-  - mkdir -p build/src/ament
-  - cd build
-  - touch AMENT_IGNORE
+  - mkdir -p $AMENT_WS_SRC/ament
+  - mkdir -p $AMENT_WS_SRC/ros2
   # Fetch dependencies into the workspace
-  - cd src/ament
+  - cd $AMENT_WS_SRC/ament
   - git clone https://github.com/ament/ament_cmake.git
+  - git clone https://github.com/ament/ament_lint.git
   - git clone https://github.com/ament/ament_package.git
-  - git clone https://github.com/ament/ament_tools.git
-  - git clone https://github.com/osrf/osrf_pycommon.git
-  - git clone https://github.com/ament/googletest
-  - cd ..
-  - git clone https://github.com/ros/console_bridge.git
+  - git clone https://github.com/ament/googletest.git
+  - git clone https://github.com/ament/uncrustify_vendor.git
+  - cd $AMENT_WS_SRC/ros2
+  - git clone https://github.com/ros2/console_bridge_vendor.git
   - git clone https://github.com/ros2/poco_vendor.git
-  - cd ..
+  - cd $AMENT_WS
   # Link source into workspace's source space
   - ln -s $TRAVIS_BUILD_DIR ./src
   # Build
-  - python3 -u ./src/ament/ament_tools/scripts/ament.py build --build-tests --ament-cmake-args -DPYTHON_VERSION=3 -- --end-with class_loader
+  - colcon build --packages-up-to class_loader --packages-skip class_loader
+  - colcon build --packages-select class_loader --event-handlers console_direct+
   # Test
-  - python3 -u ./src/ament/ament_tools/scripts/ament.py test --skip-build --skip-install --only class_loader
+  - colcon test --packages-select class_loader --event-handlers console_direct+
+  - colcon test-result --test-result-base build
