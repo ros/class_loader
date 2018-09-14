@@ -71,6 +71,7 @@ AbstractMetaObjectBase::~AbstractMetaObjectBase()
     "class_loader.impl.AbstractMetaObjectBase: "
     "Destroying MetaObject %p (base = %s, derived = %s, library path = %s)",
     this, baseClassName().c_str(), className().c_str(), getAssociatedLibraryPath().c_str());
+  delete impl_;
 }
 
 const std::string & AbstractMetaObjectBase::className() const
