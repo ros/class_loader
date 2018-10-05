@@ -41,11 +41,15 @@
 #include <utility>
 #include <vector>
 
-#include "Poco/SharedLibrary.h"
-
 #include "class_loader/exceptions.hpp"
 #include "class_loader/meta_object.hpp"
 #include "class_loader/visibility_control.hpp"
+
+// forward declaration
+namespace Poco
+{
+  class SharedLibrary;
+}
 
 /**
  * @note This header file is the internal implementation of the plugin system which is exposed via the ClassLoader class
