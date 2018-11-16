@@ -2,6 +2,15 @@
 Changelog for package class_loader
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.2.0 (2018-11-16)
+------------------
+* Updated maintainer to Steven! Ragnarok the maintainer (`#107 <https://github.com/ros/class_loader/issues/107>`_)
+* Added free impl\_ in AbstractMetaObjectBase destructor (`#103 <https://github.com/ros/class_loader/issues/103>`_)
+* Overhauled CI.u (`#106 <https://github.com/ros/class_loader/issues/106>`_)
+* Fixed spacing to comply with uncrusity 0.67 (`#99 <https://github.com/ros/class_loader/issues/99>`_)
+* Updated to use console_bridge_vendor (`#98 <https://github.com/ros/class_loader/issues/98>`_)
+* Contributors: Chris Ye, Mikael Arguedas
+
 0.3.2 (2015-04-22)
 ------------------
 * Fixed wrong handling of false statement (pkg-config was not installed)
