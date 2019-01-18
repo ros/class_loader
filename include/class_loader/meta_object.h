@@ -32,9 +32,14 @@
 #ifndef CLASS_LOADER__META_OBJECT_H_
 #define CLASS_LOADER__META_OBJECT_H_
 
+#ifdef _MSC_VER
+#pragma message("Including header <class_loader/meta_object.h> is deprecated,")
+#pragma message("include <class_loader/meta_object.h> instead.")
+#else
 // *INDENT-OFF* (prevent uncrustify from adding indention below)
 #warning Including header <class_loader/meta_object.h> is deprecated, \
 include <class_loader/meta_object.hpp> instead.
+#endif
 
 #include "./meta_object.hpp"
 

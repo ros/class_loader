@@ -32,9 +32,14 @@
 #ifndef CLASS_LOADER__MULTI_LIBRARY_CLASS_LOADER_H_
 #define CLASS_LOADER__MULTI_LIBRARY_CLASS_LOADER_H_
 
+#ifdef _MSC_VER
+#pragma message("Including header <class_loader/multi_library_class_loader.h> is deprecated,")
+#pragma message("include <class_loader/multi_library_class_loader.h> instead.")
+#else
 // *INDENT-OFF* (prevent uncrustify from adding indention below)
 #warning Including header <class_loader/multi_library_class_loader.h> is deprecated, \
 include <class_loader/multi_library_class_loader.hpp> instead.
+#endif
 
 #include "./multi_library_class_loader.hpp"
 

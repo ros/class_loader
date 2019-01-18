@@ -32,9 +32,14 @@
 #ifndef CLASS_LOADER__CLASS_LOADER_REGISTER_MACRO_H_
 #define CLASS_LOADER__CLASS_LOADER_REGISTER_MACRO_H_
 
+#ifdef _MSC_VER
+#pragma message("Including header <class_loader/class_loader_register_macro.h> is deprecated,")
+#pragma message("include <class_loader/class_loader_register_macro.h> instead.")
+#else
 // *INDENT-OFF* (prevent uncrustify from adding indention below)
 #warning Including header <class_loader/class_loader_register_macro.h> is deprecated, \
 include <class_loader/register_macro.hpp> instead.
+#endif
 
 #include "./register_macro.hpp"
 
