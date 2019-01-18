@@ -61,4 +61,11 @@
   #define CLASS_LOADER_PUBLIC_TYPE
 #endif
 
+// based on wiki.ros.org: http://wiki.ros.org/win_ros/Contributing/Dll%20Exports
+// Ignore warnings about import/exports when deriving from std classes.
+#ifdef _MSC_VER
+  #pragma warning(disable: 4251)
+  #pragma warning(disable: 4275)
+#endif
+
 #endif  // CLASS_LOADER__VISIBILITY_CONTROL_HPP_
