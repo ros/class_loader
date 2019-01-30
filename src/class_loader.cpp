@@ -29,8 +29,9 @@
 
 #include "class_loader/class_loader.hpp"
 
-#include "Poco/SharedLibrary.h"
 #include <string>
+
+#include "Poco/SharedLibrary.h"
 
 namespace class_loader
 {
