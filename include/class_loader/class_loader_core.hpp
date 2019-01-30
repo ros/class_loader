@@ -49,7 +49,7 @@
 namespace Poco
 {
   class SharedLibrary;
-}
+}  // namespace Poco
 
 /**
  * @note This header file is the internal implementation of the plugin system which is exposed via the ClassLoader class
