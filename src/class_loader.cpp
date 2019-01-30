@@ -31,6 +31,8 @@
 
 #include <string>
 
+#include "Poco/SharedLibrary.h"
+
 namespace class_loader
 {
 
