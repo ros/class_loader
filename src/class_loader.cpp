@@ -151,10 +151,10 @@ int ClassLoader::unloadLibraryInternal(bool lock_plugin_ref_count)
   try {
     if (plugin_ref_count_ > 0) {
       CONSOLE_BRIDGE_logWarn("class_loader.ClassLoader: SEVERE WARNING!!!\n"
-                             "Attempting to unload %s\n"
-                             "while objects created by this library still exist in the heap!\n"
-                             "You should delete your objects before destroying the ClassLoader. "
-                             "The library will NOT be unloaded.", library_path_.c_str());
+        "Attempting to unload %s\n"
+        "while objects created by this library still exist in the heap!\n"
+        "You should delete your objects before destroying the ClassLoader. "
+        "The library will NOT be unloaded.", library_path_.c_str());
     } else {
       load_ref_count_ = load_ref_count_ - 1;
       if (load_ref_count_ == 0) {
