@@ -63,6 +63,8 @@
 
 // based on wiki.ros.org: http://wiki.ros.org/win_ros/Contributing/Dll%20Exports
 // Ignore warnings about import/exports when deriving from std classes.
+// https://docs.microsoft.com/en-us/cpp/error-messages/compiler-warnings/compiler-warning-level-1-c4251
+// https://docs.microsoft.com/en-us/cpp/error-messages/compiler-warnings/compiler-warning-level-2-c4275
 #ifdef _MSC_VER
   // https://docs.microsoft.com/en-us/cpp/error-messages/compiler-warnings/compiler-warning-level-1-c4251?view=vs-2017
   #pragma warning(disable: 4251)
