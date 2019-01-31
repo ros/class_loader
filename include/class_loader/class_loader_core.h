@@ -32,9 +32,14 @@
 #ifndef CLASS_LOADER__CLASS_LOADER_CORE_H_
 #define CLASS_LOADER__CLASS_LOADER_CORE_H_
 
+#ifdef _MSC_VER
+#pragma message("Including header <class_loader/class_loader_core.h> is deprecated,")
+#pragma message("include <class_loader/class_loader_core.h> instead.")
+#else
 // *INDENT-OFF* (prevent uncrustify from adding indention below)
 #warning Including header <class_loader/class_loader_core.h> is deprecated, \
 include <class_loader/class_loader_core.hpp> instead.
+#endif
 
 #include "./class_loader_core.hpp"
 
