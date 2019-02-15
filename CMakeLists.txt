@@ -19,7 +19,6 @@ endif()
 find_package(console_bridge REQUIRED)
 
 if(${catkin_FOUND})
-  find_package(catkin REQUIRED COMPONENTS cmake_modules)
   find_package(Poco REQUIRED COMPONENTS Foundation)
   catkin_package(
     INCLUDE_DIRS include
