@@ -54,8 +54,17 @@ if(BUILD_TESTING)
   find_package(ament_lint_auto QUIET)
   if(ament_lint_auto_FOUND)
     # TODO(mikaelarguedas) add copyright test once the linter accepts /** block comments
-    set(ament_cmake_copyright_FOUND TRUE)
+    list(APPEND AMENT_LINT_AUTO_EXCLUDE
+      ament_cmake_copyright
+    )
     ament_lint_auto_find_test_dependencies()
+
+    # Files in test/fviz_case_study do have compatible copyrights
+    find_package(ament_cmake_copyright)
+    ament_copyright(
+      TESTNAME copyright_check_tests_only
+      "test/fviz_case_study"
+    )
   endif()
   add_subdirectory(test)
 endif()
