@@ -2,6 +2,12 @@
 Changelog for package class_loader
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.3.0 (2019-04-12)
+------------------
+* Updated test configuration to check copyright of files where possible. (`#123 <https://github.com/ros/class_loader/issues/123>`_)
+* Updated to use ament_target_dependencies where possible. (`#121 <https://github.com/ros/class_loader/issues/121>`_)
+* Contributors: ivanpauno, jpsamper2009
+
 1.2.0 (2018-11-16)
 ------------------
 * Updated maintainer to Steven! Ragnarok the maintainer (`#107 <https://github.com/ros/class_loader/issues/107>`_)
