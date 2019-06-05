@@ -148,7 +148,7 @@ public:
    * @param name The literal name of the class.
    */
   AbstractMetaObject(const std::string & class_name, const std::string & base_class_name)
-  : AbstractMetaObjectBase(class_name, base_class_name)
+  : AbstractMetaObjectBase(class_name, base_class_name, typeid(B).name())
   {
   }
 
