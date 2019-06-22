@@ -45,6 +45,12 @@
 const std::string LIBRARY_1 = class_loader::systemLibraryFormat("class_loader_TestPlugins1");  // NOLINT
 const std::string LIBRARY_2 = class_loader::systemLibraryFormat("class_loader_TestPlugins2");  // NOLINT
 
+#if defined(__ARM_ARCH) && __ARM_ARCH <= 7
+static constexpr size_t STRESS_TEST_NUM_THREADS = 500;
+#else
+static constexpr size_t STRESS_TEST_NUM_THREADS = 1000;
+#endif
+
 TEST(ClassLoaderTest, basicLoad) {
   try {
     class_loader::ClassLoader loader1(LIBRARY_1, false);
@@ -174,7 +180,7 @@ TEST(ClassLoaderTest, threadSafety) {
   try {
     std::vector<std::thread *> client_threads;
 
-    for (size_t c = 0; c < 1000; ++c) {
+    for (size_t c = 0; c < STRESS_TEST_NUM_THREADS; ++c) {
       client_threads.push_back(new std::thread(std::bind(&run, &loader1)));
     }
 
