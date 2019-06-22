@@ -30,6 +30,12 @@
 #ifndef BASE_HPP_
 #define BASE_HPP_
 
+#if defined(__ARM_ARCH) && __ARM_ARCH <= 7
+static constexpr size_t STRESS_TEST_NUM_THREADS = 500;
+#else
+static constexpr size_t STRESS_TEST_NUM_THREADS = 1000;
+#endif
+
 class Base
 {
 public:
