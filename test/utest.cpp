@@ -174,7 +174,7 @@ TEST(ClassLoaderTest, threadSafety) {
   try {
     std::vector<std::thread *> client_threads;
 
-    for (size_t c = 0; c < 1000; ++c) {
+    for (size_t c = 0; c < STRESS_TEST_NUM_THREADS; ++c) {
       client_threads.push_back(new std::thread(std::bind(&run, &loader1)));
     }
 

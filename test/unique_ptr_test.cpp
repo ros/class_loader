@@ -124,7 +124,7 @@ TEST(ClassLoaderUniquePtrTest, threadSafety) {
   try {
     std::vector<std::thread> client_threads;
 
-    for (size_t c = 0; c < 1000; c++) {
+    for (size_t c = 0; c < STRESS_TEST_NUM_THREADS; c++) {
       client_threads.emplace_back(std::bind(&run, &loader1));
     }
 
