@@ -25,7 +25,6 @@ link_directories(${Poco_LIBRARY_DIR})
 if(ament_cmake_FOUND)
   ament_export_dependencies(console_bridge)
   ament_export_include_directories(include)
-  ament_export_libraries(${PROJECT_NAME})
 endif()
 
 set(${PROJECT_NAME}_SRCS
@@ -39,6 +38,7 @@ if(ament_cmake_FOUND)
   target_include_directories(${PROJECT_NAME}
     PUBLIC include)
   ament_target_dependencies(${PROJECT_NAME} "console_bridge" "Poco")
+  ament_export_libraries(${PROJECT_NAME})
 else()
   target_include_directories(${PROJECT_NAME}
     PUBLIC include ${console_bridge_INCLUDE_DIRS} ${Poco_INCLUDE_DIRS})
