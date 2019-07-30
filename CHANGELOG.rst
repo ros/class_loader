@@ -2,6 +2,11 @@
 Changelog for package class_loader
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.3.2 (2019-07-30)
+------------------
+* Correctly export class_loader library (`#129 <https://github.com/ros/class_loader/pull/129>`_)
+* Contributors: Shane Loretz
+
 1.3.1 (2019-05.08)
 ------------------
 * Using ament_target_dependencies when possible (`#124 <https://github.com/ros/class_loader/issues/124>`_)
