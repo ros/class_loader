@@ -2,6 +2,13 @@
 Changelog for package class_loader
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.4.0 (2019-09-18)
+------------------
+* Fixed setting AbstractMetaObjectBase base class typeid. (`#127 <https://github.com/nuclearsandwich/class_loader/issues/127>`_)
+* Corrected export of class_loader library. (`#129 <https://github.com/nuclearsandwich/class_loader/issues/129>`_)
+* Reduced the number of threads spun up in stress test. (`#128 <https://github.com/nuclearsandwich/class_loader/issues/128>`_)
+* Contributors: Emerson Knapp, Shane Loretz, bpwilcox
+
 1.3.1 (2019-05-08)
 ------------------
 * Using ament_target_dependencies when possible (`#124 <https://github.com/ros/class_loader/issues/124>`_)
