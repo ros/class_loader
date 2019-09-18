@@ -2,7 +2,7 @@
 Changelog for package class_loader
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-1.3.1 (2019-05.08)
+1.3.1 (2019-05-08)
 ------------------
 * Using ament_target_dependencies when possible (`#124 <https://github.com/ros/class_loader/issues/124>`_)
 * Contributors: ivanpauno
