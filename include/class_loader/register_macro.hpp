@@ -53,7 +53,7 @@
     typedef  Base _base; \
     ProxyExec ## UniqueID() \
     { \
-      if (std::string(Message) != "") { \
+      if (!std::string(Message).empty()) { \
         CONSOLE_BRIDGE_logInform("%s", Message); \
       } \
       class_loader::impl::registerPlugin<_derived, _base>(#Derived, #Base); \
