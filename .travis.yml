@@ -23,6 +23,7 @@ install:
         brew update
         brew outdated cmake || brew upgrade cmake || brew install cmake
         brew install cppcheck console_bridge poco uncrustify
+        brew unlink python@2
         brew outdated python3 || brew upgrade python3 || brew install python3
     fi
   - python3 --version
