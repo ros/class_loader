@@ -2,6 +2,12 @@
 Changelog for package class_loader
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Use .empty() to check for an empty string. (`#132 <https://github.com/ros/class_loader/issues/132>`_)
+* Fix travis on macOS. (`#135 <https://github.com/ros/class_loader/issues/135>`_)
+* Contributors: Chris Lalancette
+
 1.4.0 (2019-09-18)
 ------------------
 * Fixed setting AbstractMetaObjectBase base class typeid. (`#127 <https://github.com/nuclearsandwich/class_loader/issues/127>`_)
