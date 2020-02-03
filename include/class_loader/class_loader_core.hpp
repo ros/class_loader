@@ -197,7 +197,8 @@ void registerPlugin(const std::string & class_name, const std::string & base_cla
     getCurrentlyLoadingLibraryName().c_str());
 
   if (nullptr == getCurrentlyActiveClassLoader()) {
-    CONSOLE_BRIDGE_logDebug("%s",
+    CONSOLE_BRIDGE_logDebug(
+      "%s",
       "class_loader.impl: ALERT!!! "
       "A library containing plugins has been opened through a means other than through the "
       "class_loader or pluginlib package. "
@@ -274,7 +275,8 @@ Base * createInstance(const std::string & derived_class_name, ClassLoader * load
 
   if (nullptr == obj) {  // Was never created
     if (factory && factory->isOwnedBy(nullptr)) {
-      CONSOLE_BRIDGE_logDebug("%s",
+      CONSOLE_BRIDGE_logDebug(
+        "%s",
         "class_loader.impl: ALERT!!! "
         "A metaobject (i.e. factory) exists for desired class, but has no owner. "
         "This implies that the library containing the class was dlopen()ed by means other than "

@@ -399,7 +399,8 @@ void purgeGraveyardOfMetaobjects(
       itr = graveyard.erase(itr);
       if (delete_objs) {
         if (is_address_in_graveyard_same_as_global_factory_map) {
-          CONSOLE_BRIDGE_logDebug("%s",
+          CONSOLE_BRIDGE_logDebug(
+            "%s",
             "class_loader.impl: "
             "Newly created metaobject factory in global factory map map has same address as "
             "one in graveyard -- metaobject has been purged from graveyard but not deleted.");
@@ -436,7 +437,8 @@ void loadLibrary(const std::string & library_path, ClassLoader * loader)
 
   // If it's already open, just update existing metaobjects to have an additional owner.
   if (isLibraryLoadedByAnybody(library_path)) {
-    CONSOLE_BRIDGE_logDebug("%s",
+    CONSOLE_BRIDGE_logDebug(
+      "%s",
       "class_loader.impl: "
       "Library already in memory, but binding existing MetaObjects to loader if necesesary.\n");
     addClassLoaderOwnerForAllExistingMetaObjectsForLibrary(library_path, loader);
@@ -587,7 +589,8 @@ void printDebugInfoToScreen()
   MetaObjectVector meta_objs = allMetaObjects();
   for (size_t c = 0; c < meta_objs.size(); c++) {
     AbstractMetaObjectBase * obj = meta_objs.at(c);
-    printf("Metaobject %zu (ptr = %p):\n TypeId = %s\n Associated Library = %s\n",
+    printf(
+      "Metaobject %zu (ptr = %p):\n TypeId = %s\n Associated Library = %s\n",
       c,
       reinterpret_cast<void *>(obj),
       (typeid(*obj).name()),
@@ -595,7 +598,8 @@ void printDebugInfoToScreen()
 
     size_t size = obj->getAssociatedClassLoadersCount();
     for (size_t i = 0; i < size; ++i) {
-      printf(" Associated Loader %zu = %p\n",
+      printf(
+        " Associated Loader %zu = %p\n",
         i, reinterpret_cast<void *>(obj->getAssociatedClassLoader(i)));
     }
     printf("--------------------------------------------------------------------------------\n");
