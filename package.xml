@@ -19,7 +19,8 @@
 
   <build_depend version_gte="0.3.3">cmake_modules</build_depend>
 
-  <depend>boost</depend>
+  <depend>libboost-thread-dev</depend>
+  <depend>libboost-system-dev</depend>
   <depend>libconsole-bridge-dev</depend>
   <depend>libpoco-dev</depend>
 </package>
