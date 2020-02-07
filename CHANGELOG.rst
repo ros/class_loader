@@ -2,6 +2,19 @@
 Changelog for package class_loader
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.4.2 (2020-02-07)
+------------------
+* Add Python 3 support to header update scripts. (`#122 <https://github.com/ros/class_loader/issues/122>`_)
+* Set test dll runtime output to CATKIN_PACKAGE_BIN_DESTINATION on Windows. (`#113 <https://github.com/ros/class_loader/issues/113>`_)
+* Improve warning message formatting and detail. (`#108 <https://github.com/ros/class_loader/issues/108>`_)
+* Add export to variable in order to allow builds on Windows. (`#102 <https://github.com/ros/class_loader/issues/102>`_)
+* Ignore warnings about import/exports when deriving from std classes on MSVC. (`#116 <https://github.com/ros/class_loader/issues/116>`_)
+* Use #pragma message() to print out warnings in MSVC. (`#114 <https://github.com/ros/class_loader/issues/114>`_)
+* Avoid including Poco headers globally. (`#115 <https://github.com/ros/class_loader/issues/115>`_)
+* Make Steven! Ragnarok the maintainer (`#107 <https://github.com/ros/class_loader/issues/107>`_)
+* Fix non-defined CMake variable (forward-port to Melodic). (`#97 <https://github.com/ros/class_loader/issues/97>`_)
+* Contributors: James Xu, Johnson Shih, Markus Grimm, Mikael Arguedas, Robert Haschke
+
 0.4.1 (2018-04-27)
 ------------------
 * Provide std::shared_ptr interface (`#95 <https://github.com/ros/class_loader/issues/95>`_)
