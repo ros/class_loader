@@ -2,6 +2,11 @@
 Changelog for package class_loader
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.5.0 (2020-02-07)
+------------------
+* Declare specific boost dependencies. (`#136 <https://github.com/ros/class_loader/issues/136>`_)
+* Contributors: Mikael Arguedas
+
 0.4.2 (2020-02-07)
 ------------------
 * Add Python 3 support to header update scripts. (`#122 <https://github.com/ros/class_loader/issues/122>`_)
