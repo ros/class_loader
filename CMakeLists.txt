@@ -23,6 +23,7 @@ find_package(rcutils REQUIRED)
 
 if(ament_cmake_FOUND)
   ament_export_dependencies(console_bridge)
+  ament_export_dependencies(rcutils)
   ament_export_include_directories(include)
 endif()
 
