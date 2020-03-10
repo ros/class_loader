@@ -56,13 +56,7 @@
 #include "class_loader/meta_object.hpp"
 #include "class_loader/visibility_control.hpp"
 
-// Forward declaration to avoid including poco headers directly.
-namespace Poco
-{
-
-class SharedLibrary;
-
-}
+#include "rcutils/shared_library.h"
 
 /**
  * @note This header file is the internal implementation of the plugin system which is exposed via the ClassLoader class
@@ -82,7 +76,7 @@ typedef std::string ClassName;
 typedef std::string BaseClassName;
 typedef std::map<ClassName, impl::AbstractMetaObjectBase *> FactoryMap;
 typedef std::map<BaseClassName, FactoryMap> BaseToFactoryMapMap;
-typedef std::pair<LibraryPath, Poco::SharedLibrary *> LibraryPair;
+typedef std::pair<LibraryPath, rcutils_shared_library_t *> LibraryPair;
 typedef std::vector<LibraryPair> LibraryVector;
 typedef std::vector<AbstractMetaObjectBase *> MetaObjectVector;
 
@@ -99,7 +93,7 @@ CLASS_LOADER_PUBLIC
 BaseToFactoryMapMap & getGlobalPluginBaseToFactoryMapMap();
 
 /**
- * @brief Gets a handle to a list of open libraries in the form of LibraryPairs which encode the library path+name and the handle to the underlying Poco::SharedLibrary
+ * @brief Gets a handle to a list of open libraries in the form of LibraryPairs which encode the library path+name and the handle to the underlying shared library
  * @return A reference to the global vector that tracks loaded libraries
  */
 CLASS_LOADER_PUBLIC

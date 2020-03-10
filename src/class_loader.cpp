@@ -29,8 +29,6 @@
 
 #include "class_loader/class_loader.hpp"
 
-#include <Poco/SharedLibrary.h>
-
 #include <string>
 
 namespace class_loader
@@ -58,9 +56,6 @@ std::string systemLibraryPrefix()
 
 std::string systemLibrarySuffix()
 {
-// Poco should be compiled with `#define POCO_NO_SHARED_LIBRARY_DEBUG_SUFFIX`
-// to automatically remove the trailing `d` from the shared library suffix
-//   return Poco::SharedLibrary::suffix();
 #ifdef __linux__
   return ".so";
 #elif __APPLE__
@@ -68,7 +63,7 @@ std::string systemLibrarySuffix()
 #elif _WIN32
   return ".dll";
 #else
-  return Poco::SharedLibrary::suffix();
+  return "";
 #endif
 }
 

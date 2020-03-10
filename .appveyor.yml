@@ -33,7 +33,6 @@ install:
   - mkdir ros2
   - cd ros2
   - git clone https://github.com/ros2/console_bridge_vendor.git
-  - git clone https://github.com/ros2/poco_vendor.git
   - cd ..\..\..
   - call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat" x86_amd64
   - set "PATH=%PATH%;C:\Python37;C:\Python37\Scripts"

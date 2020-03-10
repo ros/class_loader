@@ -18,11 +18,11 @@ install:
   - |
     if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
         sudo apt-get update -qq
-        sudo apt-get install cmake cppcheck libxml2-utils libpoco-dev python3 python3-pip python3-empy python3-pyparsing python3-setuptools wget
+        sudo apt-get install cmake cppcheck libxml2-utils python3 python3-pip python3-empy python3-pyparsing python3-setuptools wget
     else
         brew update
         brew outdated cmake || brew upgrade cmake || brew install cmake
-        brew install cppcheck console_bridge poco uncrustify
+        brew install cppcheck console_bridge uncrustify
         brew unlink python@2
         brew outdated python3 || brew upgrade python3 || brew install python3
     fi
@@ -43,7 +43,6 @@ script:
   - git clone https://github.com/ament/uncrustify_vendor.git
   - cd $AMENT_WS_SRC/ros2
   - git clone https://github.com/ros2/console_bridge_vendor.git
-  - git clone https://github.com/ros2/poco_vendor.git
   - cd $AMENT_WS
   # Link source into workspace's source space
   - ln -s $TRAVIS_BUILD_DIR ./src
