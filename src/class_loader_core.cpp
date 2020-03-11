@@ -83,6 +83,18 @@ LibraryVector & getLoadedLibraryVector()
   return instance;
 }
 
+rcutils_allocator_t & getAllocator()
+{
+  static rcutils_allocator_t allocator;
+  static bool allocator_defined = false;
+  if (!allocator_defined) {
+    allocator = rcutils_get_default_allocator();
+    allocator_defined = true;
+  }
+
+  return allocator;
+}
+
 std::string & getCurrentlyLoadingLibraryNameReference()
 {
   static std::string library_name;
@@ -443,7 +455,15 @@ void loadLibrary(const std::string & library_path, ClassLoader * loader)
     return;
   }
 
-  rcutils_shared_library_t * library_handle = nullptr;
+  // rcutils_shared_library_t library_handle = rcutils_get_zero_initialized_shared_library();
+  rcutils_allocator_t allocator = getAllocator();
+
+  rcutils_shared_library_t * library_handle =
+    static_cast<rcutils_shared_library_t *>(allocator.allocate(
+      sizeof(rcutils_shared_library_t), allocator.state));
+  assert(library_handle != nullptr);
+
+  *library_handle = rcutils_get_zero_initialized_shared_library();
 
   static std::recursive_mutex loader_mutex;
 
@@ -452,8 +472,17 @@ void loadLibrary(const std::string & library_path, ClassLoader * loader)
 
     setCurrentlyActiveClassLoader(loader);
     setCurrentlyLoadingLibraryName(library_path);
-    library_handle = rcutils_get_shared_library(library_path.c_str());
-    if (!library_handle) {
+    // allocating memory to
+    library_handle->library_path = reinterpret_cast<char *>(allocator.allocate(
+        (library_path.length() + 1) * sizeof(char), allocator.state));
+    // checking allocation was fine
+    assert(library_handle->library_path != nullptr);
+    memcpy(library_handle->library_path, library_path.c_str(), library_path.length());
+    fprintf(stderr, "class_loader::loadLibrary() %s\n", library_handle->library_path);
+
+    rcutils_ret_t ret = rcutils_get_shared_library(library_handle);
+    fprintf(stderr, "ret %d\n", ret);
+    if (ret != RCUTILS_RET_OK) {
       setCurrentlyLoadingLibraryName("");
       setCurrentlyActiveClassLoader(nullptr);
       throw class_loader::LibraryLoadException("Could not load library");
@@ -467,7 +496,7 @@ void loadLibrary(const std::string & library_path, ClassLoader * loader)
   CONSOLE_BRIDGE_logDebug(
     "class_loader.impl: "
     "Successfully loaded library %s into memory (handle = %p).",
-    library_path.c_str(), reinterpret_cast<rcutils_shared_library_t *>(library_handle));
+    library_path.c_str(), reinterpret_cast<rcutils_shared_library_t *>(&library_handle));
 
   // Graveyard scenario
   size_t num_lib_objs = allMetaObjectsForLibrary(library_path).size();
@@ -529,7 +558,14 @@ void unloadLibrary(const std::string & library_path, ClassLoader * loader)
           "removing from loaded library vector.\n",
           library_path.c_str());
 
-        rcutils_unload_library(library);
+        rcutils_allocator_t allocator = getAllocator();
+        rcutils_ret_t ret = rcutils_unload_library(library, allocator);
+        if (ret != RCUTILS_RET_OK) {
+          throw class_loader::LibraryUnloadException(
+                  "Attempt to unload library that class_loader is unaware of.");
+        }
+        allocator.deallocate(library, allocator.state);
+        library = nullptr;
         itr = open_libraries.erase(itr);
       } else {
         CONSOLE_BRIDGE_logDebug(
