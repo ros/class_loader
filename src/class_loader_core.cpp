@@ -477,11 +477,9 @@ void loadLibrary(const std::string & library_path, ClassLoader * loader)
         (library_path.length() + 1) * sizeof(char), allocator.state));
     // checking allocation was fine
     assert(library_handle->library_path != nullptr);
-    memcpy(library_handle->library_path, library_path.c_str(), library_path.length());
-    fprintf(stderr, "class_loader::loadLibrary() %s\n", library_handle->library_path);
+    snprintf(library_handle->library_path, library_path.length() + 1, "%s", library_path.c_str());
 
     rcutils_ret_t ret = rcutils_get_shared_library(library_handle);
-    fprintf(stderr, "ret %d\n", ret);
     if (ret != RCUTILS_RET_OK) {
       setCurrentlyLoadingLibraryName("");
       setCurrentlyActiveClassLoader(nullptr);
