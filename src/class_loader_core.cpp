@@ -455,7 +455,6 @@ void loadLibrary(const std::string & library_path, ClassLoader * loader)
     return;
   }
 
-  // rcutils_shared_library_t library_handle = rcutils_get_zero_initialized_shared_library();
   rcutils_allocator_t allocator = getAllocator();
 
   rcutils_shared_library_t * library_handle =
