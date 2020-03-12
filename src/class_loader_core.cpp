@@ -472,18 +472,11 @@ void loadLibrary(const std::string & library_path, ClassLoader * loader)
 
     setCurrentlyActiveClassLoader(loader);
     setCurrentlyLoadingLibraryName(library_path);
-    // allocating memory to
-    library_handle->library_path = reinterpret_cast<char *>(allocator.allocate(
-        (library_path.length() + 1) * sizeof(char), allocator.state));
-    // checking allocation was fine
-    assert(library_handle->library_path != nullptr);
-    snprintf(library_handle->library_path, library_path.length() + 1, "%s", library_path.c_str());
-
-    rcutils_ret_t ret = rcutils_get_shared_library(library_handle);
+    rcutils_ret_t ret = rcutils_load_shared_library(library_handle, library_path.c_str());
     if (ret != RCUTILS_RET_OK) {
       setCurrentlyLoadingLibraryName("");
       setCurrentlyActiveClassLoader(nullptr);
-      throw class_loader::LibraryLoadException("Could not load library");
+      throw class_loader::LibraryLoadException("Could not load library " + library_path);
     }
 
     setCurrentlyLoadingLibraryName("");
@@ -557,7 +550,7 @@ void unloadLibrary(const std::string & library_path, ClassLoader * loader)
           library_path.c_str());
 
         rcutils_allocator_t allocator = getAllocator();
-        rcutils_ret_t ret = rcutils_unload_library(library, allocator);
+        rcutils_ret_t ret = rcutils_unload_library(library);
         if (ret != RCUTILS_RET_OK) {
           throw class_loader::LibraryUnloadException(
                   "Attempt to unload library that class_loader is unaware of.");
