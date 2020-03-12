@@ -85,13 +85,7 @@ LibraryVector & getLoadedLibraryVector()
 
 rcutils_allocator_t & getAllocator()
 {
-  static rcutils_allocator_t allocator;
-  static bool allocator_defined = false;
-  if (!allocator_defined) {
-    allocator = rcutils_get_default_allocator();
-    allocator_defined = true;
-  }
-
+  static rcutils_allocator_t allocator = rcutils_get_default_allocator();
   return allocator;
 }
 
