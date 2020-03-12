@@ -63,7 +63,7 @@ std::string systemLibrarySuffix()
 #elif _WIN32
   return ".dll";
 #else
-  return "";
+  #error "Unsupported OS, dynamic library suffix is unknown."
 #endif
 }
 
