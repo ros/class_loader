@@ -2,6 +2,12 @@
 Changelog for package class_loader
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.3.3 (2020-03-13)
+------------------
+* Use .empty() to check for an empty string. (`#132 <https://github.com/ros/class_loader/issues/132>`_)
+* Fix travis on macOS. (`#135 <https://github.com/ros/class_loader/issues/135>`_)
+* Contributors: Chris Lalancette
+
 1.3.2 (2019-07-30)
 ------------------
 * Correctly export class_loader library (`#129 <https://github.com/ros/class_loader/pull/129>`_)
