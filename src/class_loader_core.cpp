@@ -543,7 +543,7 @@ void unloadLibrary(const std::string & library_path, ClassLoader * loader)
           library_path.c_str());
 
         rcutils_allocator_t allocator = getAllocator();
-        rcutils_ret_t ret = rcutils_unload_library(library);
+        rcutils_ret_t ret = rcutils_unload_shared_library(library);
         if (ret != RCUTILS_RET_OK) {
           throw class_loader::LibraryUnloadException(
                   "Attempt to unload library that class_loader is unaware of.");
