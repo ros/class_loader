@@ -83,12 +83,6 @@ LibraryVector & getLoadedLibraryVector()
   return instance;
 }
 
-rcutils_allocator_t & getAllocator()
-{
-  static rcutils_allocator_t allocator = rcutils_get_default_allocator();
-  return allocator;
-}
-
 std::string & getCurrentlyLoadingLibraryNameReference()
 {
   static std::string library_name;
@@ -449,11 +443,7 @@ void loadLibrary(const std::string & library_path, ClassLoader * loader)
     return;
   }
 
-  rcutils_allocator_t allocator = getAllocator();
-
-  rcutils_shared_library_t * library_handle =
-    static_cast<rcutils_shared_library_t *>(allocator.allocate(
-      sizeof(rcutils_shared_library_t), allocator.state));
+  rcutils_shared_library_t * library_handle = new rcutils_shared_library_t;
   assert(library_handle != nullptr);
 
   *library_handle = rcutils_get_zero_initialized_shared_library();
@@ -542,14 +532,12 @@ void unloadLibrary(const std::string & library_path, ClassLoader * loader)
           "removing from loaded library vector.\n",
           library_path.c_str());
 
-        rcutils_allocator_t allocator = getAllocator();
         rcutils_ret_t ret = rcutils_unload_shared_library(library);
         if (ret != RCUTILS_RET_OK) {
           throw class_loader::LibraryUnloadException(
                   "Attempt to unload library that class_loader is unaware of.");
         }
-        allocator.deallocate(library, allocator.state);
-        library = nullptr;
+        delete library;
         itr = open_libraries.erase(itr);
       } else {
         CONSOLE_BRIDGE_logDebug(
