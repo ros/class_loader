@@ -52,6 +52,36 @@ TEST(ClassLoaderUniquePtrTest, basicLoad) {
   try {
     ClassLoader loader1(LIBRARY_1, false);
     loader1.createUniqueInstance<Base>("Cat")->saySomething();  // See if lazy load works
+    ASSERT_NO_THROW(class_loader::impl::printDebugInfoToScreen());
+    SUCCEED();
+  } catch (class_loader::ClassLoaderException & e) {
+    FAIL() << "ClassLoaderException: " << e.what() << "\n";
+  }
+}
+
+TEST(ClassLoaderUniquePtrTest, basicLoadFailures) {
+  ClassLoader loader1(LIBRARY_1, false);
+  ClassLoader loader2("", false);
+  loader2.loadLibrary();
+  EXPECT_THROW(
+    class_loader::impl::loadLibrary("LIBRARY_1", &loader1),
+    class_loader::LibraryLoadException);
+  EXPECT_THROW(
+    class_loader::impl::unloadLibrary("LIBRARY_1", &loader1),
+    class_loader::LibraryUnloadException);
+}
+
+TEST(ClassLoaderUniquePtrTest, MultiLibraryClassLoaderFailures) {
+  class_loader::MultiLibraryClassLoader loader(true);
+  loader.loadLibrary(LIBRARY_1);
+  EXPECT_THROW(loader.createUniqueInstance<Base>("Cat2"), class_loader::ClassLoaderException);
+}
+
+TEST(ClassLoaderUniquePtrTest, LibrariesUsedByClassLoader) {
+  try {
+    ClassLoader loader1(LIBRARY_1, false);
+    std::vector<std::string> v = class_loader::impl::getAllLibrariesUsedByClassLoader(&loader1);
+    ASSERT_EQ(v.size(), 1);
     SUCCEED();
   } catch (class_loader::ClassLoaderException & e) {
     FAIL() << "ClassLoaderException: " << e.what() << "\n";
