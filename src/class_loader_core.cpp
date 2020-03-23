@@ -32,9 +32,9 @@
 
 #include <cassert>
 #include <cstddef>
+#include <memory>
 #include <string>
 #include <vector>
-#include <memory>
 
 namespace class_loader
 {

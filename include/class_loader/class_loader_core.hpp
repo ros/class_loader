@@ -35,12 +35,12 @@
 #include <cstddef>
 #include <cstdio>
 #include <map>
+#include <memory>
 #include <mutex>
 #include <string>
 #include <typeinfo>
 #include <utility>
 #include <vector>
-#include <memory>
 
 // TODO(mikaelarguedas) remove this once console_bridge complies with this
 // see https://github.com/ros/console_bridge/issues/55
