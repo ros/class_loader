@@ -40,6 +40,7 @@
 #include <typeinfo>
 #include <utility>
 #include <vector>
+#include <memory>
 
 // TODO(mikaelarguedas) remove this once console_bridge complies with this
 // see https://github.com/ros/console_bridge/issues/55
@@ -56,7 +57,7 @@
 #include "class_loader/meta_object.hpp"
 #include "class_loader/visibility_control.hpp"
 
-#include "rcutils/shared_library.h"
+#include "rcpputils/shared_library.hpp"
 
 /**
  * @note This header file is the internal implementation of the plugin system which is exposed via the ClassLoader class
@@ -76,7 +77,7 @@ typedef std::string ClassName;
 typedef std::string BaseClassName;
 typedef std::map<ClassName, impl::AbstractMetaObjectBase *> FactoryMap;
 typedef std::map<BaseClassName, FactoryMap> BaseToFactoryMapMap;
-typedef std::pair<LibraryPath, rcutils_shared_library_t *> LibraryPair;
+typedef std::pair<LibraryPath, std::shared_ptr<rcpputils::SharedLibrary>> LibraryPair;
 typedef std::vector<LibraryPair> LibraryVector;
 typedef std::vector<AbstractMetaObjectBase *> MetaObjectVector;
 

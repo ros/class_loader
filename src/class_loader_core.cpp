@@ -34,6 +34,7 @@
 #include <cstddef>
 #include <string>
 #include <vector>
+#include <memory>
 
 namespace class_loader
 {
@@ -443,10 +444,7 @@ void loadLibrary(const std::string & library_path, ClassLoader * loader)
     return;
   }
 
-  rcutils_shared_library_t * library_handle = new rcutils_shared_library_t;
-  assert(library_handle != nullptr);
-
-  *library_handle = rcutils_get_zero_initialized_shared_library();
+  std::shared_ptr<rcpputils::SharedLibrary> library_handle;
 
   static std::recursive_mutex loader_mutex;
 
@@ -455,11 +453,12 @@ void loadLibrary(const std::string & library_path, ClassLoader * loader)
 
     setCurrentlyActiveClassLoader(loader);
     setCurrentlyLoadingLibraryName(library_path);
-    rcutils_ret_t ret = rcutils_load_shared_library(library_handle, library_path.c_str());
-    if (ret != RCUTILS_RET_OK) {
+    try {
+      library_handle = std::make_shared<rcpputils::SharedLibrary>(library_path.c_str());
+    } catch (const std::runtime_error & e) {
       setCurrentlyLoadingLibraryName("");
       setCurrentlyActiveClassLoader(nullptr);
-      throw class_loader::LibraryLoadException("Could not load library " + library_path);
+      throw class_loader::LibraryLoadException("Could not load library " + std::string(e.what()));
     }
 
     setCurrentlyLoadingLibraryName("");
@@ -470,7 +469,7 @@ void loadLibrary(const std::string & library_path, ClassLoader * loader)
   CONSOLE_BRIDGE_logDebug(
     "class_loader.impl: "
     "Successfully loaded library %s into memory (handle = %p).",
-    library_path.c_str(), reinterpret_cast<rcutils_shared_library_t *>(&library_handle));
+    library_path.c_str(), library_handle);
 
   // Graveyard scenario
   size_t num_lib_objs = allMetaObjectsForLibrary(library_path).size();
@@ -520,7 +519,7 @@ void unloadLibrary(const std::string & library_path, ClassLoader * loader)
     LibraryVector & open_libraries = getLoadedLibraryVector();
     LibraryVector::iterator itr = findLoadedLibrary(library_path);
     if (itr != open_libraries.end()) {
-      rcutils_shared_library_t * library = itr->second;
+      auto library = itr->second;
       std::string library_path = itr->first;
       destroyMetaObjectsForLibrary(library_path, loader);
 
@@ -532,12 +531,7 @@ void unloadLibrary(const std::string & library_path, ClassLoader * loader)
           "removing from loaded library vector.\n",
           library_path.c_str());
 
-        rcutils_ret_t ret = rcutils_unload_shared_library(library);
-        if (ret != RCUTILS_RET_OK) {
-          throw class_loader::LibraryUnloadException(
-                  "Attempt to unload library that class_loader is unaware of.");
-        }
-        delete library;
+        library.reset();
         itr = open_libraries.erase(itr);
       } else {
         CONSOLE_BRIDGE_logDebug(
@@ -569,7 +563,7 @@ void printDebugInfoToScreen()
   for (size_t c = 0; c < libs.size(); c++) {
     printf(
       "Open library %zu = %s (handle = %p)\n",
-      c, (libs.at(c)).first.c_str(), reinterpret_cast<void *>((libs.at(c)).second));
+      c, (libs.at(c)).first.c_str(), reinterpret_cast<void *>((libs.at(c)).second.get()));
   }
 
   printf("METAOBJECTS (i.e. FACTORIES) IN MEMORY:\n");
