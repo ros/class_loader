@@ -459,6 +459,10 @@ void loadLibrary(const std::string & library_path, ClassLoader * loader)
       setCurrentlyLoadingLibraryName("");
       setCurrentlyActiveClassLoader(nullptr);
       throw class_loader::LibraryLoadException("Could not load library " + std::string(e.what()));
+    } catch (const std::bad_alloc & e) {
+      setCurrentlyLoadingLibraryName("");
+      setCurrentlyActiveClassLoader(nullptr);
+      throw class_loader::LibraryLoadException("Bad alloc " + std::string(e.what()));
     }
 
     setCurrentlyLoadingLibraryName("");
