@@ -473,7 +473,7 @@ void loadLibrary(const std::string & library_path, ClassLoader * loader)
   CONSOLE_BRIDGE_logDebug(
     "class_loader.impl: "
     "Successfully loaded library %s into memory (handle = %p).",
-    library_path.c_str(), library_handle);
+    library_path.c_str(), reinterpret_cast<void *>(library_handle.get()));
 
   // Graveyard scenario
   size_t num_lib_objs = allMetaObjectsForLibrary(library_path).size();
