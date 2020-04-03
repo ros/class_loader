@@ -13,14 +13,15 @@
   <author>Mirza Shah</author>
   <author>Dirk Thomas</author>
 
-  <buildtool_depend>ament_cmake</buildtool_depend>
-
   <build_depend>console_bridge_vendor</build_depend>
   <build_depend>libconsole-bridge-dev</build_depend>
-  <depend>rcpputils</depend>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
 
   <exec_depend>console_bridge_vendor</exec_depend>
   <exec_depend>libconsole-bridge-dev</exec_depend>
+
+  <depend>rcpputils</depend>
 
   <test_depend>ament_cmake_gtest</test_depend>
   <test_depend>ament_lint_auto</test_depend>
