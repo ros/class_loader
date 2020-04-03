@@ -46,30 +46,9 @@ void ClassLoader::setUnmanagedInstanceBeenCreated(bool state)
   ClassLoader::has_unmananged_instance_been_created_ = state;
 }
 
-std::string systemLibraryPrefix()
-{
-#ifndef _WIN32
-  return "lib";
-#endif
-  return "";
-}
-
-std::string systemLibrarySuffix()
-{
-#ifdef __linux__
-  return ".so";
-#elif __APPLE__
-  return ".dylib";
-#elif _WIN32
-  return ".dll";
-#else
-  #error "Unsupported OS, dynamic library suffix is unknown."
-#endif
-}
-
 std::string systemLibraryFormat(const std::string & library_name)
 {
-  return systemLibraryPrefix() + library_name + systemLibrarySuffix();
+  return rcpputils::get_platform_library_name(library_name);
 }
 
 ClassLoader::ClassLoader(const std::string & library_path, bool ondemand_load_unload)
