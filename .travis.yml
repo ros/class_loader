@@ -43,7 +43,7 @@ script:
   - git clone https://github.com/ament/googletest.git
   - git clone https://github.com/ament/uncrustify_vendor.git
   - cd $AMENT_WS_SRC/osrf
-  - https://github.com/osrf/osrf_testing_tools_cpp.git
+  - git clone https://github.com/osrf/osrf_testing_tools_cpp.git
   - cd $AMENT_WS_SRC/ros2
   - git clone https://github.com/ros2/ament_cmake_ros.git
   - git clone https://github.com/ros2/console_bridge_vendor.git

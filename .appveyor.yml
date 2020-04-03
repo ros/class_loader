@@ -32,7 +32,7 @@ install:
   - cd ..
   - mkdir osrf
   - cd osrf
-  - https://github.com/osrf/osrf_testing_tools_cpp.git
+  - git clone https://github.com/osrf/osrf_testing_tools_cpp.git
   - cd ..
   - mkdir ros2
   - cd ros2
