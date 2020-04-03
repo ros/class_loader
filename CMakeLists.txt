@@ -44,7 +44,6 @@ else()
     PUBLIC include ${console_bridge_INCLUDE_DIRS})
   target_link_libraries(${PROJECT_NAME} ${console_bridge_LIBRARIES})
 endif()
-target_link_libraries(${PROJECT_NAME} ${console_bridge_LIBRARIES})
 if(WIN32)
   # Causes the visibility macros to use dllexport rather than dllimport
   # which is appropriate when building the dll but not consuming it.
