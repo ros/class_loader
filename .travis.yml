@@ -3,7 +3,7 @@ language: generic
 os:
   - linux
   - osx
-dist: xenial
+dist: bionic
 env:
   global:
     - AMENT_WS=~/ament_ws
