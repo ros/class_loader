@@ -525,26 +525,31 @@ void unloadLibrary(const std::string & library_path, ClassLoader * loader)
     if (itr != open_libraries.end()) {
       auto library = itr->second;
       std::string library_path = itr->first;
-      destroyMetaObjectsForLibrary(library_path, loader);
+      try {
+        destroyMetaObjectsForLibrary(library_path, loader);
 
-      // Remove from loaded library list as well if no more factories associated with said library
-      if (!areThereAnyExistingMetaObjectsForLibrary(library_path)) {
-        CONSOLE_BRIDGE_logDebug(
-          "class_loader.impl: "
-          "There are no more MetaObjects left for %s so unloading library and "
-          "removing from loaded library vector.\n",
-          library_path.c_str());
+        // Remove from loaded library list as well if no more factories associated with said library
+        if (!areThereAnyExistingMetaObjectsForLibrary(library_path)) {
+          CONSOLE_BRIDGE_logDebug(
+            "class_loader.impl: "
+            "There are no more MetaObjects left for %s so unloading library and "
+            "removing from loaded library vector.\n",
+            library_path.c_str());
 
-        library.reset();
-        itr = open_libraries.erase(itr);
-      } else {
-        CONSOLE_BRIDGE_logDebug(
-          "class_loader.impl: "
-          "MetaObjects still remain in memory meaning other ClassLoaders are still using library"
-          ", keeping library %s open.",
-          library_path.c_str());
+          library->unload_library();
+          itr = open_libraries.erase(itr);
+        } else {
+          CONSOLE_BRIDGE_logDebug(
+            "class_loader.impl: "
+            "MetaObjects still remain in memory meaning other ClassLoaders are still using library"
+            ", keeping library %s open.",
+            library_path.c_str());
+        }
+        return;
+      } catch (const std::runtime_error & e) {
+        throw class_loader::LibraryUnloadException(
+                "Could not unload library (Poco exception = " + std::string(e.what()) + ")");
       }
-      return;
     }
     throw class_loader::LibraryUnloadException(
             "Attempt to unload library that class_loader is unaware of.");
