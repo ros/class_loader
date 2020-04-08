@@ -30,10 +30,18 @@ install:
   - git clone https://github.com/ament/googletest.git
   - git clone https://github.com/ament/uncrustify_vendor.git
   - cd ..
+  - mkdir osrf
+  - cd osrf
+  - git clone https://github.com/osrf/osrf_testing_tools_cpp.git
+  - cd ..
   - mkdir ros2
   - cd ros2
+  - git clone https://github.com/ros2/ament_cmake_ros.git
   - git clone https://github.com/ros2/console_bridge_vendor.git
-  - git clone https://github.com/ros2/poco_vendor.git
+  - git clone https://github.com/ros2/launch.git
+  - git clone https://github.com/ros2/python_cmake_module.git
+  - git clone https://github.com/ros2/rcutils.git
+  - git clone https://github.com/ros2/rcpputils.git
   - cd ..\..\..
   - call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat" x86_amd64
   - set "PATH=%PATH%;C:\Python37;C:\Python37\Scripts"

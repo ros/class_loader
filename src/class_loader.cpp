@@ -29,8 +29,6 @@
 
 #include "class_loader/class_loader.hpp"
 
-#include <Poco/SharedLibrary.h>
-
 #include <string>
 
 namespace class_loader
@@ -48,33 +46,9 @@ void ClassLoader::setUnmanagedInstanceBeenCreated(bool state)
   ClassLoader::has_unmananged_instance_been_created_ = state;
 }
 
-std::string systemLibraryPrefix()
-{
-#ifndef _WIN32
-  return "lib";
-#endif
-  return "";
-}
-
-std::string systemLibrarySuffix()
-{
-// Poco should be compiled with `#define POCO_NO_SHARED_LIBRARY_DEBUG_SUFFIX`
-// to automatically remove the trailing `d` from the shared library suffix
-//   return Poco::SharedLibrary::suffix();
-#ifdef __linux__
-  return ".so";
-#elif __APPLE__
-  return ".dylib";
-#elif _WIN32
-  return ".dll";
-#else
-  return Poco::SharedLibrary::suffix();
-#endif
-}
-
 std::string systemLibraryFormat(const std::string & library_name)
 {
-  return systemLibraryPrefix() + library_name + systemLibrarySuffix();
+  return rcpputils::get_platform_library_name(library_name);
 }
 
 ClassLoader::ClassLoader(const std::string & library_path, bool ondemand_load_unload)
