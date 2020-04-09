@@ -18,12 +18,12 @@ endif()
 
 find_package(console_bridge_vendor REQUIRED) # Provides console_bridge 0.4.0 on platforms without it.
 find_package(console_bridge REQUIRED)
-
-find_package(rcpputils REQUIRED)
+find_package(poco_vendor REQUIRED)  # Provides FindPoco.cmake and Poco on platforms without it.
+find_package(Poco REQUIRED COMPONENTS Foundation)
+link_directories(${Poco_LIBRARY_DIR})
 
 if(ament_cmake_FOUND)
   ament_export_dependencies(console_bridge)
-  ament_export_dependencies(rcpputils)
   ament_export_include_directories(include)
 endif()
 
@@ -37,12 +37,12 @@ add_library(${PROJECT_NAME} SHARED ${${PROJECT_NAME}_SRCS})
 if(ament_cmake_FOUND)
   target_include_directories(${PROJECT_NAME}
     PUBLIC include)
-  ament_target_dependencies(${PROJECT_NAME} "console_bridge" "rcpputils")
+  ament_target_dependencies(${PROJECT_NAME} "console_bridge" "Poco")
   ament_export_libraries(${PROJECT_NAME})
 else()
   target_include_directories(${PROJECT_NAME}
-    PUBLIC include ${console_bridge_INCLUDE_DIRS})
-  target_link_libraries(${PROJECT_NAME} ${console_bridge_LIBRARIES})
+    PUBLIC include ${console_bridge_INCLUDE_DIRS} ${Poco_INCLUDE_DIRS})
+  target_link_libraries(${PROJECT_NAME} ${console_bridge_LIBRARIES} ${Poco_LIBRARIES})
 endif()
 if(WIN32)
   # Causes the visibility macros to use dllexport rather than dllimport
@@ -77,6 +77,7 @@ else()
   set(TARGET_NAME ${PROJECT_NAME})
   set(PKGCONFIG_LIBS
     ${console_bridge_LIBRARIES}
+    ${Poco_LIBRARIES}
   )
 
   # Prepare and install necessary files to support finding of the library

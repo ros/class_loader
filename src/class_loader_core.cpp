@@ -30,9 +30,10 @@
 #include "class_loader/class_loader_core.hpp"
 #include "class_loader/class_loader.hpp"
 
+#include <Poco/SharedLibrary.h>
+
 #include <cassert>
 #include <cstddef>
-#include <memory>
 #include <string>
 #include <vector>
 
@@ -295,7 +296,7 @@ bool isLibraryLoadedByAnybody(const std::string & library_path)
   LibraryVector::iterator itr = findLoadedLibrary(library_path);
 
   if (itr != open_libraries.end()) {
-    assert(itr->second != nullptr);  // Ensure that the library is loaded
+    assert(itr->second->isLoaded() == true);  // Ensure Poco actually thinks the library is loaded
     return true;
   } else {
     return false;
@@ -444,25 +445,31 @@ void loadLibrary(const std::string & library_path, ClassLoader * loader)
     return;
   }
 
-  std::shared_ptr<rcpputils::SharedLibrary> library_handle;
-
+  Poco::SharedLibrary * library_handle = nullptr;
   static std::recursive_mutex loader_mutex;
 
   {
     std::lock_guard<std::recursive_mutex> loader_lock(loader_mutex);
 
-    setCurrentlyActiveClassLoader(loader);
-    setCurrentlyLoadingLibraryName(library_path);
     try {
-      library_handle = std::make_shared<rcpputils::SharedLibrary>(library_path.c_str());
-    } catch (const std::runtime_error & e) {
+      setCurrentlyActiveClassLoader(loader);
+      setCurrentlyLoadingLibraryName(library_path);
+      library_handle = new Poco::SharedLibrary(library_path);
+    } catch (const Poco::LibraryLoadException & e) {
       setCurrentlyLoadingLibraryName("");
       setCurrentlyActiveClassLoader(nullptr);
-      throw class_loader::LibraryLoadException("Could not load library " + std::string(e.what()));
-    } catch (const std::bad_alloc & e) {
+      throw class_loader::LibraryLoadException(
+              "Could not load library (Poco exception = " + std::string(e.message()) + ")");
+    } catch (const Poco::LibraryAlreadyLoadedException & e) {
       setCurrentlyLoadingLibraryName("");
       setCurrentlyActiveClassLoader(nullptr);
-      throw class_loader::LibraryLoadException("Bad alloc " + std::string(e.what()));
+      throw class_loader::LibraryLoadException(
+              "Library already loaded (Poco exception = " + std::string(e.message()) + ")");
+    } catch (const Poco::NotFoundException & e) {
+      setCurrentlyLoadingLibraryName("");
+      setCurrentlyActiveClassLoader(nullptr);
+      throw class_loader::LibraryLoadException(
+              "Library not found (Poco exception = " + std::string(e.message()) + ")");
     }
 
     setCurrentlyLoadingLibraryName("");
@@ -472,8 +479,8 @@ void loadLibrary(const std::string & library_path, ClassLoader * loader)
   assert(library_handle != nullptr);
   CONSOLE_BRIDGE_logDebug(
     "class_loader.impl: "
-    "Successfully loaded library %s into memory (handle = %p).",
-    library_path.c_str(), reinterpret_cast<void *>(library_handle.get()));
+    "Successfully loaded library %s into memory (Poco::SharedLibrary handle = %p).",
+    library_path.c_str(), reinterpret_cast<void *>(library_handle));
 
   // Graveyard scenario
   size_t num_lib_objs = allMetaObjectsForLibrary(library_path).size();
@@ -523,7 +530,7 @@ void unloadLibrary(const std::string & library_path, ClassLoader * loader)
     LibraryVector & open_libraries = getLoadedLibraryVector();
     LibraryVector::iterator itr = findLoadedLibrary(library_path);
     if (itr != open_libraries.end()) {
-      auto library = itr->second;
+      Poco::SharedLibrary * library = itr->second;
       std::string library_path = itr->first;
       try {
         destroyMetaObjectsForLibrary(library_path, loader);
@@ -535,8 +542,9 @@ void unloadLibrary(const std::string & library_path, ClassLoader * loader)
             "There are no more MetaObjects left for %s so unloading library and "
             "removing from loaded library vector.\n",
             library_path.c_str());
-
-          library->unload_library();
+          library->unload();
+          assert(library->isLoaded() == false);
+          delete (library);
           itr = open_libraries.erase(itr);
         } else {
           CONSOLE_BRIDGE_logDebug(
@@ -546,9 +554,10 @@ void unloadLibrary(const std::string & library_path, ClassLoader * loader)
             library_path.c_str());
         }
         return;
-      } catch (const std::runtime_error & e) {
+      } catch (const Poco::RuntimeException & e) {
+        delete (library);
         throw class_loader::LibraryUnloadException(
-                "Could not unload library (Poco exception = " + std::string(e.what()) + ")");
+                "Could not unload library (Poco exception = " + std::string(e.message()) + ")");
       }
     }
     throw class_loader::LibraryUnloadException(
@@ -571,8 +580,8 @@ void printDebugInfoToScreen()
   LibraryVector libs = getLoadedLibraryVector();
   for (size_t c = 0; c < libs.size(); c++) {
     printf(
-      "Open library %zu = %s (handle = %p)\n",
-      c, (libs.at(c)).first.c_str(), reinterpret_cast<void *>((libs.at(c)).second.get()));
+      "Open library %zu = %s (Poco SharedLibrary handle = %p)\n",
+      c, (libs.at(c)).first.c_str(), reinterpret_cast<void *>((libs.at(c)).second));
   }
 
   printf("METAOBJECTS (i.e. FACTORIES) IN MEMORY:\n");

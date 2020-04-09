@@ -29,7 +29,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-// Note: This header defines a simplication of a shared library
+// Note: This header defines a simplication of Poco::MetaObject
+// that allows us to tag MetaObjects with an associated library name.
 
 #ifndef CLASS_LOADER__META_OBJECT_HPP_
 #define CLASS_LOADER__META_OBJECT_HPP_
