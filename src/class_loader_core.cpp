@@ -498,7 +498,7 @@ void loadLibrary(const std::string & library_path, ClassLoader * loader)
   // Insert library into global loaded library vectory
   std::lock_guard<std::recursive_mutex> llv_lock(getLoadedLibraryVectorMutex());
   LibraryVector & open_libraries = getLoadedLibraryVector();
-  // Note: Poco::SharedLibrary automatically calls load() when library passed to constructor
+  // Note: rcpputils::SharedLibrary automatically calls load() when library passed to constructor
   open_libraries.push_back(LibraryPair(library_path, library_handle));
 }
 
@@ -548,7 +548,7 @@ void unloadLibrary(const std::string & library_path, ClassLoader * loader)
         return;
       } catch (const std::runtime_error & e) {
         throw class_loader::LibraryUnloadException(
-                "Could not unload library (Poco exception = " + std::string(e.what()) + ")");
+                "Could not unload library (rcpputils exception = " + std::string(e.what()) + ")");
       }
     }
     throw class_loader::LibraryUnloadException(
