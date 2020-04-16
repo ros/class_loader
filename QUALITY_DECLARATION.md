@@ -16,6 +16,10 @@ Below are the rationales, notes, and caveats for this claim, organized by each r
 
 ### Public API Declaration [1.iii]
 
+All symbols in the installed headers are considered part of the public API.
+
+All installed headers are in the `include` directory of the package, headers in any other folders are not installed and considered private.
+
 ### API Stability Within a Released ROS Distribution [1.iv]/[1.vi]
 
 `class_loader` will not break public API within a released ROS distribution, i.e. no major releases once the ROS distribution is released.
@@ -23,12 +27,6 @@ Below are the rationales, notes, and caveats for this claim, organized by each r
 ### ABI Stability Within a Released ROS Distribution [1.v]/[1.vi]
 
 `class_loader` will maintain ABI stability within a ROS distribution.
-
-### Public API Declaration
-
-All symbols in the installed headers are considered part of the public API.
-
-All installed headers are in the `include` directory of the package, headers in any other folders are not installed and considered private.
 
 ## Change Control Process [2]
 
