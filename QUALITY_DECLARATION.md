@@ -2,17 +2,19 @@ This document is a declaration of software quality for the `class_loader` packag
 
 # `class_loader` Quality Declaration
 
-The package `class_loader` claims to be in the **Quality Level 1** category.
+The package `class_loader` claims to be in the **Quality Level 2** category.
 
-Below are the rationales, notes, and caveats for this claim, organized by each requirement listed in the [Package Requirements for Quality Level 1 in REP-2004](https://www.ros.org/reps/rep-2004.html).
+Below are the rationales, notes, and caveats for this claim, organized by each requirement listed in the [Package Requirements for Quality Level 2 in REP-2004](https://www.ros.org/reps/rep-2004.html).
 
 ## Version Policy [1]
 
 ### Version Scheme [1.i]
 
-`class_loader` uses `semver` according to the recommendation for ROS Core packages in the [ROS 2 Developer Guide](https://index.ros.org/doc/ros2/Contributing/Developer-Guide/#versioning), and is at or above a stable version. **The current version is 1.4.0**.
+`class_loader` uses `semver` according to the recommendation for ROS Core packages in the [ROS 2 Developer Guide](https://index.ros.org/doc/ros2/Contributing/Developer-Guide/#versioning), and is at or above a stable version.
 
 ### Version Stability [1.ii]
+
+The current version is 1.4.0.
 
 ### Public API Declaration [1.iii]
 
@@ -34,19 +36,25 @@ All installed headers are in the `include` directory of the package, headers in 
 
 ### Change Requests [2.i]
 
-All changes occur through a pull request
+This package requires that all changes occurr through a pull request.
 
 ### Contributor Origin [2.ii]
 
-Must have confirmation of contributor origin (e.g. DCO, CLA, etc.).
+This package has a confirmation of contributor origin policy, which can be found in [CONTRIBUTING](./CONTRIBUTING.md).
 
 ### Peer Review Policy [2.iii]
 
-All pull request have two peer reviews
+Following the recommended guidelines for ROS Core packages, all pull request have at least 1 peer review.
 
 ### Continuous Integration [2.iv]
 
-all pull request must pass CI on all [tier 1 platforms](https://www.ros.org/reps/rep-2000.html#support-tiers)
+All pull request must pass CI on all [tier 1 platforms](https://www.ros.org/reps/rep-2000.html#support-tiers)
+
+Currently nightly results can be seen here:
+* [linux-aarch64_release](https://ci.ros2.org/view/nightly/job/nightly_linux-aarch64_release/lastBuild/testReport/class_loader/)
+* [linux-arm64_release](https://ci.ros2.org/view/nightly/job/nightly_linux_release/lastBuild/testReport/class_loader/)
+* [mac_osx_release](https://ci.ros2.org/view/nightly/job/nightly_osx_release/lastBuild/testReport/class_loader/)
+* [windows_release](https://ci.ros2.org/view/nightly/job/nightly_win_rel/lastBuild/testReport/class_loader/)
 
 ### Documentation Policy [2.v]
 
@@ -66,7 +74,7 @@ There is documentation for all of the public API, and new additions to the publi
 
 ### License [3.iii]
 
-The license for `class_loader` is BSD-3-Clause, and a summary is in each source file, the type is declared in the `package.xml` manifest file, and a full copy of the license is in the [LICENSE](./LICENSE) file.
+The license for `class_loader` is BSD-3-Clause, and a summary is in each source file, the type is declared in the [package.xml](./package.xml) manifest file, and a full copy of the license is in the [LICENSE](./LICENSE) file.
 
 There is an automated test which runs a linter (ament_copyright) that ensures each file has a license statement.
 
@@ -76,12 +84,19 @@ The copyright holders each provide a statement of copyright in each source code 
 
 There is an automated test which runs a linter (ament_copyright) that ensures each file has at least one copyright statement.
 
+Most recent test results can be found [here](http://build.ros2.org/view/Epr/job/Epr__class_loader__ubuntu_bionic_amd64/lastBuild/testReport/class_loader/copyright_check_tests_only/)
+
 ## Testing [4]
 
 ### Feature Testing [4.i]
 
 Each feature in `class_loader` has corresponding tests which simulate typical usage, and they are located in the `test` directory.
-New features are required to have tests before being added.
+
+Currently nightly results can be seen here:
+* [linux-aarch64_release](https://ci.ros2.org/view/nightly/job/nightly_linux-aarch64_release/lastBuild/testReport/class_loader/)
+* [linux-arm64_release](https://ci.ros2.org/view/nightly/job/nightly_linux_release/lastBuild/testReport/class_loader/)
+* [mac_osx_release](https://ci.ros2.org/view/nightly/job/nightly_osx_release/lastBuild/testReport/class_loader/)
+* [windows_release](https://ci.ros2.org/view/nightly/job/nightly_win_rel/lastBuild/testReport/class_loader/)
 
 ### Public API Testing [4.ii]
 
@@ -94,19 +109,17 @@ The tests aim to cover both typical usage and corner cases, but are quantified b
 
 This includes:
 
-- tracking and reporting branch coverage statistics
-- achieving and maintaining branch coverage at or above 95%
+- tracking and reporting line coverage statistics
+- achieving and maintaining a reasonable branch line coverage (90-100%)
 - no lines are manually skipped in coverage calculations
 
 Changes are required to make a best effort to keep or increase coverage before being accepted, but decreases are allowed if properly justified and accepted by reviewers.
 
-Current coverage statistics can be viewed here:
-
-![](https://codecov.io/gh/ahcorde/class_loader/branch/ahcorde_code_coverage/graphs/sunburst.svg)
+Current coverage statistics can be viewed [here](https://ci.ros2.org/job/ci_linux_coverage/lastBuild/cobertura/).
 
 ### Performance [4.iv]
 
-`class_loader` follows the recommendations for performance testing of C++ code in the [ROS 2 Developer Guide](https://index.ros.org/doc/ros2/Contributing/Developer-Guide/#performance-testing), and opts to do performance analysis on each release rather than each change.
+`class_loader` does not currently have performance tests.
 
 ### Linters and Static Analysis [4.v]
 
@@ -114,9 +127,9 @@ Current coverage statistics can be viewed here:
 
 ## Dependencies [5]
 
-### Direct Runtime ROS Dependencies [5.i]
+### Direct Runtime ROS Dependencies [5.i/5.ii]
 
-### Optional Direct Runtime ROS Dependencies [5.ii]
+`rosidl_typesupport_cpp` does not have any runtime ROS 2 dependencies.
 
 ### Direct Runtime non-ROS Dependency [5.iii]
 
@@ -132,4 +145,56 @@ It also has several test dependencies, which do not affect the resulting quality
 
 `class_loader` supports all of the tier 1 platforms as described in [REP-2000](https://www.ros.org/reps/rep-2000.html#support-tiers), and tests each change against all of them.
 
-TODO make additional statements about non-tier 1 platforms?
+Currently nightly results can be seen here:
+* [linux-aarch64_release](https://ci.ros2.org/view/nightly/job/nightly_linux-aarch64_release/lastBuild/testReport/class_loader/)
+* [linux-arm64_release](https://ci.ros2.org/view/nightly/job/nightly_linux_release/lastBuild/testReport/class_loader/)
+* [mac_osx_release](https://ci.ros2.org/view/nightly/job/nightly_osx_release/lastBuild/testReport/class_loader/)
+* [windows_release](https://ci.ros2.org/view/nightly/job/nightly_win_rel/lastBuild/testReport/class_loader/)
+
+## Vulnerability Disclosure Policy [7.i]
+
+This package does not yet have a Vulnerability Disclosure Policy
+
+# Current status Summary
+
+The chart below compares the requirements in the REP-2004 with the current state of the rcutils package.
+
+|Number|  Requirement| Current state |
+|--|--|--|
+|1| **Version policy** |---|
+|1.i|Version Policy available | ✓ |
+|1.ii|Stable version |✓|
+|1.iii|Declared public API|✓|
+|1.iv|API stability policy|✓|
+|1.v|ABI stability policy|✓|
+|1.vi_|API/ABI stable within ros distribution|✓|
+|2| **Change control process** |---|
+|2.i| All changes occur on change request | ✓|
+|2.ii| Contributor origin (DCO, CLA, etc) | ✓|
+|2.iii| Peer review policy | ✓ |
+|2.iv| CI policy for change requests | ✓ |
+|2.v| Documentation policy for change requests | ☓ |
+|3| **Documentation** | --- |
+|3.i| Per feature documentation | ✓ |
+|3.ii| Per public API item documentation | ✓ |
+|3.iii| Declared License(s) | ✓ |
+|3.iv| Copyright in source files| ✓ |
+|3.v.a| Quality declaration linked to README | ✓ |
+|3.v.b| Centralized declaration available for peer review |✓|
+|4| Testing | --- |
+|4.i| Feature items tests | ✓ |
+|4.ii| Public API tests | ✓ |
+|4.iii.a| Using coverage |✓ |
+|4.iii.a| Coverage policy | ✓ |
+|4.iv.a| Performance tests (if applicable) | ? |
+|4.iv.b| Performance tests policy| ✓ |
+|4.v.a| Code style enforcement (linters)| ✓ |
+|4.v.b| Use of static analysis tools | ✓ |
+|5| Dependencies | --- |
+|5.i| Must not have ROS lower level dependencies | ✓ |
+|5.ii| Optional ROS lower level dependencies| ✓ |
+|5.iii| Justifies quality use of non-ROS dependencies |✓|
+|6| Platform support | --- |
+|6.i| Support targets Tier1 ROS platforms| ✓ |
+|7| Security | --- |
+|7.i| Vulnerability Disclosure Policy | ? |
