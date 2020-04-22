@@ -10,10 +10,10 @@ add_executable(${PROJECT_NAME}_Test_Fviz_Main EXCLUDE_FROM_ALL fviz_main.cpp)
 if(ament_cmake_FOUND)
   target_include_directories(${PROJECT_NAME}_Test_Fviz_Main
     PUBLIC "../include")
-  ament_target_dependencies(${PROJECT_NAME}_Test_Fviz_Main "console_bridge" "Poco")
+  ament_target_dependencies(${PROJECT_NAME}_Test_Fviz_Main "console_bridge")
 else()
   target_include_directories(${PROJECT_NAME}_Test_Fviz_Main
-    PUBLIC "../include" ${console_bridge_INCLUDE_DIRS} ${Poco_INCLUDE_DIRS})
+    PUBLIC "../include" ${console_bridge_INCLUDE_DIRS})
 endif()
 target_link_libraries(${PROJECT_NAME}_Test_Fviz_Main
   ${PROJECT_NAME} ${PROJECT_NAME}_Test_Fviz)
@@ -21,7 +21,7 @@ target_link_libraries(${PROJECT_NAME}_Test_Fviz_Main
 add_library(${PROJECT_NAME}_Test_FvizDefaultPlugin
   EXCLUDE_FROM_ALL SHARED fviz_default_plugin.cpp)
 target_include_directories(${PROJECT_NAME}_Test_FvizDefaultPlugin
-  PUBLIC "../include" ${console_bridge_INCLUDE_DIRS} ${Poco_INCLUDE_DIRS})
+  PUBLIC "../include" ${console_bridge_INCLUDE_DIRS})
 target_link_libraries(${PROJECT_NAME}_Test_FvizDefaultPlugin
   ${PROJECT_NAME} ${PROJECT_NAME}_Test_Fviz)
 class_loader_hide_library_symbols(${PROJECT_NAME}_Test_FvizDefaultPlugin)
@@ -39,11 +39,11 @@ if(TARGET ${PROJECT_NAME}_fviz_test)
   if(ament_cmake_FOUND)
     target_include_directories(${PROJECT_NAME}_fviz_test
       PUBLIC "../include")
-    ament_target_dependencies(${PROJECT_NAME}_fviz_test "console_bridge" "Poco")
+    ament_target_dependencies(${PROJECT_NAME}_fviz_test "console_bridge")
   else()
     target_include_directories(${PROJECT_NAME}_fviz_test
-      PUBLIC "../include" ${console_bridge_INCLUDE_DIRS} ${Poco_INCLUDE_DIRS})
-    target_link_libraries(${PROJECT_NAME}_fviz_test ${Poco_LIBRARIES})
+      PUBLIC "../include" ${console_bridge_INCLUDE_DIRS})
+    target_link_libraries(${PROJECT_NAME}_fviz_test)
   endif()
   target_link_libraries(${PROJECT_NAME}_fviz_test
     ${PROJECT_NAME} ${PROJECT_NAME}_Test_Fviz)
