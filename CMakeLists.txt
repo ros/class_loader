@@ -34,14 +34,17 @@ set(${PROJECT_NAME}_SRCS
   src/multi_library_class_loader.cpp
 )
 add_library(${PROJECT_NAME} SHARED ${${PROJECT_NAME}_SRCS})
+target_include_directories(${PROJECT_NAME} PUBLIC
+  "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
+  "$<INSTALL_INTERFACE:include>")
+
 if(ament_cmake_FOUND)
-  target_include_directories(${PROJECT_NAME}
-    PUBLIC include)
   ament_target_dependencies(${PROJECT_NAME} "console_bridge" "rcpputils")
   ament_export_libraries(${PROJECT_NAME})
+  ament_export_targets(${PROJECT_NAME})
 else()
   target_include_directories(${PROJECT_NAME}
-    PUBLIC include ${console_bridge_INCLUDE_DIRS})
+    PUBLIC ${console_bridge_INCLUDE_DIRS})
   target_link_libraries(${PROJECT_NAME} ${console_bridge_LIBRARIES})
 endif()
 if(WIN32)
@@ -89,7 +92,7 @@ else()
   install(FILES "${CMAKE_BINARY_DIR}/${PROJECT_NAME}.pc" DESTINATION lib/pkgconfig)
 endif()
 
-install(TARGETS ${PROJECT_NAME}
+install(TARGETS ${PROJECT_NAME} EXPORT ${PROJECT_NAME}
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION bin)
