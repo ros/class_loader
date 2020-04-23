@@ -44,11 +44,11 @@ This package has a confirmation of contributor origin policy, which can be found
 
 ### Peer Review Policy [2.iii]
 
-Following the recommended guidelines for ROS Core packages, all pull request have at least 1 peer review.
+Following the recommended guidelines for ROS Core packages, all pull requests must have at least 1 peer review.
 
 ### Continuous Integration [2.iv]
 
-All pull request must pass CI on all [tier 1 platforms](https://www.ros.org/reps/rep-2000.html#support-tiers)
+All pull requests must pass CI on all [tier 1 platforms](https://www.ros.org/reps/rep-2000.html#support-tiers)
 
 Currently nightly results can be seen here:
 * [linux-aarch64_release](https://ci.ros2.org/view/nightly/job/nightly_linux-aarch64_release/lastBuild/testReport/class_loader/)
@@ -58,7 +58,7 @@ Currently nightly results can be seen here:
 
 ### Documentation Policy [2.v]
 
-All pull request must resolve related documentation changes before merging
+All pull requests must resolve related documentation changes before merging
 
 ## Documentation [3]
 
@@ -127,15 +127,15 @@ Current coverage statistics can be viewed [here](https://ci.ros2.org/job/ci_linu
 
 ## Dependencies [5]
 
-### Direct Runtime ROS Dependencies [5.i/5.ii]
+`class_loader` has run-time and build-time dependencies that need to be considered for this declaration.
 
-`rosidl_typesupport_cpp` does not have any runtime ROS 2 dependencies.
+### Direct Runtime ROS Dependencies [5.i]/[5.ii]
+
+- console_bridge_vendor
+- rcpputils
 
 ### Direct Runtime non-ROS Dependency [5.iii]
 
-`class_loader` has run-time and build-time dependencies that need to be considered for this declaration.
-
- - console_bridge_vendor
  - libconsole-bridge-dev
 
 It has one "buildtool" dependency, which do not affect the resulting quality of the package, because they do not contribute to the public library API.
