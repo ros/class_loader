@@ -64,13 +64,12 @@ All pull requests must resolve related documentation changes before merging
 
 ### Feature Documentation [3.i]
 
-`class_loader` has a [feature list](http://wiki.ros.org/class_loader) and each item in the list links to the corresponding feature documentation.
+There is no current ROS 2 feature list, but the feature list for ROS 1 can be found [here](http://wiki.ros.org/class_loader) and each item in the list links to the corresponding feature documentation.
 There is documentation for all of the features, and new features require documentation before being added.
 
 ### Public API Documentation [3.ii]
 
-`class_loader` has embedded API documentation and it is generated using doxygen and is [hosted](http://wiki.ros.org/class_loader) along side the feature documentation.
-There is documentation for all of the public API, and new additions to the public API require documentation before being added.
+ROS 2 API docs aren't currently being generated for `class_loader`. But ROS 1 documentation is [hosted here](http://wiki.ros.org/class_loader). There is documentation for all of the public API, and new additions to the public API require documentation before being added.
 
 ### License [3.iii]
 
