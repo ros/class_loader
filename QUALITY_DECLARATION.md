@@ -14,7 +14,7 @@ Below are the rationales, notes, and caveats for this claim, organized by each r
 
 ### Version Stability [1.ii]
 
-The current version is 1.4.0.
+`class_loader` has a stable version.
 
 ### Public API Declaration [1.iii]
 
@@ -50,9 +50,11 @@ Following the recommended guidelines for ROS Core packages, all pull requests mu
 
 All pull requests must pass CI on all [tier 1 platforms](https://www.ros.org/reps/rep-2000.html#support-tiers)
 
+nightly_linux-/
+
 Currently nightly results can be seen here:
-* [linux-aarch64_release](https://ci.ros2.org/view/nightly/job/nightly_linux-aarch64_release/lastBuild/testReport/class_loader/)
-* [linux-arm64_release](https://ci.ros2.org/view/nightly/job/nightly_linux_release/lastBuild/testReport/class_loader/)
+* [linux-aarch64_release](https://ci.ros2.org/job/nightly_linux-aarch64_release/lastBuild/testReport/class_loader/)
+* [linux-arm64_release](https://ci.ros2.org/job/nightly_linux_release/lastBuild/testReport/class_loader/)
 * [mac_osx_release](https://ci.ros2.org/view/nightly/job/nightly_osx_release/lastBuild/testReport/class_loader/)
 * [windows_release](https://ci.ros2.org/view/nightly/job/nightly_win_rel/lastBuild/testReport/class_loader/)
 
@@ -65,7 +67,6 @@ All pull requests must resolve related documentation changes before merging
 ### Feature Documentation [3.i]
 
 There is no current ROS 2 feature list, but the feature list for ROS 1 can be found [here](http://wiki.ros.org/class_loader) and each item in the list links to the corresponding feature documentation.
-There is documentation for all of the features, and new features require documentation before being added.
 
 ### Public API Documentation [3.ii]
 
@@ -92,8 +93,8 @@ Most recent test results can be found [here](http://build.ros2.org/view/Epr/job/
 Each feature in `class_loader` has corresponding tests which simulate typical usage, and they are located in the `test` directory.
 
 Currently nightly results can be seen here:
-* [linux-aarch64_release](https://ci.ros2.org/view/nightly/job/nightly_linux-aarch64_release/lastBuild/testReport/class_loader/)
-* [linux-arm64_release](https://ci.ros2.org/view/nightly/job/nightly_linux_release/lastBuild/testReport/class_loader/)
+* [linux-aarch64_release](https://ci.ros2.org/job/nightly_linux-aarch64_release/lastBuild/testReport/class_loader/)
+* [linux-arm64_release](https://ci.ros2.org/job/nightly_linux_release/lastBuild/testReport/class_loader/)
 * [mac_osx_release](https://ci.ros2.org/view/nightly/job/nightly_osx_release/lastBuild/testReport/class_loader/)
 * [windows_release](https://ci.ros2.org/view/nightly/job/nightly_win_rel/lastBuild/testReport/class_loader/)
 
@@ -114,7 +115,7 @@ This includes:
 
 Changes are required to make a best effort to keep or increase coverage before being accepted, but decreases are allowed if properly justified and accepted by reviewers.
 
-Current coverage statistics can be viewed [here](https://ci.ros2.org/job/ci_linux_coverage/lastBuild/cobertura/).
+Current coverage statistics can be viewed [here](https://ci.ros2.org/job/ci_linux_coverage/85/cobertura/src_ros_class_loader_include_class_loader/) and [here](https://ci.ros2.org/job/ci_linux_coverage/85/cobertura/src_ros_class_loader_include_class_loader/). This package does not yet meet the 95% coverage guideline, but it is currently above 90%.
 
 ### Performance [4.iv]
 
@@ -145,8 +146,8 @@ It also has several test dependencies, which do not affect the resulting quality
 `class_loader` supports all of the tier 1 platforms as described in [REP-2000](https://www.ros.org/reps/rep-2000.html#support-tiers), and tests each change against all of them.
 
 Currently nightly results can be seen here:
-* [linux-aarch64_release](https://ci.ros2.org/view/nightly/job/nightly_linux-aarch64_release/lastBuild/testReport/class_loader/)
-* [linux-arm64_release](https://ci.ros2.org/view/nightly/job/nightly_linux_release/lastBuild/testReport/class_loader/)
+* [linux-aarch64_release](https://ci.ros2.org/job/nightly_linux-aarch64_release/lastBuild/testReport/class_loader/)
+* [linux-arm64_release](https://ci.ros2.org/job/nightly_linux_release/lastBuild/testReport/class_loader/)
 * [mac_osx_release](https://ci.ros2.org/view/nightly/job/nightly_osx_release/lastBuild/testReport/class_loader/)
 * [windows_release](https://ci.ros2.org/view/nightly/job/nightly_win_rel/lastBuild/testReport/class_loader/)
 
