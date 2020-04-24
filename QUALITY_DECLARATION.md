@@ -2,9 +2,9 @@ This document is a declaration of software quality for the `class_loader` packag
 
 # `class_loader` Quality Declaration
 
-The package `class_loader` claims to be in the **Quality Level 2** category.
+The package `class_loader` claims to be in the **Quality Level 4** category.
 
-Below are the rationales, notes, and caveats for this claim, organized by each requirement listed in the [Package Requirements for Quality Level 2 in REP-2004](https://www.ros.org/reps/rep-2004.html).
+Below are the rationales, notes, and caveats for this claim, organized by each requirement listed in the [Package Quality Categories in REP-2004](https://www.ros.org/reps/rep-2004.html) of the ROS2 developer guide.
 
 ## Version Policy [1]
 
