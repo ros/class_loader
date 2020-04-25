@@ -2,6 +2,17 @@
 Changelog for package class_loader
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+2.0.0 (2020-04-25)
+------------------
+* Export CMake targets in a addition to include directories / libraries. (`#147 <https://github.com/ros/class_loader/issues/147>`_)
+* Fixed references to poco in error strings. (`#144 <https://github.com/ros/class_loader/issues/144>`_)
+* Removed poco dependency. Shared library management is now provided by rcpputils. (`#139 <https://github.com/ros/class_loader/issues/139>`_)
+* Add missing LICENSE file, matching 3-clause BSD (`#137 <https://github.com/ros/class_loader/issues/137>`_)
+* Code style change: wrap after open parenthesis if not in one line (`#138 <https://github.com/ros/class_loader/issues/138>`_)
+* Fix Travis on macOS. (`#135 <https://github.com/ros/class_loader/issues/135>`_)
+* Use .empty() to check for an empty string. (`#132 <https://github.com/ros/class_loader/issues/132>`_)
+* Contributors: Alejandro Hernández Cordero, Chris Lalancette, Dirk Thomas, Jorge Perez
+
 1.4.0 (2019-09-18)
 ------------------
 * Fixed setting AbstractMetaObjectBase base class typeid. (`#127 <https://github.com/nuclearsandwich/class_loader/issues/127>`_)
