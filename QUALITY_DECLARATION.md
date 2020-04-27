@@ -50,11 +50,9 @@ Following the recommended guidelines for ROS Core packages, all pull requests mu
 
 All pull requests must pass CI on all [tier 1 platforms](https://www.ros.org/reps/rep-2000.html#support-tiers)
 
-nightly_linux-/
-
 Currently nightly results can be seen here:
 * [linux-aarch64_release](https://ci.ros2.org/job/nightly_linux-aarch64_release/lastBuild/testReport/class_loader/)
-* [linux-arm64_release](https://ci.ros2.org/job/nightly_linux_release/lastBuild/testReport/class_loader/)
+* [linux_release](https://ci.ros2.org/job/nightly_linux_release/lastBuild/testReport/class_loader/)
 * [mac_osx_release](https://ci.ros2.org/view/nightly/job/nightly_osx_release/lastBuild/testReport/class_loader/)
 * [windows_release](https://ci.ros2.org/view/nightly/job/nightly_win_rel/lastBuild/testReport/class_loader/)
 
@@ -94,7 +92,7 @@ Each feature in `class_loader` has corresponding tests which simulate typical us
 
 Currently nightly results can be seen here:
 * [linux-aarch64_release](https://ci.ros2.org/job/nightly_linux-aarch64_release/lastBuild/testReport/class_loader/)
-* [linux-arm64_release](https://ci.ros2.org/job/nightly_linux_release/lastBuild/testReport/class_loader/)
+* [linux_release](https://ci.ros2.org/job/nightly_linux_release/lastBuild/testReport/class_loader/)
 * [mac_osx_release](https://ci.ros2.org/view/nightly/job/nightly_osx_release/lastBuild/testReport/class_loader/)
 * [windows_release](https://ci.ros2.org/view/nightly/job/nightly_win_rel/lastBuild/testReport/class_loader/)
 
@@ -147,7 +145,7 @@ It also has several test dependencies, which do not affect the resulting quality
 
 Currently nightly results can be seen here:
 * [linux-aarch64_release](https://ci.ros2.org/job/nightly_linux-aarch64_release/lastBuild/testReport/class_loader/)
-* [linux-arm64_release](https://ci.ros2.org/job/nightly_linux_release/lastBuild/testReport/class_loader/)
+* [linux_release](https://ci.ros2.org/job/nightly_linux_release/lastBuild/testReport/class_loader/)
 * [mac_osx_release](https://ci.ros2.org/view/nightly/job/nightly_osx_release/lastBuild/testReport/class_loader/)
 * [windows_release](https://ci.ros2.org/view/nightly/job/nightly_win_rel/lastBuild/testReport/class_loader/)
 
