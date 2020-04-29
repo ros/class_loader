@@ -21,4 +21,5 @@ PREDEFINED             += CLASS_LOADER_PUBLIC=
 
 # Tag files that do not exist will produce a warning and cross-project linking will not work.
 TAGFILES += "../../../doxygen_tag_files/cppreference-doxygen-web.tag.xml=http://en.cppreference.com/w/"
+TAGFILES += "../../../doxygen_tag_files/rcpputils.tag=http://docs.ros2.org/latest/api/rcpputils/"
 GENERATE_TAGFILE = "../../../doxygen_tag_files/class_loader.tag"
