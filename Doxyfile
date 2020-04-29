@@ -2,7 +2,8 @@
 
 PROJECT_NAME           = "class_loader"
 PROJECT_NUMBER         = master
-PROJECT_BRIEF          = "C API providing common utilities and data structures."
+PROJECT_BRIEF          = "The class_loader package is a ROS-independent package for loading plugins \
+ during runtime."
 
 INPUT                  = README.md ./include
 USE_MDFILE_AS_MAINPAGE = README.md
