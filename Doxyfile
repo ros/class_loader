@@ -4,7 +4,6 @@ PROJECT_NAME           = "class_loader"
 PROJECT_NUMBER         = master
 PROJECT_BRIEF          = "C API providing common utilities and data structures."
 
-# Use these lines to include the generated logging_macro.h (update install path if needed)
 INPUT                  = README.md ./include
 USE_MDFILE_AS_MAINPAGE = README.md
 RECURSIVE              = YES
@@ -19,9 +18,7 @@ ENABLE_PREPROCESSING   = YES
 MACRO_EXPANSION        = YES
 EXPAND_ONLY_PREDEF     = YES
 PREDEFINED             += CLASS_LOADER_PUBLIC=
-PREDEFINED             += CLASS_LOADER_PUBLIC_TYPE=
-PREDEFINED             += CLASS_LOADER_WARN_UNUSED=
 
 # Tag files that do not exist will produce a warning and cross-project linking will not work.
 TAGFILES += "../../../doxygen_tag_files/cppreference-doxygen-web.tag.xml=http://en.cppreference.com/w/"
-
+GENERATE_TAGFILE = "../../../doxygen_tag_files/class_loader.tag"
