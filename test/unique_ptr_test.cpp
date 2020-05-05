@@ -81,7 +81,7 @@ TEST(ClassLoaderUniquePtrTest, LibrariesUsedByClassLoader) {
   try {
     ClassLoader loader1(LIBRARY_1, false);
     std::vector<std::string> v = class_loader::impl::getAllLibrariesUsedByClassLoader(&loader1);
-    ASSERT_EQ(v.size(), 1);
+    ASSERT_EQ(v.size(), 1u);
     SUCCEED();
   } catch (class_loader::ClassLoaderException & e) {
     FAIL() << "ClassLoaderException: " << e.what() << "\n";
