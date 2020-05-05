@@ -98,7 +98,7 @@ public:
       throw class_loader::CreateClassException(
               "MultiLibraryClassLoader: Could not create object of class type " +
               class_name +
-              " as no factory exists for it. Make sure that the library exists and "
+              " as no factory exists for it. Make sure that the library exists and " +
               "was explicitly loaded through MultiLibraryClassLoader::loadLibrary()");
     }
 
