@@ -155,7 +155,7 @@ This package does not yet have a Vulnerability Disclosure Policy
 
 # Current status Summary
 
-The chart below compares the requirements in the REP-2004 with the current state of the rcutils package.
+The chart below compares the requirements in the REP-2004 with the current state of the class_loader package.
 
 |Number|  Requirement| Current state |
 |--|--|--|
