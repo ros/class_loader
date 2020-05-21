@@ -1,6 +1,6 @@
 This document is a declaration of software quality for the `class_loader` package, based on the guidelines in [REP-2004](https://www.ros.org/reps/rep-2004.html).
 
-# `class_loader` Quality Declaration
+# class_loader Quality Declaration
 
 The package `class_loader` claims to be in the **Quality Level 4** category.
 
