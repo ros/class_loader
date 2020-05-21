@@ -175,8 +175,10 @@ public:
 
   /**
    * @brief Creates an instance of an object of given class name with ancestor class Base
-   * This version does not look in a specific library for the factory, but rather the first open library that defines the classs
+   * This version does not look in a specific library for the factory, but rather the first open
+   * library that defines the class
    * This version should not be used as the plugin system cannot do automated safe loading/unloadings
+   *
    * @param Base - polymorphic type indicating base class
    * @param class_name - the name of the concrete plugin class we want to instantiate
    * @return An unmanaged Base* to newly created plugin
@@ -271,7 +273,7 @@ public:
 
   /**
    * @brief Gets a list of all libraries opened by this class loader
-   @ @return A list of libraries opened by this class loader
+   * @return A list of libraries opened by this class loader
    */
   std::vector<std::string> getRegisteredLibraries() const;
 
@@ -284,12 +286,16 @@ public:
   /**
    * @brief Unloads a library for this class loader
    * @param library_path - the fully qualified path to the runtime library
+   * @return The number of times more unloadLibrary() has to be called for it to be unbound from
+   *   this MultiLibraryClassLoader
    */
   int unloadLibrary(const std::string & library_path);
 
 private:
   /**
-   * @brief Indicates if on-demand (lazy) load/unload is enabled so libraries are loaded/unloaded automatically as needed
+   * @brief Indicates if on-demand (lazy) load/unload is enabled so libraries are loaded/unloaded
+   *    automatically as needed
+   * @return true if ondemand load and unload is active, otherwise false
    */
   bool isOnDemandLoadUnloadEnabled() const;
 
@@ -322,6 +328,7 @@ private:
 
   /**
    * @brief Gets all class loaders loaded within scope
+   * @return vector with available ClassLoader pointers
    */
   ClassLoaderVector getAllAvailableClassLoaders() const;
 

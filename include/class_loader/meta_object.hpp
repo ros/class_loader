@@ -112,16 +112,27 @@ public:
   /**
    * @brief Indicates if the factory is within the usable scope of a ClassLoader
    * @param loader Handle to the owning ClassLoader.
+   * @return True if the factory is within the usable scope of a ClassLoader, false otherwise
    */
   bool isOwnedBy(const ClassLoader * loader) const;
 
   /**
    * @brief Indicates if the factory is within the usable scope of any ClassLoader
+   * @return true if the factory is within the usable scope of any ClassLoader, false otherwise
    */
   bool isOwnedByAnybody() const;
 
+  /**
+   * @brief Get the number of associated class Loaders
+   * @return number of associated class loaders
+   */
   size_t getAssociatedClassLoadersCount() const;
 
+  /**
+   * @brief Get an associated ClassLoader pointer by index
+   * @param[in] index The index of the ClassLoader.
+   * @return The ClassLoader pointer or undefined behaviour if the index is out of bounds
+   */
   ClassLoader * getAssociatedClassLoader(size_t index) const;
 
 protected:
@@ -135,7 +146,9 @@ protected:
 
 /**
  * @class AbstractMetaObject
- * @brief Abstract base class for factories where polymorphic type variable indicates base class for plugin interface.
+ * @brief Abstract base class for factories where polymorphic type variable indicates base class for
+ *  plugin interface.
+ *
  * @parm B The base class interface for the plugin
  */
 template<class B>
@@ -184,7 +197,9 @@ public:
   }
 
   /**
-   * @brief The factory interface to generate an object. The object has type C in reality, though a pointer of the base class type is returned.
+   * @brief The factory interface to generate an object. The object has type C in reality, though a
+   * pointer of the base class type is returned.
+   *
    * @return A pointer to a newly created plugin with the base class type (type parameter B)
    */
   B * create() const
