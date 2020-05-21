@@ -14,7 +14,8 @@ Below are the rationales, notes, and caveats for this claim, organized by each r
 
 ### Version Stability [1.ii]
 
-`class_loader` has a stable version.
+`class_loader` is at a stable version, i.e. `>= 1.0.0`.
+The current version can be found in its [package.xml](package.xml), and its change history can be found in its [CHANGELOG](CHANGELOG.rst).
 
 ### Public API Declaration [1.iii]
 
@@ -125,19 +126,33 @@ Current coverage statistics can be viewed [here](https://ci.ros2.org/job/ci_linu
 
 ## Dependencies [5]
 
-`class_loader` has run-time and build-time dependencies that need to be considered for this declaration.
+Below are evaluations of each of `class_loader`'s run-time and build-time dependencies that have been determined to influence the quality.
+
+It has one "buildtool" dependency, which does not affect the resulting quality of the package because it does not contribute to the public library API.
+
+It also has several test dependencies, which do not affect the resulting quality of the package because these are only used to build and run test code.
 
 ### Direct Runtime ROS Dependencies [5.i]/[5.ii]
 
-- console_bridge_vendor
-- rcpputils
+#### `console_bridge_vendor`
+
+The `console_bridge_vendor` package provides a wrapper around `console_bridge`, providing nothing but a dependency on `console_bridge` on some systems. On others, it provides an [ExternalProject](https://cmake.org/cmake/help/latest/module/ExternalProject.html) build of `console_bridge`.
+
+It is **Quality Level 4**, see its [Quality Declaration document](https://github.com/ros2/console_bridge_vendor/blob/master/QUALITY_DECLARATION.md).
+
+#### `rcpputils`
+
+The `rcpputils` package provides an API which contains common utilities and data structures needed when programming in C++.
+
+It is **Quality Level 4**, see its [Quality Declaration document](https://github.com/ros2/rcpputils/blob/master/QUALITY_DECLARATION.md).
 
 ### Direct Runtime non-ROS Dependency [5.iii]
 
- - libconsole-bridge-dev
+#### `libconsole-bridge-dev`
 
-It has one "buildtool" dependency, which do not affect the resulting quality of the package, because they do not contribute to the public library API.
-It also has several test dependencies, which do not affect the resulting quality of the package, because they are only used to build and run the test code.
+The [libconsole-bridge-dev](https://github.com/ros/console_bridge/) is a ROS-independent, pure CMake (i.e. non-catkin and non-rosbuild package) that provides logging calls that mirror those found in rosconsole, but for applications that are not necessarily using ROS.
+
+It is **Quality Level 4**, see its [Quality Declaration document](https://github.com/ros/console_bridge/blob/master/QUALITY_DECLARATION.md).
 
 ## Platform Support [6]
 
@@ -171,10 +186,10 @@ The chart below compares the requirements in the REP-2004 with the current state
 |2.ii| Contributor origin (DCO, CLA, etc) | ✓|
 |2.iii| Peer review policy | ✓ |
 |2.iv| CI policy for change requests | ✓ |
-|2.v| Documentation policy for change requests | ☓ |
+|2.v| Documentation policy for change requests | ✓ |
 |3| **Documentation** | --- |
 |3.i| Per feature documentation | ✓ |
-|3.ii| Per public API item documentation | ✓ |
+|3.ii| Per public API item documentation | x |
 |3.iii| Declared License(s) | ✓ |
 |3.iv| Copyright in source files| ✓ |
 |3.v.a| Quality declaration linked to README | ✓ |
@@ -195,4 +210,4 @@ The chart below compares the requirements in the REP-2004 with the current state
 |6| Platform support | --- |
 |6.i| Support targets Tier1 ROS platforms| ✓ |
 |7| Security | --- |
-|7.i| Vulnerability Disclosure Policy | ? |
+|7.i| Vulnerability Disclosure Policy | x |
