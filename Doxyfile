@@ -5,7 +5,7 @@ PROJECT_NUMBER         = master
 PROJECT_BRIEF          = "The class_loader package is a ROS-independent package for loading plugins \
  during runtime."
 
-INPUT                  = README.md ./include
+INPUT                  = README.md ./include ./QUALITY_DECLARATION.md
 USE_MDFILE_AS_MAINPAGE = README.md
 RECURSIVE              = YES
 OUTPUT_DIRECTORY       = doc_output
