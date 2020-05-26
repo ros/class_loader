@@ -2,8 +2,8 @@
 Changelog for package class_loader
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.0.1 (2020-05-26)
+------------------
 * Added QD to doxygen related pages (`#155 <https://github.com/ros/class_loader/issues/155>`_)
 * Updated class_loader QD (`#152 <https://github.com/ros/class_loader/issues/152>`_)
 * fix copy and paste error (`#154 <https://github.com/ros/class_loader/issues/154>`_)
