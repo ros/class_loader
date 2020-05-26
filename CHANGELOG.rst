@@ -2,6 +2,17 @@
 Changelog for package class_loader
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Added QD to doxygen related pages (`#155 <https://github.com/ros/class_loader/issues/155>`_)
+* Updated class_loader QD (`#152 <https://github.com/ros/class_loader/issues/152>`_)
+* fix copy and paste error (`#154 <https://github.com/ros/class_loader/issues/154>`_)
+* Fixed warning (`#151 <https://github.com/ros/class_loader/issues/151>`_)
+* Increased code coverage (`#141 <https://github.com/ros/class_loader/issues/141>`_)
+* Added Doxyfile (`#148 <https://github.com/ros/class_loader/issues/148>`_)
+* Added quality declaration draft (`#142 <https://github.com/ros/class_loader/issues/142>`_)
+* Contributors: Alejandro Hernández Cordero, Tully Foote
+
 2.0.0 (2020-04-25)
 ------------------
 * Export CMake targets in a addition to include directories / libraries. (`#147 <https://github.com/ros/class_loader/issues/147>`_)
