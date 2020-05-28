@@ -86,7 +86,8 @@ public:
   using UniquePtr = std::unique_ptr<Base, DeleterType<Base>>;
 
   /**
-   * @brief  Constructor for ClassLoader
+   * @brief Constructor for ClassLoader
+   *
    * @param library_path - The path of the runtime library to load
    * @param ondemand_load_unload - Indicates if on-demand (lazy) unloading/loading of libraries
    * occurs as plugins are created/destroyed.
@@ -95,13 +96,14 @@ public:
   explicit ClassLoader(const std::string & library_path, bool ondemand_load_unload = false);
 
   /**
-   * @brief  Destructor for ClassLoader. All libraries opened by this ClassLoader are unloaded automatically.
+   * @brief Destructor for ClassLoader. All libraries opened by this ClassLoader are unloaded automatically.
    */
   CLASS_LOADER_PUBLIC
   virtual ~ClassLoader();
 
   /**
-   * @brief  Indicates which classes (i.e. class_loader) that can be loaded by this object
+   * @brief Indicates which classes (i.e. class_loader) that can be loaded by this object
+   *
    * @return vector of strings indicating names of instantiable classes derived from <Base>
    */
   template<class Base>
@@ -111,12 +113,12 @@ public:
   }
 
   /**
-   * @brief  Generates an instance of loadable classes (i.e. class_loader).
+   * @brief Generates an instance of loadable classes (i.e. class_loader).
    *
    * It is not necessary for the user to call loadLibrary() as it will be invoked automatically
    * if the library is not yet loaded (which typically happens when in "On Demand Load/Unload" mode).
    *
-   * @param  derived_class_name The name of the class we want to create (@see getAvailableClasses())
+   * @param derived_class_name The name of the class we want to create (@see getAvailableClasses())
    * @return A std::shared_ptr<Base> to newly created plugin object
    */
   template<class Base>
@@ -172,6 +174,7 @@ public:
 
   /**
    * @brief Indicates if a plugin class is available
+   *
    * @param Base - polymorphic type indicating base class
    * @param class_name - the name of the plugin class
    * @return true if yes it is available, false otherwise
@@ -186,25 +189,27 @@ public:
 
   /**
    * @brief Gets the full-qualified path and name of the library associated with this class loader
+   *
    * @return the full-qualified path and name of the library
    */
   CLASS_LOADER_PUBLIC
   const std::string & getLibraryPath() const;
 
   /**
-   * @brief  Indicates if a library is loaded within the scope of this ClassLoader. Note that the
-   * library may already be loaded internally through another ClassLoader, but until loadLibrary()
-   * method is called, the ClassLoader cannot create objects from said library.
+   * @brief Indicates if a library is loaded within the scope of this ClassLoader.
+   *
+   * Note that the library may already be loaded internally through another ClassLoader,
+   * but until loadLibrary() method is called, the ClassLoader cannot create objects from said library.
    * If we want to see if the library has been opened by somebody else, @see isLibraryLoadedByAnyClassloader()
    *
-   * @param  library_path The path to the library to load
+   * @param library_path The path to the library to load
    * @return true if library is loaded within this ClassLoader object's scope, otherwise false
    */
   CLASS_LOADER_PUBLIC
   bool isLibraryLoaded() const;
 
   /**
-   * @brief  Indicates if a library is loaded by some entity in the plugin system (another ClassLoader),
+   * @brief Indicates if a library is loaded by some entity in the plugin system (another ClassLoader),
    * but not necessarily loaded by this ClassLoader.
    *
    * @return true if library is loaded within the scope of the plugin system, otherwise false
@@ -250,6 +255,7 @@ public:
 private:
   /**
    * @brief Callback method when a plugin created by this class loader is destroyed
+   *
    * @param obj - A pointer to the deleted object
    */
   template<class Base>

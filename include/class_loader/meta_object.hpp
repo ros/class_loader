@@ -73,6 +73,7 @@ public:
 
   /**
    * @brief Gets the literal name of the class.
+   *
    * @return The literal name of the class as a C-string.
    */
   const std::string & className() const;
@@ -88,6 +89,7 @@ public:
 
   /**
    * @brief Gets the path to the library associated with this factory
+   *
    * @return Library path as a std::string
    */
   const std::string & getAssociatedLibraryPath() const;
@@ -99,18 +101,21 @@ public:
 
   /**
    * @brief Associates a ClassLoader owner with this factory,
+   *
    * @param loader Handle to the owning ClassLoader.
    */
   void addOwningClassLoader(ClassLoader * loader);
 
   /**
    * @brief Removes a ClassLoader that is an owner of this factory
+   *
    * @param loader Handle to the owning ClassLoader.
    */
   void removeOwningClassLoader(const ClassLoader * loader);
 
   /**
    * @brief Indicates if the factory is within the usable scope of a ClassLoader
+   *
    * @param loader Handle to the owning ClassLoader.
    * @return True if the factory is within the usable scope of a ClassLoader, false otherwise
    */
@@ -118,18 +123,21 @@ public:
 
   /**
    * @brief Indicates if the factory is within the usable scope of any ClassLoader
+   *
    * @return true if the factory is within the usable scope of any ClassLoader, false otherwise
    */
   bool isOwnedByAnybody() const;
 
   /**
    * @brief Get the number of associated class Loaders
+   *
    * @return number of associated class loaders
    */
   size_t getAssociatedClassLoadersCount() const;
 
   /**
    * @brief Get an associated ClassLoader pointer by index
+   *
    * @param[in] index The index of the ClassLoader.
    * @return The ClassLoader pointer or undefined behaviour if the index is out of bounds
    */
@@ -157,6 +165,7 @@ class AbstractMetaObject : public AbstractMetaObjectBase
 public:
   /**
    * @brief A constructor for this class
+   *
    * @param name The literal name of the class.
    */
   AbstractMetaObject(const std::string & class_name, const std::string & base_class_name)
@@ -166,6 +175,7 @@ public:
 
   /**
    * @brief Defines the factory interface that the MetaObject must implement.
+   *
    * @return A pointer of parametric type B to a newly created object.
    */
   virtual B * create() const = 0;
@@ -181,6 +191,7 @@ private:
 /**
  * @class MetaObject
  * @brief The actual factory.
+ *
  * @parm C The derived class (the actual plugin)
  * @parm B The base class interface for the plugin
  */

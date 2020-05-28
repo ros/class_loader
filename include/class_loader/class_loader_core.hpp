@@ -135,6 +135,7 @@ ClassLoader * getCurrentlyActiveClassLoader();
 
 /**
  * @brief Sets the ClassLoader currently in scope which used when a library is being loaded.
+ *
  * @param loader - pointer to the currently active ClassLoader.
  */
 CLASS_LOADER_PUBLIC
@@ -154,6 +155,7 @@ FactoryMap & getFactoryMapForBaseClass(const std::string & typeid_base_class_nam
 
 /**
  * @brief Same as above but uses a type parameter instead of string for more safety if info is available.
+ *
  * @return A reference to the FactoryMap contained within the global Base-to-FactoryMap map.
  */
 template<typename Base>
@@ -164,6 +166,7 @@ FactoryMap & getFactoryMapForBaseClass()
 
 /**
  * @brief To provide thread safety, all exposed plugin functions can only be run serially by multiple threads.
+ *
  *  This is implemented by using critical sections enforced by a single mutex which is locked and
  *  released with the following two functions.
  *
@@ -176,6 +179,7 @@ std::recursive_mutex & getPluginBaseToFactoryMapMapMutex();
 
 /**
  * @brief Indicates if a library containing more than just plugins has been opened by the running process
+ *
  * @return True if a non-pure plugin library has been opened, otherwise false
  */
 CLASS_LOADER_PUBLIC
@@ -183,6 +187,7 @@ bool hasANonPurePluginLibraryBeenOpened();
 
 /**
  * @brief Sets a flag indicating if a library containing more than just plugins has been opened by the running process
+ *
  * @param hasIt - The flag
  */
 CLASS_LOADER_PUBLIC
@@ -353,6 +358,7 @@ std::vector<std::string> getAvailableClasses(const ClassLoader * loader)
 
 /**
  * @brief This function returns the names of all libraries in use by a given class loader.
+ *
  * @param loader - The ClassLoader whose scope we are within
  * @return A vector of strings where each string is the path+name of each library that are
  *   within a ClassLoader's visible scope
@@ -373,6 +379,7 @@ bool isLibraryLoaded(const std::string & library_path, const ClassLoader * loade
 
 /**
  * @brief Indicates if passed library has been loaded by ANY ClassLoader
+ *
  * @param library_path - The name of the library we wish to check is open
  * @return true if the library is loaded in memory, otherwise false
  */
