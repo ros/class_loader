@@ -90,7 +90,8 @@ public:
 
 /**
  * @class NoClassLoaderExistsException
- * @brief An exception class thrown when a multilibrary class loader does not have a ClassLoader bound to it
+ * @brief An exception class thrown when a multilibrary class loader does not have a ClassLoader
+ * bound to it
  */
 class NoClassLoaderExistsException : public ClassLoaderException
 {
