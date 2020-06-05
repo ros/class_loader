@@ -2,7 +2,7 @@ This document is a declaration of software quality for the `class_loader` packag
 
 # class_loader Quality Declaration
 
-The package `class_loader` claims to be in the **Quality Level 4** category.
+The package `class_loader` claims to be in the **Quality Level 2** category.
 
 Below are the rationales, notes, and caveats for this claim, organized by each requirement listed in the [Package Quality Categories in REP-2004](https://www.ros.org/reps/rep-2004.html) of the ROS2 developer guide.
 
@@ -140,13 +140,13 @@ It also has several test dependencies, which do not affect the resulting quality
 
 The `console_bridge_vendor` package provides a wrapper around `console_bridge`, providing nothing but a dependency on `console_bridge` on some systems. On others, it provides an [ExternalProject](https://cmake.org/cmake/help/latest/module/ExternalProject.html) build of `console_bridge`.
 
-It is **Quality Level 4**, see its [Quality Declaration document](https://github.com/ros2/console_bridge_vendor/blob/master/QUALITY_DECLARATION.md).
+It is **Quality Level 2**, see its [Quality Declaration document](https://github.com/ros2/console_bridge_vendor/blob/master/QUALITY_DECLARATION.md).
 
 #### `rcpputils`
 
 The `rcpputils` package provides an API which contains common utilities and data structures needed when programming in C++.
 
-It is **Quality Level 4**, see its [Quality Declaration document](https://github.com/ros2/rcpputils/blob/master/QUALITY_DECLARATION.md).
+It is **Quality Level 2**, see its [Quality Declaration document](https://github.com/ros2/rcpputils/blob/master/QUALITY_DECLARATION.md).
 
 ### Direct Runtime non-ROS Dependency [5.iii]
 
@@ -154,7 +154,7 @@ It is **Quality Level 4**, see its [Quality Declaration document](https://github
 
 The [libconsole-bridge-dev](https://github.com/ros/console_bridge/) is a ROS-independent, pure CMake (i.e. non-catkin and non-rosbuild package) that provides logging calls that mirror those found in rosconsole, but for applications that are not necessarily using ROS.
 
-It is **Quality Level 4**, see its [Quality Declaration document](https://github.com/ros/console_bridge/blob/master/QUALITY_DECLARATION.md).
+It is **Quality Level 2**, see its [Quality Declaration document](https://github.com/ros/console_bridge/blob/master/QUALITY_DECLARATION.md).
 
 ## Platform Support [6]
 
@@ -191,7 +191,7 @@ The chart below compares the requirements in the REP-2004 with the current state
 |2.v| Documentation policy for change requests | ✓ |
 |3| **Documentation** | --- |
 |3.i| Per feature documentation | ✓ |
-|3.ii| Per public API item documentation | x |
+|3.ii| Per public API item documentation | ✓ |
 |3.iii| Declared License(s) | ✓ |
 |3.iv| Copyright in source files| ✓ |
 |3.v.a| Quality declaration linked to README | ✓ |
@@ -212,4 +212,4 @@ The chart below compares the requirements in the REP-2004 with the current state
 |6| Platform support | --- |
 |6.i| Support targets Tier1 ROS platforms| ✓ |
 |7| Security | --- |
-|7.i| Vulnerability Disclosure Policy | x |
+|7.i| Vulnerability Disclosure Policy | ✓ |
