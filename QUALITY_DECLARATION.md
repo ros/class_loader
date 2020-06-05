@@ -4,7 +4,7 @@ This document is a declaration of software quality for the `class_loader` packag
 
 The package `class_loader` claims to be in the **Quality Level 2** category.
 
-Below are the rationales, notes, and caveats for this claim, organized by each requirement listed in the [Package Quality Categories in REP-2004](https://www.ros.org/reps/rep-2004.html) of the ROS2 developer guide.
+Below are the rationales, notes, and caveats for this claim, organized by each requirement listed in the [Package Requirements for Quality Level 2 in REP-2004](https://www.ros.org/reps/rep-2004.html).
 
 ## Version Policy [1]
 
@@ -37,7 +37,7 @@ All installed headers are in the `include` directory of the package, headers in 
 
 ### Change Requests [2.i]
 
-This package requires that all changes occurr through a pull request.
+This package requires that all changes occurr through a pull request. Check the [ROS 2 Developer Guide](https://index.ros.org/doc/ros2/Contributing/Developer-Guide/#pull-requests) for additional information.
 
 ### Contributor Origin [2.ii]
 
@@ -65,11 +65,11 @@ All pull requests must resolve related documentation changes before merging
 
 ### Feature Documentation [3.i]
 
-There is no current ROS 2 feature list, but the feature list for ROS 1 can be found [here](http://wiki.ros.org/class_loader) and each item in the list links to the corresponding feature documentation.
+`class_loader` has a ROS 2 [feature list](./README.md#usage). The feature list for ROS 1 can be found [here](http://wiki.ros.org/class_loader), where each item in the list links to the corresponding feature documentation.
 
 ### Public API Documentation [3.ii]
 
-ROS 2 API docs aren't currently being generated for `class_loader`. But ROS 1 documentation is [hosted here](http://wiki.ros.org/class_loader). There is documentation for all of the public API, and new additions to the public API require documentation before being added.
+ROS 2 API docs aren't currently being generated for `class_loader`. But ROS 1 documentation is [hosted here](http://wiki.ros.org/class_loader). There is documentation for all of the public API using docblocks, and new additions to the public API require documentation before being added.
 
 ### License [3.iii]
 
