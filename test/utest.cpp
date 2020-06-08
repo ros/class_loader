@@ -362,13 +362,11 @@ TEST(MultiClassLoaderTest, noWarningOnLazyLoad) {
   SUCCEED();
 }
 
+#ifndef _WIN32
+// Not run on Windows because this tests dlopen-specific behavior
+
 // This is a different class name so that static variables in ClassLoader are isolated
 TEST(ClassLoaderGraveyardTest, loadUnloadLoadFromGraveyard) {
-#ifdef _WIN32
-  // Not run on Windows because this tests dlopen-specific behavior
-  GTEST_SKIP();
-#endif
-
   // This first load/unload adds the plugin to the graveyard
   try {
     class_loader::ClassLoader loader(GLOBAL_PLUGINS, false);
@@ -380,10 +378,9 @@ TEST(ClassLoaderGraveyardTest, loadUnloadLoadFromGraveyard) {
 
   // Not all platforms use RTLD_GLOBAL as a default, and rcutils doesn't explicitly choose either.
   // In order to invoke graveyard behavior, this needs to be loaded first for global relocation.
-#ifndef _WIN32
+
   void * handle = dlopen(GLOBAL_PLUGINS.c_str(), RTLD_NOW | RTLD_GLOBAL);
   ASSERT_NE(handle, nullptr);
-#endif
 
   // This load will cause system to use globally relocatable library.
   // For testing purposes, this will cause ClassLoader to revive the library from the graveyard.
@@ -399,9 +396,7 @@ TEST(ClassLoaderGraveyardTest, loadUnloadLoadFromGraveyard) {
     FAIL() << "ClassLoaderException: " << e.what() << "\n";
   }
 
-#ifndef _WIN32
   dlclose(handle);
-#endif
   // With all libraries closed, this should act like a normal load/unload.
   try {
     class_loader::ClassLoader loader(GLOBAL_PLUGINS, false);
@@ -411,6 +406,8 @@ TEST(ClassLoaderGraveyardTest, loadUnloadLoadFromGraveyard) {
     FAIL() << "ClassLoaderException: " << e.what() << "\n";
   }
 }
+
+#endif  // ifndef _WIN32
 
 // Run all the tests that were declared with TEST()
 int main(int argc, char ** argv)
