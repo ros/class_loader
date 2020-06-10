@@ -114,7 +114,9 @@ This includes:
 
 Changes are required to make a best effort to keep or increase coverage before being accepted, but decreases are allowed if properly justified and accepted by reviewers.
 
-Current coverage statistics can be viewed [here](https://ci.ros2.org/job/ci_linux_coverage/85/cobertura/src_ros_class_loader_include_class_loader/) and [here](https://ci.ros2.org/job/ci_linux_coverage/85/cobertura/src_ros_class_loader_include_class_loader/). This package does not yet meet the 95% coverage guideline, but it is currently above 90%.
+This package has testing coverage of at least 95%.
+Current coverage statistics can be viewed [here](https://ci.ros2.org/job/nightly_linux_coverage/lastSuccessfulBuild/cobertura/).
+A description of how coverage statistics are calculated is summarized in the [ROS 2 On-boarding Guide](https://index.ros.org/doc/ros2/Contributing/ROS-2-On-boarding-Guide/#note-on-coverage-runs).
 
 ### Performance [4.iv]
 
