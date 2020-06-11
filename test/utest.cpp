@@ -29,6 +29,11 @@
 
 #include <chrono>
 #include <cstddef>
+
+#ifndef _WIN32
+#include <dlfcn.h>
+#endif
+
 #include <iostream>
 #include <memory>
 #include <string>
@@ -45,11 +50,31 @@
 const std::string LIBRARY_1 = class_loader::systemLibraryFormat("class_loader_TestPlugins1");  // NOLINT
 const std::string LIBRARY_2 = class_loader::systemLibraryFormat("class_loader_TestPlugins2");  // NOLINT
 
+// These are loaded with dlopen() and RTLD_GLOBAL in loadUnloadLoadFromGraveyard and may cause
+// unexpected side-effects if used elsewhere
+const std::string GLOBAL_PLUGINS =  // NOLINT
+  class_loader::systemLibraryFormat("class_loader_TestGlobalPlugins");
+
 TEST(ClassLoaderTest, basicLoad) {
   try {
     class_loader::ClassLoader loader1(LIBRARY_1, false);
     ASSERT_NO_THROW(class_loader::impl::printDebugInfoToScreen());
     loader1.createInstance<Base>("Cat")->saySomething();  // See if lazy load works
+  } catch (class_loader::ClassLoaderException & e) {
+    FAIL() << "ClassLoaderException: " << e.what() << "\n";
+  }
+
+  SUCCEED();
+}
+
+// Requires separate namespace so static variables are isolated
+TEST(ClassLoaderUnmanagedTest, basicLoadUnmanaged) {
+  try {
+    class_loader::ClassLoader loader1(LIBRARY_1, false);
+    Base * unmanaged_instance = loader1.createUnmanagedInstance<Base>("Dog");
+    ASSERT_NE(unmanaged_instance, nullptr);
+    unmanaged_instance->saySomething();
+    delete unmanaged_instance;
   } catch (class_loader::ClassLoaderException & e) {
     FAIL() << "ClassLoaderException: " << e.what() << "\n";
   }
@@ -336,6 +361,53 @@ TEST(MultiClassLoaderTest, noWarningOnLazyLoad) {
 
   SUCCEED();
 }
+
+#ifndef _WIN32
+// Not run on Windows because this tests dlopen-specific behavior
+
+// This is a different class name so that static variables in ClassLoader are isolated
+TEST(ClassLoaderGraveyardTest, loadUnloadLoadFromGraveyard) {
+  // This first load/unload adds the plugin to the graveyard
+  try {
+    class_loader::ClassLoader loader(GLOBAL_PLUGINS, false);
+    loader.createInstance<Base>("Kangaroo")->saySomething();
+    loader.unloadLibrary();
+  } catch (class_loader::ClassLoaderException & e) {
+    FAIL() << "ClassLoaderException: " << e.what() << "\n";
+  }
+
+  // Not all platforms use RTLD_GLOBAL as a default, and rcutils doesn't explicitly choose either.
+  // In order to invoke graveyard behavior, this needs to be loaded first for global relocation.
+
+  void * handle = dlopen(GLOBAL_PLUGINS.c_str(), RTLD_NOW | RTLD_GLOBAL);
+  ASSERT_NE(handle, nullptr);
+
+  // This load will cause system to use globally relocatable library.
+  // For testing purposes, this will cause ClassLoader to revive the library from the graveyard.
+  try {
+    class_loader::ClassLoader loader(GLOBAL_PLUGINS, false);
+    loader.createInstance<Base>("Panda")->saySomething();
+    loader.unloadLibrary();
+
+    loader.loadLibrary();
+    loader.createInstance<Base>("Hyena")->saySomething();
+    loader.unloadLibrary();
+  } catch (class_loader::ClassLoaderException & e) {
+    FAIL() << "ClassLoaderException: " << e.what() << "\n";
+  }
+
+  dlclose(handle);
+  // With all libraries closed, this should act like a normal load/unload.
+  try {
+    class_loader::ClassLoader loader(GLOBAL_PLUGINS, false);
+    loader.createInstance<Base>("Alpaca")->saySomething();
+    loader.unloadLibrary();
+  } catch (class_loader::ClassLoaderException & e) {
+    FAIL() << "ClassLoaderException: " << e.what() << "\n";
+  }
+}
+
+#endif  // ifndef _WIN32
 
 // Run all the tests that were declared with TEST()
 int main(int argc, char ** argv)
