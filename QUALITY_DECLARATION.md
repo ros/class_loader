@@ -2,9 +2,9 @@ This document is a declaration of software quality for the `class_loader` packag
 
 # class_loader Quality Declaration
 
-The package `class_loader` claims to be in the **Quality Level 4** category.
+The package `class_loader` claims to be in the **Quality Level 2** category.
 
-Below are the rationales, notes, and caveats for this claim, organized by each requirement listed in the [Package Quality Categories in REP-2004](https://www.ros.org/reps/rep-2004.html) of the ROS2 developer guide.
+Below are the rationales, notes, and caveats for this claim, organized by each requirement listed in the [Package Requirements for Quality Level 2 in REP-2004](https://www.ros.org/reps/rep-2004.html).
 
 ## Version Policy [1]
 
@@ -37,7 +37,7 @@ All installed headers are in the `include` directory of the package, headers in 
 
 ### Change Requests [2.i]
 
-This package requires that all changes occurr through a pull request.
+This package requires that all changes occurr through a pull request. Check the [ROS 2 Developer Guide](https://index.ros.org/doc/ros2/Contributing/Developer-Guide/#pull-requests) for additional information.
 
 ### Contributor Origin [2.ii]
 
@@ -65,11 +65,11 @@ All pull requests must resolve related documentation changes before merging
 
 ### Feature Documentation [3.i]
 
-There is no current ROS 2 feature list, but the feature list for ROS 1 can be found [here](http://wiki.ros.org/class_loader) and each item in the list links to the corresponding feature documentation.
+`class_loader` has a ROS 2 [feature list](./README.md#usage). The feature list for ROS 1 can be found [here](http://wiki.ros.org/class_loader), where each item in the list links to the corresponding feature documentation.
 
 ### Public API Documentation [3.ii]
 
-ROS 2 API docs aren't currently being generated for `class_loader`. But ROS 1 documentation is [hosted here](http://wiki.ros.org/class_loader). There is documentation for all of the public API, and new additions to the public API require documentation before being added.
+ROS 2 API docs aren't currently being generated for `class_loader`. But ROS 1 documentation is [hosted here](http://wiki.ros.org/class_loader). There is documentation for all of the public API using docblocks, and new additions to the public API require documentation before being added.
 
 ### License [3.iii]
 
@@ -118,6 +118,8 @@ This package has testing coverage of at least 95%.
 Current coverage statistics can be viewed [here](https://ci.ros2.org/job/nightly_linux_coverage/lastSuccessfulBuild/cobertura/).
 A description of how coverage statistics are calculated is summarized in the [ROS 2 On-boarding Guide](https://index.ros.org/doc/ros2/Contributing/ROS-2-On-boarding-Guide/#note-on-coverage-runs).
 
+A description of how coverage statistics are summarized from this page, can be found in the [ROS 2 On-boarding Guide](https://index.ros.org/doc/ros2/Contributing/ROS-2-On-boarding-Guide/#note-on-coverage-runs).
+
 ### Performance [4.iv]
 
 `class_loader` does not currently have performance tests.
@@ -140,13 +142,13 @@ It also has several test dependencies, which do not affect the resulting quality
 
 The `console_bridge_vendor` package provides a wrapper around `console_bridge`, providing nothing but a dependency on `console_bridge` on some systems. On others, it provides an [ExternalProject](https://cmake.org/cmake/help/latest/module/ExternalProject.html) build of `console_bridge`.
 
-It is **Quality Level 4**, see its [Quality Declaration document](https://github.com/ros2/console_bridge_vendor/blob/master/QUALITY_DECLARATION.md).
+It is **Quality Level 2**, see its [Quality Declaration document](https://github.com/ros2/console_bridge_vendor/blob/master/QUALITY_DECLARATION.md).
 
 #### `rcpputils`
 
 The `rcpputils` package provides an API which contains common utilities and data structures needed when programming in C++.
 
-It is **Quality Level 4**, see its [Quality Declaration document](https://github.com/ros2/rcpputils/blob/master/QUALITY_DECLARATION.md).
+It is **Quality Level 2**, see its [Quality Declaration document](https://github.com/ros2/rcpputils/blob/master/QUALITY_DECLARATION.md).
 
 ### Direct Runtime non-ROS Dependency [5.iii]
 
@@ -154,7 +156,7 @@ It is **Quality Level 4**, see its [Quality Declaration document](https://github
 
 The [libconsole-bridge-dev](https://github.com/ros/console_bridge/) is a ROS-independent, pure CMake (i.e. non-catkin and non-rosbuild package) that provides logging calls that mirror those found in rosconsole, but for applications that are not necessarily using ROS.
 
-It is **Quality Level 4**, see its [Quality Declaration document](https://github.com/ros/console_bridge/blob/master/QUALITY_DECLARATION.md).
+It is **Quality Level 2**, see its [Quality Declaration document](https://github.com/ros/console_bridge/blob/master/QUALITY_DECLARATION.md).
 
 ## Platform Support [6]
 
@@ -191,7 +193,7 @@ The chart below compares the requirements in the REP-2004 with the current state
 |2.v| Documentation policy for change requests | ✓ |
 |3| **Documentation** | --- |
 |3.i| Per feature documentation | ✓ |
-|3.ii| Per public API item documentation | x |
+|3.ii| Per public API item documentation | ✓ |
 |3.iii| Declared License(s) | ✓ |
 |3.iv| Copyright in source files| ✓ |
 |3.v.a| Quality declaration linked to README | ✓ |
@@ -212,4 +214,4 @@ The chart below compares the requirements in the REP-2004 with the current state
 |6| Platform support | --- |
 |6.i| Support targets Tier1 ROS platforms| ✓ |
 |7| Security | --- |
-|7.i| Vulnerability Disclosure Policy | x |
+|7.i| Vulnerability Disclosure Policy | ✓ |
