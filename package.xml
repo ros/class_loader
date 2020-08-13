@@ -17,6 +17,7 @@
   <build_depend>libconsole-bridge-dev</build_depend>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
+  <buildtool_depend>ament_cmake_ros</buildtool_depend>
 
   <exec_depend>console_bridge_vendor</exec_depend>
   <exec_depend>libconsole-bridge-dev</exec_depend>

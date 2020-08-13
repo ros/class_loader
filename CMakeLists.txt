@@ -14,6 +14,10 @@ set(CLASS_LOADER_IGNORE_AMENT FALSE CACHE BOOL
   "Do not use ament when building this package.")
 if(NOT CLASS_LOADER_IGNORE_AMENT)
   find_package(ament_cmake)
+  find_package(ament_cmake_ros REQUIRED)
+  set(explicit_library_type "")
+else()
+  set(explicit_library_type "SHARED")
 endif()
 
 find_package(console_bridge_vendor REQUIRED) # Provides console_bridge 0.4.0 on platforms without it.
@@ -33,7 +37,7 @@ set(${PROJECT_NAME}_SRCS
   src/meta_object.cpp
   src/multi_library_class_loader.cpp
 )
-add_library(${PROJECT_NAME} SHARED ${${PROJECT_NAME}_SRCS})
+add_library(${PROJECT_NAME} ${explicit_library_type} ${${PROJECT_NAME}_SRCS})
 target_include_directories(${PROJECT_NAME} PUBLIC
   "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
   "$<INSTALL_INTERFACE:include>")
