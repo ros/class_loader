@@ -154,7 +154,7 @@ It is **Quality Level 2**, see its [Quality Declaration document](https://github
 
 The [libconsole-bridge-dev](https://github.com/ros/console_bridge/) is a ROS-independent, pure CMake (i.e. non-catkin and non-rosbuild package) that provides logging calls that mirror those found in rosconsole, but for applications that are not necessarily using ROS.
 
-It is **Quality Level 1**, see its [Quality Declaration document](https://github.com/ros/console_bridge/blob/foxy/QUALITY_DECLARATION.md).
+It is **Quality Level 1**, see its [Quality Declaration document](https://github.com/ros/console_bridge/blob/master/QUALITY_DECLARATION.md).
 
 ## Platform Support [6]
 
