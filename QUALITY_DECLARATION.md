@@ -142,7 +142,7 @@ It also has several test dependencies, which do not affect the resulting quality
 
 The `console_bridge_vendor` package provides a wrapper around `console_bridge`, providing nothing but a dependency on `console_bridge` on some systems. On others, it provides an [ExternalProject](https://cmake.org/cmake/help/latest/module/ExternalProject.html) build of `console_bridge`.
 
-It is **Quality Level 2**, see its [Quality Declaration document](https://github.com/ros2/console_bridge_vendor/blob/master/QUALITY_DECLARATION.md).
+It is **Quality Level 1**, see its [Quality Declaration document](https://github.com/ros2/console_bridge_vendor/blob/master/QUALITY_DECLARATION.md).
 
 #### `rcpputils`
 
@@ -156,7 +156,7 @@ It is **Quality Level 2**, see its [Quality Declaration document](https://github
 
 The [libconsole-bridge-dev](https://github.com/ros/console_bridge/) is a ROS-independent, pure CMake (i.e. non-catkin and non-rosbuild package) that provides logging calls that mirror those found in rosconsole, but for applications that are not necessarily using ROS.
 
-It is **Quality Level 2**, see its [Quality Declaration document](https://github.com/ros/console_bridge/blob/master/QUALITY_DECLARATION.md).
+It is **Quality Level 1**, see its [Quality Declaration document](https://github.com/ros/console_bridge/blob/master/QUALITY_DECLARATION.md).
 
 ## Platform Support [6]
 
