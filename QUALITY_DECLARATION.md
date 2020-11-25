@@ -51,11 +51,11 @@ Following the recommended guidelines for ROS Core packages, all pull requests mu
 
 All pull requests must pass CI on all [tier 1 platforms](https://www.ros.org/reps/rep-2000.html#support-tiers)
 
-Currently nightly results can be seen here:
-* [linux-aarch64_release](https://ci.ros2.org/job/nightly_linux-aarch64_release/lastBuild/testReport/class_loader/)
-* [linux_release](https://ci.ros2.org/job/nightly_linux_release/lastBuild/testReport/class_loader/)
-* [mac_osx_release](https://ci.ros2.org/view/nightly/job/nightly_osx_release/lastBuild/testReport/class_loader/)
-* [windows_release](https://ci.ros2.org/view/nightly/job/nightly_win_rel/lastBuild/testReport/class_loader/)
+Though there are no nightly jobs for foxy outside of linux, each change is tested on ci.ros2.org.
+* [linux-aarch64](https://ci.ros2.org/job/ci_linux-aarch64)
+* [linux](https://ci.ros2.org/job/ci_linux)
+* [mac_osx](https://ci.ros2.org/job/ci_osx)
+* [windows](https://ci.ros2.org/job/ci_windows)
 
 ### Documentation Policy [2.v]
 
@@ -69,7 +69,7 @@ All pull requests must resolve related documentation changes before merging
 
 ### Public API Documentation [3.ii]
 
-`class_loader` has documentation of its public API and it is [hosted](http://docs.ros2.org/latest/api/class_loader/index.html). There is documentation for all of the public API using docblocks, and new additions to the public API require documentation before being added.
+`class_loader` has documentation of its public API and it is [hosted](http://docs.ros2.org/foxy/api/class_loader/index.html). There is documentation for all of the public API using docblocks, and new additions to the public API require documentation before being added.
 
 ### License [3.iii]
 
@@ -83,7 +83,7 @@ The copyright holders each provide a statement of copyright in each source code 
 
 There is an automated test which runs a linter (ament_copyright) that ensures each file has at least one copyright statement.
 
-Most recent test results can be found [here](http://build.ros2.org/view/Rpr/job/Rpr__class_loader__ubuntu_focal_amd64/lastCompletedBuild/testReport/class_loader/copyright_check_tests_only/)
+Most recent test results can be found [here](http://build.ros2.org/view/Fpr/job/Fpr__class_loader__ubuntu_focal_amd64/lastCompletedBuild/testReport/class_loader/copyright_check_tests_only/)
 
 ## Testing [4]
 
@@ -91,11 +91,11 @@ Most recent test results can be found [here](http://build.ros2.org/view/Rpr/job/
 
 Each feature in `class_loader` has corresponding tests which simulate typical usage, and they are located in the `test` directory.
 
-Currently nightly results can be seen here:
-* [linux-aarch64_release](https://ci.ros2.org/job/nightly_linux-aarch64_release/lastBuild/testReport/class_loader/)
-* [linux_release](https://ci.ros2.org/job/nightly_linux_release/lastBuild/testReport/class_loader/)
-* [mac_osx_release](https://ci.ros2.org/view/nightly/job/nightly_osx_release/lastBuild/testReport/class_loader/)
-* [windows_release](https://ci.ros2.org/view/nightly/job/nightly_win_rel/lastBuild/testReport/class_loader/)
+Though there are no nightly jobs for foxy outside of linux, each change is tested on ci.ros2.org.
+* [linux-aarch64](https://ci.ros2.org/job/ci_linux-aarch64)
+* [linux](https://ci.ros2.org/job/ci_linux)
+* [mac_osx](https://ci.ros2.org/job/ci_osx)
+* [windows](https://ci.ros2.org/job/ci_windows)
 
 ### Public API Testing [4.ii]
 
@@ -115,7 +115,7 @@ This includes:
 Changes are required to make a best effort to keep or increase coverage before being accepted, but decreases are allowed if properly justified and accepted by reviewers.
 
 This package has testing coverage of at least 95%.
-Current coverage statistics can be viewed [here](https://ci.ros2.org/job/nightly_linux_coverage/lastSuccessfulBuild/cobertura/).
+Current coverage statistics can be viewed [here](https://ci.ros2.org/job/nightly_linux_foxy_coverage/lastSuccessfulBuild/cobertura/).
 A description of how coverage statistics are calculated is summarized in the [ROS 2 On-boarding Guide](https://index.ros.org/doc/ros2/Contributing/ROS-2-On-boarding-Guide/#note-on-coverage-runs).
 
 A description of how coverage statistics are summarized from this page, can be found in the [ROS 2 On-boarding Guide](https://index.ros.org/doc/ros2/Contributing/ROS-2-On-boarding-Guide/#note-on-coverage-runs).
@@ -125,8 +125,8 @@ A description of how coverage statistics are summarized from this page, can be f
 `class_loader` follows the recommendations for performance testing of C/C++ code in the [ROS 2 Developer Guide](https://index.ros.org/doc/ros2/Contributing/Developer-Guide/#performance), and opts to do performance analysis on each release rather than each change.
 
 System level performance benchmarks that cover features of `class_loader` can be found at:
-* [Benchmarks](http://build.ros2.org/view/Rci/job/Rci__benchmark_ubuntu_focal_amd64/BenchmarkTable/)
-* [Performance](http://build.ros2.org/view/Rci/job/Rci__nightly-performance_ubuntu_focal_amd64/lastCompletedBuild/)
+* [Benchmarks](http://build.ros2.org/view/Fci/job/Fci__benchmark_ubuntu_focal_amd64/BenchmarkTable/)
+* [Performance](http://build.ros2.org/view/Fci/job/Fci__nightly-performance_ubuntu_focal_amd64/lastCompletedBuild/)
 
 Changes that introduce regressions in performance must be adequately justified in order to be accepted and merged.
 
@@ -162,17 +162,17 @@ It is **Quality Level 1**, see its [Quality Declaration document](https://github
 
 The [libconsole-bridge-dev](https://github.com/ros/console_bridge/) is a ROS-independent, pure CMake (i.e. non-catkin and non-rosbuild package) that provides logging calls that mirror those found in rosconsole, but for applications that are not necessarily using ROS.
 
-It is **Quality Level 1**, see its [Quality Declaration document](https://github.com/ros/console_bridge/blob/master/QUALITY_DECLARATION.md).
+It is **Quality Level 1**, see its [Quality Declaration document](https://github.com/ros/console_bridge/blob/foxy/QUALITY_DECLARATION.md).
 
 ## Platform Support [6]
 
 `class_loader` supports all of the tier 1 platforms as described in [REP-2000](https://www.ros.org/reps/rep-2000.html#support-tiers), and tests each change against all of them.
 
-Currently nightly results can be seen here:
-* [linux-aarch64_release](https://ci.ros2.org/job/nightly_linux-aarch64_release/lastBuild/testReport/class_loader/)
-* [linux_release](https://ci.ros2.org/job/nightly_linux_release/lastBuild/testReport/class_loader/)
-* [mac_osx_release](https://ci.ros2.org/view/nightly/job/nightly_osx_release/lastBuild/testReport/class_loader/)
-* [windows_release](https://ci.ros2.org/view/nightly/job/nightly_win_rel/lastBuild/testReport/class_loader/)
+Though there are no nightly jobs for foxy outside of linux, each change is tested on ci.ros2.org.
+* [linux-aarch64](https://ci.ros2.org/job/ci_linux-aarch64)
+* [linux](https://ci.ros2.org/job/ci_linux)
+* [mac_osx](https://ci.ros2.org/job/ci_osx)
+* [windows](https://ci.ros2.org/job/ci_windows)
 
 ## Vulnerability Disclosure Policy [7.i]
 
