@@ -2,9 +2,9 @@ This document is a declaration of software quality for the `class_loader` packag
 
 # class_loader Quality Declaration
 
-The package `class_loader` claims to be in the **Quality Level 2** category.
+The package `class_loader` claims to be in the **Quality Level 1** category.
 
-Below are the rationales, notes, and caveats for this claim, organized by each requirement listed in the [Package Requirements for Quality Level 2 in REP-2004](https://www.ros.org/reps/rep-2004.html).
+Below are the rationales, notes, and caveats for this claim, organized by each requirement listed in the [Package Requirements for Quality Level 1 in REP-2004](https://www.ros.org/reps/rep-2004.html).
 
 ## Version Policy [1]
 
@@ -37,7 +37,7 @@ All installed headers are in the `include` directory of the package, headers in 
 
 ### Change Requests [2.i]
 
-This package requires that all changes occurr through a pull request. Check the [ROS 2 Developer Guide](https://index.ros.org/doc/ros2/Contributing/Developer-Guide/#pull-requests) for additional information.
+This package requires that all changes occur through a pull request. Check the [ROS 2 Developer Guide](https://index.ros.org/doc/ros2/Contributing/Developer-Guide/#pull-requests) for additional information.
 
 ### Contributor Origin [2.ii]
 
@@ -69,7 +69,7 @@ All pull requests must resolve related documentation changes before merging
 
 ### Public API Documentation [3.ii]
 
-ROS 2 API docs aren't currently being generated for `class_loader`. But ROS 1 documentation is [hosted here](http://wiki.ros.org/class_loader). There is documentation for all of the public API using docblocks, and new additions to the public API require documentation before being added.
+`class_loader` has documentation of its public API and it is [hosted](http://docs.ros2.org/latest/api/class_loader/index.html). There is documentation for all of the public API using docblocks, and new additions to the public API require documentation before being added.
 
 ### License [3.iii]
 
@@ -83,7 +83,7 @@ The copyright holders each provide a statement of copyright in each source code 
 
 There is an automated test which runs a linter (ament_copyright) that ensures each file has at least one copyright statement.
 
-Most recent test results can be found [here](http://build.ros2.org/view/Epr/job/Epr__class_loader__ubuntu_bionic_amd64/lastBuild/testReport/class_loader/copyright_check_tests_only/)
+Most recent test results can be found [here](http://build.ros2.org/view/Rpr/job/Rpr__class_loader__ubuntu_focal_amd64/lastCompletedBuild/testReport/class_loader/copyright_check_tests_only/)
 
 ## Testing [4]
 
@@ -122,7 +122,13 @@ A description of how coverage statistics are summarized from this page, can be f
 
 ### Performance [4.iv]
 
-`class_loader` does not currently have performance tests.
+`class_loader` follows the recommendations for performance testing of C/C++ code in the [ROS 2 Developer Guide](https://index.ros.org/doc/ros2/Contributing/Developer-Guide/#performance), and opts to do performance analysis on each release rather than each change.
+
+System level performance benchmarks that cover features of `class_loader` can be found at:
+* [Benchmarks](http://build.ros2.org/view/Rci/job/Rci__benchmark_ubuntu_focal_amd64/BenchmarkTable/)
+* [Performance](http://build.ros2.org/view/Rci/job/Rci__nightly-performance_ubuntu_focal_amd64/lastCompletedBuild/)
+
+Changes that introduce regressions in performance must be adequately justified in order to be accepted and merged.
 
 ### Linters and Static Analysis [4.v]
 
@@ -148,7 +154,7 @@ It is **Quality Level 1**, see its [Quality Declaration document](https://github
 
 The `rcpputils` package provides an API which contains common utilities and data structures needed when programming in C++.
 
-It is **Quality Level 2**, see its [Quality Declaration document](https://github.com/ros2/rcpputils/blob/master/QUALITY_DECLARATION.md).
+It is **Quality Level 1**, see its [Quality Declaration document](https://github.com/ros2/rcpputils/blob/master/QUALITY_DECLARATION.md).
 
 ### Direct Runtime non-ROS Dependency [5.iii]
 
