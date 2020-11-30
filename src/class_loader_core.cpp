@@ -343,7 +343,7 @@ void addClassLoaderOwnerForAllExistingMetaObjectsForLibrary(
       reinterpret_cast<void *>(meta_obj), meta_obj->baseClassName().c_str(),
       meta_obj->className().c_str(),
       reinterpret_cast<void *>(loader),
-      nullptr == loader ? loader->getLibraryPath().c_str() : "NULL");
+      nullptr == loader ? "NULL" : loader->getLibraryPath().c_str());
     meta_obj->addOwningClassLoader(loader);
   }
 }
@@ -362,7 +362,7 @@ void revivePreviouslyCreateMetaobjectsFromGraveyard(
         "bound to ClassLoader %p (library path = %s)",
         obj->className().c_str(), obj->baseClassName().c_str(), reinterpret_cast<void *>(obj),
         reinterpret_cast<void *>(loader),
-        nullptr == loader ? loader->getLibraryPath().c_str() : "NULL");
+        nullptr == loader ? "NULL" : loader->getLibraryPath().c_str());
 
       obj->addOwningClassLoader(loader);
       assert(obj->typeidBaseClassName() != "UNSET");
@@ -391,7 +391,7 @@ void purgeGraveyardOfMetaobjects(
         ".bound to ClassLoader %p (library path = %s)",
         obj->className().c_str(), obj->baseClassName().c_str(), reinterpret_cast<void *>(obj),
         reinterpret_cast<void *>(loader),
-        nullptr == loader ? loader->getLibraryPath().c_str() : "NULL");
+        nullptr == loader ? "NULL" : loader->getLibraryPath().c_str());
 
       bool is_address_in_graveyard_same_as_global_factory_map =
         std::find(all_meta_objs.begin(), all_meta_objs.end(), *itr) != all_meta_objs.end();
