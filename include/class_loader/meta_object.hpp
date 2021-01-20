@@ -69,7 +69,7 @@ public:
    * TEMPLATE SUBCLASSES, OTHERWISE THEY WILL PULL IN A REDUNDANT METAOBJECT
    * DESTRUCTOR OUTSIDE OF libclass_loader WITHIN THE PLUGIN LIBRARY! T
    */
-  ~AbstractMetaObjectBase();
+  virtual ~AbstractMetaObjectBase();
 
   /**
    * @brief Gets the literal name of the class.

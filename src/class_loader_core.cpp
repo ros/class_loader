@@ -57,8 +57,26 @@ std::recursive_mutex & getPluginBaseToFactoryMapMapMutex()
 
 BaseToFactoryMapMap & getGlobalPluginBaseToFactoryMapMap()
 {
-  static BaseToFactoryMapMap instance;
-  return instance;
+
+  static std::shared_ptr<BaseToFactoryMapMap> instance;
+
+  // TODO: need lock?
+  // TODO: we may use unique_ptr but use shared_ptr for PoC
+  if(instance == nullptr) {
+    instance = std::shared_ptr<BaseToFactoryMapMap>(
+        new BaseToFactoryMapMap,
+        [](BaseToFactoryMapMap *p) mutable
+        {
+          for(auto it_map: *p) {
+            for(auto it: it_map.second) {
+              if(it.second) {
+                delete(it.second);
+              }
+            }
+          }
+        });
+  }
+  return *instance;
 }
 
 FactoryMap & getFactoryMapForBaseClass(const std::string & typeid_base_class_name)
