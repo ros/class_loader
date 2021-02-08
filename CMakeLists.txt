@@ -76,7 +76,7 @@ install(TARGETS ${PROJECT_NAME}
 install(DIRECTORY include/class_loader/
   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION})
 
-install(PROGRAMS scripts/class_loader_headers_update.py
+catkin_install_python(PROGRAMS scripts/class_loader_headers_update.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
 if(CATKIN_ENABLE_TESTING)
