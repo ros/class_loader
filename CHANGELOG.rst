@@ -2,6 +2,19 @@
 Changelog for package class_loader
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Fix ternary null check found by clang static analysis (`#176 <https://github.com/ros/class_loader/issues/176>`_)
+* Update QD to QL 1 (`#177 <https://github.com/ros/class_loader/issues/177>`_)
+* Updated console_bridge QL in QD
+* Update package maintainers. (`#169 <https://github.com/ros/class_loader/issues/169>`_)
+* enable building a static library (`#163 <https://github.com/ros/class_loader/issues/163>`_)
+* Update Quality Declaration to reflect QL 2 (`#160 <https://github.com/ros/class_loader/issues/160>`_).
+* Increase coverage with a graveyard behavior test and unmanaged instance test (`#159 <https://github.com/ros/class_loader/issues/159>`_)
+* Add Security Vulnerability Policy pointing to REP-2006. (`#157 <https://github.com/ros/class_loader/issues/157>`_)
+* Clean up and improve documentation (`#156 <https://github.com/ros/class_loader/issues/156>`_)
+* Contributors: Alejandro Hernández Cordero, Chris Lalancette, Dirk Thomas, Michel Hidalgo, Stephen Brawner, ahcorde, brawner
+
 2.0.1 (2020-05-26)
 ------------------
 * Added QD to doxygen related pages (`#155 <https://github.com/ros/class_loader/issues/155>`_)
