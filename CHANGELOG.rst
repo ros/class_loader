@@ -2,8 +2,8 @@
 Changelog for package class_loader
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.1.1 (2021-04-06)
+------------------
 * Change index.ros.org -> docs.ros.org. (`#181 <https://github.com/ros/class_loader/issues/181>`_)
 * Contributors: Chris Lalancette
 
