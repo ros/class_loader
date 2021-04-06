@@ -2,6 +2,11 @@
 Changelog for package class_loader
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Change index.ros.org -> docs.ros.org. (`#181 <https://github.com/ros/class_loader/issues/181>`_)
+* Contributors: Chris Lalancette
+
 2.1.0 (2021-03-18)
 ------------------
 * Fix ternary null check found by clang static analysis (`#176 <https://github.com/ros/class_loader/issues/176>`_)
