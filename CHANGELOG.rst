@@ -2,6 +2,11 @@
 Changelog for package class_loader
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Remove travis. (`#182 <https://github.com/ros/class_loader/issues/182>`_)
+* Contributors: Chris Lalancette
+
 2.1.1 (2021-04-06)
 ------------------
 * Change index.ros.org -> docs.ros.org. (`#181 <https://github.com/ros/class_loader/issues/181>`_)
