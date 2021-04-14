@@ -2,6 +2,15 @@
 Changelog for package class_loader
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+2.0.2 (2021-04-14)
+------------------
+* Update QD to QL 1 (`#178 <https://github.com/ros/class_loader/issues/178>`_)
+* Update console_bridge QL in QD
+* Increase coverage with a graveyard behavior test and unmanaged instance test (`#159 <https://github.com/ros/class_loader/issues/159>`_)
+* Add Security Vulnerability Policy pointing to REP-2006. (`#157 <https://github.com/ros/class_loader/issues/157>`_)
+* Clean up and improve documentation (`#156 <https://github.com/ros/class_loader/issues/156>`_)
+* Contributors: Alejandro Hernández Cordero, Chris Lalancette, Louise Poubel, Michel Hidalgo, Stephen Brawner
+
 2.0.1 (2020-05-26)
 ------------------
 * Added QD to doxygen related pages (`#155 <https://github.com/ros/class_loader/issues/155>`_)
