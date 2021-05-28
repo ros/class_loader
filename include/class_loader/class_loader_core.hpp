@@ -217,7 +217,7 @@ void registerPlugin(const std::string & class_name, const std::string & base_cla
   if (factoryMap.find(class_name) != factoryMap.end()) {
     CONSOLE_BRIDGE_logWarn(
       "class_loader.impl: SEVERE WARNING!!! "
-      "A namespace collision has occured with plugin factory for class %s. "
+      "A namespace collision has occurred with plugin factory for class %s. "
       "New factory will OVERWRITE existing one. "
       "This situation occurs when libraries containing plugins are directly linked against an "
       "executable (the one running right now generating this message). "
