@@ -122,16 +122,14 @@ public:
    * @return A std::shared_ptr<Base> to newly created plugin object
    */
   template<class Base>
-  std::shared_ptr<Base> createInstance(
-    const std::string & derived_class_name,
-    bool is_shared_ptr = false)
+  std::shared_ptr<Base> createInstance(const std::string & derived_class_name)
   {
-    if (is_shared_ptr) {
+    try {
       return std::shared_ptr<Base>(
         createRawInstance<Base>(derived_class_name, true),
         std::bind(&ClassLoader::onPluginDeletion<Base>, shared_from_this(), std::placeholders::_1)
       );
-    } else {
+    } catch (std::bad_weak_ptr & e) {  // This is not a shared_ptr
       return std::shared_ptr<Base>(
         createRawInstance<Base>(derived_class_name, true),
         std::bind(&ClassLoader::onPluginDeletion<Base>, this, std::placeholders::_1)
@@ -153,17 +151,15 @@ public:
    * @return A std::unique_ptr<Base> to newly created plugin object.
    */
   template<class Base>
-  UniquePtr<Base> createUniqueInstance(
-    const std::string & derived_class_name,
-    bool is_shared_ptr = false)
+  UniquePtr<Base> createUniqueInstance(const std::string & derived_class_name)
   {
     Base * raw = createRawInstance<Base>(derived_class_name, true);
-    if (is_shared_ptr) {
+    try {
       return std::unique_ptr<Base, DeleterType<Base>>(
         raw,
         std::bind(&ClassLoader::onPluginDeletion<Base>, shared_from_this(), std::placeholders::_1)
       );
-    } else {
+    } catch (std::bad_weak_ptr & e) {  // This is not a shared_ptr
       return std::unique_ptr<Base, DeleterType<Base>>(
         raw,
         std::bind(&ClassLoader::onPluginDeletion<Base>, this, std::placeholders::_1)

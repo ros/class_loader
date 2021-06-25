@@ -105,7 +105,7 @@ public:
               "was explicitly loaded through MultiLibraryClassLoader::loadLibrary()");
     }
 
-    return loader->createInstance<Base>(class_name, true);
+    return loader->createInstance<Base>(class_name);
   }
 
   /**
@@ -128,7 +128,7 @@ public:
               "MultiLibraryClassLoader bound to library " + library_path +
               " Ensure you called MultiLibraryClassLoader::loadLibrary()");
     }
-    return loader->createInstance<Base>(class_name, true);
+    return loader->createInstance<Base>(class_name);
   }
 
   /// Creates an instance of an object of given class name with ancestor class Base
@@ -154,7 +154,7 @@ public:
               "Make sure that the library exists and was explicitly loaded through "
               "MultiLibraryClassLoader::loadLibrary()");
     }
-    return loader->createUniqueInstance<Base>(class_name, true);
+    return loader->createUniqueInstance<Base>(class_name);
   }
 
   /// Creates an instance of an object of given class name with ancestor class Base
@@ -177,7 +177,7 @@ public:
               "MultiLibraryClassLoader bound to library " + library_path +
               " Ensure you called MultiLibraryClassLoader::loadLibrary()");
     }
-    return loader->createUniqueInstance<Base>(class_name, true);
+    return loader->createUniqueInstance<Base>(class_name);
   }
 
   /**
