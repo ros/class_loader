@@ -76,7 +76,7 @@ std::string systemLibraryFormat(const std::string & library_name);
  * definitions from which objects can be created/destroyed during runtime (i.e. class_loader).
  * Libraries loaded by a ClassLoader are only accessible within scope of that ClassLoader object.
  */
-class ClassLoader
+class ClassLoader : public std::enable_shared_from_this<ClassLoader>
 {
 public:
   template<typename Base>
@@ -122,12 +122,20 @@ public:
    * @return A std::shared_ptr<Base> to newly created plugin object
    */
   template<class Base>
-  std::shared_ptr<Base> createInstance(const std::string & derived_class_name)
+  std::shared_ptr<Base> createInstance(const std::string & derived_class_name,
+    bool is_shared_ptr = false)
   {
-    return std::shared_ptr<Base>(
-      createRawInstance<Base>(derived_class_name, true),
-      std::bind(&ClassLoader::onPluginDeletion<Base>, this, std::placeholders::_1)
-    );
+    if (is_shared_ptr) {
+      return std::shared_ptr<Base>(
+        createRawInstance<Base>(derived_class_name, true),
+        std::bind(&ClassLoader::onPluginDeletion<Base>, shared_from_this(), std::placeholders::_1)
+      );
+    } else {
+      return std::shared_ptr<Base>(
+        createRawInstance<Base>(derived_class_name, true),
+        std::bind(&ClassLoader::onPluginDeletion<Base>, this, std::placeholders::_1)
+      );
+    }
   }
 
   /// Generates an instance of loadable classes (i.e. class_loader).
@@ -144,13 +152,21 @@ public:
    * @return A std::unique_ptr<Base> to newly created plugin object.
    */
   template<class Base>
-  UniquePtr<Base> createUniqueInstance(const std::string & derived_class_name)
+  UniquePtr<Base> createUniqueInstance(const std::string & derived_class_name,
+    bool is_shared_ptr = false)
   {
     Base * raw = createRawInstance<Base>(derived_class_name, true);
-    return std::unique_ptr<Base, DeleterType<Base>>(
-      raw,
-      std::bind(&ClassLoader::onPluginDeletion<Base>, this, std::placeholders::_1)
-    );
+    if (is_shared_ptr) {
+      return std::unique_ptr<Base, DeleterType<Base>>(
+        raw,
+        std::bind(&ClassLoader::onPluginDeletion<Base>, this, std::placeholders::_1)
+      );
+    } else {
+      return std::unique_ptr<Base, DeleterType<Base>>(
+        raw,
+        std::bind(&ClassLoader::onPluginDeletion<Base>, shared_from_this(), std::placeholders::_1)
+      );
+    }
   }
 
   /// Generates an instance of loadable classes (i.e. class_loader).
