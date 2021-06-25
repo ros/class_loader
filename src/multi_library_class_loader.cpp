@@ -30,6 +30,7 @@
 #include "class_loader/multi_library_class_loader.hpp"
 
 #include <cstddef>
+#include <memory>
 #include <mutex>
 #include <string>
 #include <vector>

@@ -154,7 +154,7 @@ public:
               "Make sure that the library exists and was explicitly loaded through "
               "MultiLibraryClassLoader::loadLibrary()");
     }
-    return loader->createUniqueInstance<Base>(class_name);
+    return loader->createUniqueInstance<Base>(class_name, true);
   }
 
   /// Creates an instance of an object of given class name with ancestor class Base
@@ -321,7 +321,8 @@ private:
    * @param library_path - the library from which we want to create the plugin
    * @return A pointer to the ClassLoader*, == nullptr if not found
    */
-  std::shared_ptr<class_loader::ClassLoader> getClassLoaderForLibrary(const std::string & library_path);
+  std::shared_ptr<class_loader::ClassLoader> getClassLoaderForLibrary(
+    const std::string & library_path);
 
   /// Gets a handle to the class loader corresponding to a specific class.
   /**
