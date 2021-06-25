@@ -76,7 +76,7 @@ std::string systemLibraryFormat(const std::string & library_name);
  * definitions from which objects can be created/destroyed during runtime (i.e. class_loader).
  * Libraries loaded by a ClassLoader are only accessible within scope of that ClassLoader object.
  */
-class ClassLoader
+class ClassLoader : public std::enable_shared_from_this<ClassLoader>
 {
 public:
   template<typename Base>
@@ -124,10 +124,17 @@ public:
   template<class Base>
   std::shared_ptr<Base> createInstance(const std::string & derived_class_name)
   {
-    return std::shared_ptr<Base>(
-      createRawInstance<Base>(derived_class_name, true),
-      std::bind(&ClassLoader::onPluginDeletion<Base>, this, std::placeholders::_1)
-    );
+    try {
+      return std::shared_ptr<Base>(
+        createRawInstance<Base>(derived_class_name, true),
+        std::bind(&ClassLoader::onPluginDeletion<Base>, shared_from_this(), std::placeholders::_1)
+      );
+    } catch (std::bad_weak_ptr & e) {  // This is not a shared_ptr
+      return std::shared_ptr<Base>(
+        createRawInstance<Base>(derived_class_name, true),
+        std::bind(&ClassLoader::onPluginDeletion<Base>, this, std::placeholders::_1)
+      );
+    }
   }
 
   /// Generates an instance of loadable classes (i.e. class_loader).
@@ -147,10 +154,17 @@ public:
   UniquePtr<Base> createUniqueInstance(const std::string & derived_class_name)
   {
     Base * raw = createRawInstance<Base>(derived_class_name, true);
-    return std::unique_ptr<Base, DeleterType<Base>>(
-      raw,
-      std::bind(&ClassLoader::onPluginDeletion<Base>, this, std::placeholders::_1)
-    );
+    try {
+      return std::unique_ptr<Base, DeleterType<Base>>(
+        raw,
+        std::bind(&ClassLoader::onPluginDeletion<Base>, shared_from_this(), std::placeholders::_1)
+      );
+    } catch (std::bad_weak_ptr & e) {  // This is not a shared_ptr
+      return std::unique_ptr<Base, DeleterType<Base>>(
+        raw,
+        std::bind(&ClassLoader::onPluginDeletion<Base>, this, std::placeholders::_1)
+      );
+    }
   }
 
   /// Generates an instance of loadable classes (i.e. class_loader).

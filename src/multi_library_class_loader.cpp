@@ -30,6 +30,7 @@
 #include "class_loader/multi_library_class_loader.hpp"
 
 #include <cstddef>
+#include <memory>
 #include <mutex>
 #include <string>
 #include <vector>
@@ -68,7 +69,8 @@ std::vector<std::string> MultiLibraryClassLoader::getRegisteredLibraries() const
   return libraries;
 }
 
-ClassLoader * MultiLibraryClassLoader::getClassLoaderForLibrary(const std::string & library_path)
+std::shared_ptr<class_loader::ClassLoader> MultiLibraryClassLoader::getClassLoaderForLibrary(
+  const std::string & library_path)
 {
   return impl_->active_class_loaders_[library_path];
 }
@@ -93,7 +95,7 @@ void MultiLibraryClassLoader::loadLibrary(const std::string & library_path)
 {
   if (!isLibraryAvailable(library_path)) {
     impl_->active_class_loaders_[library_path] =
-      new class_loader::ClassLoader(library_path, isOnDemandLoadUnloadEnabled());
+      std::make_shared<class_loader::ClassLoader>(library_path, isOnDemandLoadUnloadEnabled());
   }
 }
 
@@ -108,11 +110,10 @@ int MultiLibraryClassLoader::unloadLibrary(const std::string & library_path)
 {
   int remaining_unloads = 0;
   if (isLibraryAvailable(library_path)) {
-    ClassLoader * loader = getClassLoaderForLibrary(library_path);
+    auto loader = getClassLoaderForLibrary(library_path);
     remaining_unloads = loader->unloadLibrary();
     if (remaining_unloads == 0) {
       impl_->active_class_loaders_[library_path] = nullptr;
-      delete (loader);
     }
   }
   return remaining_unloads;
