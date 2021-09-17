@@ -75,6 +75,8 @@ std::string systemLibraryFormat(const std::string & library_name);
  * @brief This class allows loading and unloading of dynamically linked libraries which contain class
  * definitions from which objects can be created/destroyed during runtime (i.e. class_loader).
  * Libraries loaded by a ClassLoader are only accessible within scope of that ClassLoader object.
+ * This class inherit from enable_shared_from_this which means we must used smart pointers,
+ * otherwise the code might work but it may run into a leak.
  */
 class ClassLoader : public std::enable_shared_from_this<ClassLoader>
 {
@@ -130,6 +132,8 @@ public:
         std::bind(&ClassLoader::onPluginDeletion<Base>, shared_from_this(), std::placeholders::_1)
       );
     } catch (std::bad_weak_ptr & e) {  // This is not a shared_ptr
+      CONSOLE_BRIDGE_logWarn("class_loader::ClassLoader::createUniqueInstance "
+        "This class must be used with smart pointer");
       return std::shared_ptr<Base>(
         createRawInstance<Base>(derived_class_name, true),
         std::bind(&ClassLoader::onPluginDeletion<Base>, this, std::placeholders::_1)
@@ -160,6 +164,8 @@ public:
         std::bind(&ClassLoader::onPluginDeletion<Base>, shared_from_this(), std::placeholders::_1)
       );
     } catch (std::bad_weak_ptr & e) {  // This is not a shared_ptr
+      CONSOLE_BRIDGE_logWarn("class_loader::ClassLoader::createUniqueInstance "
+        "This class must be used with smart pointer");
       return std::unique_ptr<Base, DeleterType<Base>>(
         raw,
         std::bind(&ClassLoader::onPluginDeletion<Base>, this, std::placeholders::_1)
