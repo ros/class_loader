@@ -132,7 +132,8 @@ public:
         std::bind(&ClassLoader::onPluginDeletion<Base>, shared_from_this(), std::placeholders::_1)
       );
     } catch (std::bad_weak_ptr & e) {  // This is not a shared_ptr
-      CONSOLE_BRIDGE_logWarn("class_loader::ClassLoader::createUniqueInstance "
+      CONSOLE_BRIDGE_logWarn(
+        "class_loader::ClassLoader::createUniqueInstance "
         "This class must be used with smart pointer");
       return std::shared_ptr<Base>(
         createRawInstance<Base>(derived_class_name, true),
@@ -164,7 +165,8 @@ public:
         std::bind(&ClassLoader::onPluginDeletion<Base>, shared_from_this(), std::placeholders::_1)
       );
     } catch (std::bad_weak_ptr & e) {  // This is not a shared_ptr
-      CONSOLE_BRIDGE_logWarn("class_loader::ClassLoader::createUniqueInstance "
+      CONSOLE_BRIDGE_logWarn(
+        "class_loader::ClassLoader::createUniqueInstance "
         "This class must be used with smart pointer");
       return std::unique_ptr<Base, DeleterType<Base>>(
         raw,
