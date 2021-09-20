@@ -132,9 +132,14 @@ public:
         std::bind(&ClassLoader::onPluginDeletion<Base>, shared_from_this(), std::placeholders::_1)
       );
     } catch (std::bad_weak_ptr & e) {  // This is not a shared_ptr
-      CONSOLE_BRIDGE_logWarn(
-        "class_loader::ClassLoader::createUniqueInstance "
-        "This class must be used with smart pointer");
+      static bool create_instance_message = false;
+      if (!create_instance_message) {
+        CONSOLE_BRIDGE_logWarn(
+          "To createUniqueInstance() with a class_loader::ClassLoader "
+          "instance whose lifetime is not managed by an std::shared_ptr "
+          "is deprecated.");
+          create_instance_message = true;
+      }
       return std::shared_ptr<Base>(
         createRawInstance<Base>(derived_class_name, true),
         std::bind(&ClassLoader::onPluginDeletion<Base>, this, std::placeholders::_1)
@@ -165,9 +170,14 @@ public:
         std::bind(&ClassLoader::onPluginDeletion<Base>, shared_from_this(), std::placeholders::_1)
       );
     } catch (std::bad_weak_ptr & e) {  // This is not a shared_ptr
-      CONSOLE_BRIDGE_logWarn(
-        "class_loader::ClassLoader::createUniqueInstance "
-        "This class must be used with smart pointer");
+      static bool create_unique_instance_message = false;
+      if (!create_unique_instance_message) {
+        CONSOLE_BRIDGE_logWarn(
+          "To createUniqueInstance() with a class_loader::ClassLoader "
+          "instance whose lifetime is not managed by an std::shared_ptr "
+          "is deprecated.");
+        create_unique_instance_message = true;
+      }
       return std::unique_ptr<Base, DeleterType<Base>>(
         raw,
         std::bind(&ClassLoader::onPluginDeletion<Base>, this, std::placeholders::_1)
