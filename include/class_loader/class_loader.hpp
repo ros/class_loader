@@ -135,10 +135,10 @@ public:
       static bool create_instance_message = false;
       if (!create_instance_message) {
         CONSOLE_BRIDGE_logWarn(
-          "To createUniqueInstance() with a class_loader::ClassLoader "
+          "To createInstance() with a class_loader::ClassLoader "
           "instance whose lifetime is not managed by an std::shared_ptr "
           "is deprecated.");
-          create_instance_message = true;
+        create_instance_message = true;
       }
       return std::shared_ptr<Base>(
         createRawInstance<Base>(derived_class_name, true),
