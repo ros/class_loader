@@ -131,7 +131,7 @@ public:
         createRawInstance<Base>(derived_class_name, true),
         std::bind(&ClassLoader::onPluginDeletion<Base>, shared_from_this(), std::placeholders::_1)
       );
-    } catch (std::bad_weak_ptr & e) {  // This is not a shared_ptr
+    } catch (std::bad_weak_ptr &) {  // This is not a shared_ptr
       static bool create_instance_message = false;
       if (!create_instance_message) {
         CONSOLE_BRIDGE_logWarn(
@@ -169,7 +169,7 @@ public:
         raw,
         std::bind(&ClassLoader::onPluginDeletion<Base>, shared_from_this(), std::placeholders::_1)
       );
-    } catch (std::bad_weak_ptr & e) {  // This is not a shared_ptr
+    } catch (std::bad_weak_ptr &) {  // This is not a shared_ptr
       static bool create_unique_instance_message = false;
       if (!create_unique_instance_message) {
         CONSOLE_BRIDGE_logWarn(
