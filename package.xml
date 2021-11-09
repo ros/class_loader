@@ -15,6 +15,7 @@
   <url type="repository">https://github.com/ros/class_loader</url>
 
   <author>Mirza Shah</author>
+  <author email="stevenragnarok@openrobotics.org">Steven! Ragnarök</author>
 
   <buildtool_depend version_gte="0.5.68">catkin</buildtool_depend>
 
