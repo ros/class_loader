@@ -28,7 +28,6 @@ find_package(rcpputils REQUIRED)
 if(ament_cmake_FOUND)
   ament_export_dependencies(console_bridge)
   ament_export_dependencies(rcpputils)
-  ament_export_include_directories(include)
 endif()
 
 set(${PROJECT_NAME}_SRCS
@@ -40,11 +39,12 @@ set(${PROJECT_NAME}_SRCS
 add_library(${PROJECT_NAME} ${explicit_library_type} ${${PROJECT_NAME}_SRCS})
 target_include_directories(${PROJECT_NAME} PUBLIC
   "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
-  "$<INSTALL_INTERFACE:include>")
+  "$<INSTALL_INTERFACE:include/${PROJECT_NAME}>")
 
 if(ament_cmake_FOUND)
-  ament_target_dependencies(${PROJECT_NAME} "console_bridge" "rcpputils")
-  ament_export_libraries(${PROJECT_NAME})
+  target_link_libraries(${PROJECT_NAME}
+    console_bridge::console_bridge
+    rcpputils::rcpputils)
   ament_export_targets(${PROJECT_NAME})
 else()
   target_include_directories(${PROJECT_NAME}
@@ -104,5 +104,4 @@ install(TARGETS ${PROJECT_NAME} EXPORT ${PROJECT_NAME}
 install(DIRECTORY cmake
   DESTINATION share/${PROJECT_NAME})
 
-install(DIRECTORY include/${PROJECT_NAME}
-  DESTINATION include)
+install(DIRECTORY include/ DESTINATION include/${PROJECT_NAME})
