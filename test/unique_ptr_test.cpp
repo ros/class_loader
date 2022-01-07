@@ -28,9 +28,6 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <class_loader/class_loader.hpp>
-#include <class_loader/multi_library_class_loader.hpp>
-
 #include <gtest/gtest.h>
 
 #include <chrono>
@@ -40,6 +37,9 @@
 #include <string>
 #include <thread>
 #include <vector>
+
+#include <class_loader/class_loader.hpp>
+#include <class_loader/multi_library_class_loader.hpp>
 
 #include "./base.hpp"
 
