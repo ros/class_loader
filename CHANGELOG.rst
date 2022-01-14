@@ -2,6 +2,14 @@
 Changelog for package class_loader
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+2.2.0 (2022-01-14)
+------------------
+* Install includes to include/ (`#191 <https://github.com/ros/class_loader/issues/191>`_)
+* Fix include order for cpplint (`#192 <https://github.com/ros/class_loader/issues/192>`_)
+* Update maintainers to Geoffrey Biggs and Michael Carroll (`#190 <https://github.com/ros/class_loader/issues/190>`_)
+* Fix spelling mistake (`#184 <https://github.com/ros/class_loader/issues/184>`_)
+* Contributors: Audrow Nash, David V. Lu!!, Jacob Perron, Shane Loretz
+
 2.1.2 (2021-04-12)
 ------------------
 * Remove travis. (`#182 <https://github.com/ros/class_loader/issues/182>`_)
