@@ -553,11 +553,11 @@ void unloadLibrary(const std::string & library_path, ClassLoader * loader)
       } catch (const Poco::RuntimeException & e) {
         delete (library);
         throw class_loader::LibraryUnloadException(
-                "Could not unload library (Poco exception = " + std::string(e.message()) + ")");
+                "Caught a poco exception while unloading library " + library_path + ": " + e.message());
       }
     }
     throw class_loader::LibraryUnloadException(
-            "Attempt to unload library that class_loader is unaware of.");
+            "Attempt to unload library that class_loader is unaware of: " + library_path);
   }
 }
 
