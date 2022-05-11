@@ -2,6 +2,9 @@
 Changelog for package class_loader
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+2.3.0 (2022-05-10)
+------------------
+
 2.2.0 (2022-01-14)
 ------------------
 * Install includes to include/ (`#191 <https://github.com/ros/class_loader/issues/191>`_)
