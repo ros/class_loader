@@ -1,0 +1,30 @@
+# This config uses industrial_ci (https://github.com/ros-industrial/industrial_ci.git).
+# For troubleshooting, see readme (https://github.com/ros-industrial/industrial_ci/blob/master/README.rst)
+
+name: CI
+
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+    branches:
+      - ros2
+
+jobs:
+  ci:
+    strategy:
+      fail-fast: false
+      matrix:
+        env:
+          - TARGET_CMAKE_ARGS: -DENABLE_SANITIZER_ADDRESS=ON -DCMAKE_BUILD_TYPE=Debug
+            NAME: Address Sanitizer
+          - TARGET_CMAKE_ARGS: -DENABLE_SANITIZER_THREAD=ON -DCMAKE_BUILD_TYPE=Debug
+            NAME: Thread Sanitizer
+    env:
+      ROS_DISTRO: rolling
+    runs-on: ubuntu-latest
+    name: ${{ matrix.env.NAME }}
+    steps:
+      - uses: actions/checkout@v2
+      - uses: 'ros-industrial/industrial_ci@master'
+        env: ${{matrix.env}}
