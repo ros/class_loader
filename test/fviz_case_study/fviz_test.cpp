@@ -23,9 +23,9 @@ const std::string name = class_loader::systemLibraryFormat("class_loader_Test_Fv
 
 TEST(FvizTest, basic_test) {
   try {
-    class_loader::ClassLoader loader(name);
-    loader.createInstance<FvizPluginBase>("Bar")->speak();
-    loader.createInstance<FvizPluginBase>("Baz")->speak();
+    auto loader = class_loader::ClassLoader::Make(name);
+    loader->createInstance<FvizPluginBase>("Bar")->speak();
+    loader->createInstance<FvizPluginBase>("Baz")->speak();
   } catch (const class_loader::ClassLoaderException & e) {
     FAIL() << "ClassLoaderException: " << e.what() << "\n";
   }

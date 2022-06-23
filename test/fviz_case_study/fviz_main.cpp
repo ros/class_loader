@@ -27,9 +27,9 @@ int main(void)
   foo("starting fviz");
   foo("loading plugin: " + name);
   try {
-    class_loader::ClassLoader loader(name);
-    loader.createInstance<FvizPluginBase>("Bar")->speak();
-    loader.createInstance<FvizPluginBase>("Baz")->speak();
+    auto loader = class_loader::ClassLoader::Make(name);
+    loader->createInstance<FvizPluginBase>("Bar")->speak();
+    loader->createInstance<FvizPluginBase>("Baz")->speak();
   } catch (const class_loader::ClassLoaderException & e) {
     fprintf(stderr, "ClassLoaderException: %s\n", e.what());
     throw;
