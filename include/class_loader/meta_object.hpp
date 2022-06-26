@@ -64,12 +64,11 @@ public:
     const std::string & class_name,
     const std::string & base_class_name,
     const std::string & typeid_base_class_name = "UNSET");
+
   /**
-   * @brief Destructor for the class. THIS MUST NOT BE VIRTUAL AND OVERRIDDEN BY
-   * TEMPLATE SUBCLASSES, OTHERWISE THEY WILL PULL IN A REDUNDANT METAOBJECT
-   * DESTRUCTOR OUTSIDE OF libclass_loader WITHIN THE PLUGIN LIBRARY! T
+   * @brief Default virtual destructor
    */
-  ~AbstractMetaObjectBase();
+  virtual ~AbstractMetaObjectBase() = default;
 
   /**
    * @brief Gets the literal name of the class.
@@ -144,12 +143,13 @@ public:
   ClassLoader * getAssociatedClassLoader(size_t index) const;
 
 protected:
-  /**
-   * This is needed to make base class polymorphic (i.e. have a vtable)
-   */
-  virtual void dummyMethod() {}
+  typedef std::vector<class_loader::ClassLoader *> ClassLoaderVector;
 
-  AbstractMetaObjectBaseImpl * impl_;
+  ClassLoaderVector associated_class_loaders_;
+  std::string associated_library_path_;
+  std::string base_class_name_;
+  std::string class_name_;
+  std::string typeid_base_class_name_;
 };
 
 /**
