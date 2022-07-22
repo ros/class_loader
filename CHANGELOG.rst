@@ -2,6 +2,11 @@
 Changelog for package class_loader
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+2.0.3 (2022-07-22)
+------------------
+* Fix spelling mistake (`#183 <https://github.com/ros/class_loader/issues/183>`_) (`#185 <https://github.com/ros/class_loader/issues/185>`_)
+* Contributors: David V. Lu!!
+
 2.0.2 (2021-04-14)
 ------------------
 * Update QD to QL 1 (`#178 <https://github.com/ros/class_loader/issues/178>`_)
