@@ -76,11 +76,14 @@ namespace impl
 typedef std::string LibraryPath;
 typedef std::string ClassName;
 typedef std::string BaseClassName;
-typedef std::map<ClassName, impl::AbstractMetaObjectBase *> FactoryMap;
+typedef std::map<ClassName, std::shared_ptr<AbstractMetaObjectBase>> FactoryMap;
 typedef std::map<BaseClassName, FactoryMap> BaseToFactoryMapMap;
 typedef std::pair<LibraryPath, std::shared_ptr<rcpputils::SharedLibrary>> LibraryPair;
 typedef std::vector<LibraryPair> LibraryVector;
-typedef std::vector<AbstractMetaObjectBase *> MetaObjectVector;
+typedef std::vector<std::shared_ptr<AbstractMetaObjectBase>> MetaObjectVector;
+
+CLASS_LOADER_PUBLIC
+MetaObjectVector & getMetaObjectGraveyard();
 
 CLASS_LOADER_PUBLIC
 void printDebugInfoToScreen();
@@ -139,8 +142,15 @@ ClassLoader * getCurrentlyActiveClassLoader();
  * @param loader - pointer to the currently active ClassLoader.
  */
 CLASS_LOADER_PUBLIC
-void setCurrentlyActiveClassLoader(ClassLoader * loader);
+void setCurrentlyActiveClassLoader(std::shared_ptr<ClassLoader> loader);
 
+/**
+ * @brief Inserts meta object into the graveyard to preserve the lifetime.
+ *
+ * @param meta_obj - pointer to the meta object.
+ */
+CLASS_LOADER_PUBLIC
+void insertMetaObjectIntoGraveyard(std::shared_ptr<AbstractMetaObjectBase> meta_obj);
 
 /**
  * @brief This function extracts a reference to the FactoryMap for appropriate base class out of
@@ -240,8 +250,8 @@ void registerPlugin(const std::string & class_name, const std::string & base_cla
   }
 
   // Create factory
-  impl::AbstractMetaObject<Base> * new_factory =
-    new impl::MetaObject<Derived, Base>(class_name, base_class_name);
+  auto new_factory =
+    std::make_shared<impl::MetaObject<Derived, Base>>(class_name, base_class_name);
   new_factory->addOwningClassLoader(getCurrentlyActiveClassLoader());
   new_factory->setAssociatedLibraryPath(getCurrentlyLoadingLibraryName());
 
@@ -260,13 +270,17 @@ void registerPlugin(const std::string & class_name, const std::string & base_cla
       "and use either class_loader::ClassLoader/MultiLibraryClassLoader to open.",
       class_name.c_str());
   }
+
+  // We insert every factory into the graveyard to preserve the lifetime of all meta objects
+  // until the process exits.
+  insertMetaObjectIntoGraveyard(new_factory);
   factoryMap[class_name] = new_factory;
   getPluginBaseToFactoryMapMapMutex().unlock();
 
   CONSOLE_BRIDGE_logDebug(
     "class_loader.impl: "
     "Registration of %s complete (Metaobject Address = %p)",
-    class_name.c_str(), reinterpret_cast<void *>(new_factory));
+    class_name.c_str(), reinterpret_cast<void *>(new_factory.get()));
 }
 
 /**
@@ -278,14 +292,14 @@ void registerPlugin(const std::string & class_name, const std::string & base_cla
  * @return A pointer to newly created plugin, note caller is responsible for object destruction
  */
 template<typename Base>
-Base * createInstance(const std::string & derived_class_name, ClassLoader * loader)
+Base * createInstance(const std::string & derived_class_name, std::shared_ptr<ClassLoader> loader)
 {
   AbstractMetaObject<Base> * factory = nullptr;
 
   getPluginBaseToFactoryMapMapMutex().lock();
   FactoryMap & factoryMap = getFactoryMapForBaseClass<Base>();
   if (factoryMap.find(derived_class_name) != factoryMap.end()) {
-    factory = dynamic_cast<impl::AbstractMetaObject<Base> *>(factoryMap[derived_class_name]);
+    factory = dynamic_cast<impl::AbstractMetaObject<Base> *>(factoryMap[derived_class_name].get());
   } else {
     CONSOLE_BRIDGE_logError(
       "class_loader.impl: No metaobject exists for class type %s.", derived_class_name.c_str());
@@ -293,7 +307,7 @@ Base * createInstance(const std::string & derived_class_name, ClassLoader * load
   getPluginBaseToFactoryMapMapMutex().unlock();
 
   Base * obj = nullptr;
-  if (factory != nullptr && factory->isOwnedBy(loader)) {
+  if (factory != nullptr && factory->isOwnedBy(loader.get())) {
     obj = factory->create();
   }
 
@@ -333,7 +347,7 @@ Base * createInstance(const std::string & derived_class_name, ClassLoader * load
  * @return A vector of strings where each string is a plugin we can create
  */
 template<typename Base>
-std::vector<std::string> getAvailableClasses(const ClassLoader * loader)
+std::vector<std::string> getAvailableClasses(std::shared_ptr<const ClassLoader> loader)
 {
   std::lock_guard<std::recursive_mutex> lock(getPluginBaseToFactoryMapMapMutex());
 
@@ -342,8 +356,8 @@ std::vector<std::string> getAvailableClasses(const ClassLoader * loader)
   std::vector<std::string> classes_with_no_owner;
 
   for (auto & it : factory_map) {
-    AbstractMetaObjectBase * factory = it.second;
-    if (factory->isOwnedBy(loader)) {
+    auto factory = it.second;
+    if (factory->isOwnedBy(loader.get())) {
       classes.push_back(it.first);
     } else if (factory->isOwnedBy(nullptr)) {
       classes_with_no_owner.push_back(it.first);
@@ -364,7 +378,8 @@ std::vector<std::string> getAvailableClasses(const ClassLoader * loader)
  *   within a ClassLoader's visible scope
  */
 CLASS_LOADER_PUBLIC
-std::vector<std::string> getAllLibrariesUsedByClassLoader(const ClassLoader * loader);
+std::vector<std::string> getAllLibrariesUsedByClassLoader(
+  std::shared_ptr<const ClassLoader> loader);
 
 /**
  * @brief Indicates if passed library loaded within scope of a ClassLoader.
@@ -375,7 +390,7 @@ std::vector<std::string> getAllLibrariesUsedByClassLoader(const ClassLoader * lo
  * @return true if the library is loaded within loader's scope, else false
  */
 CLASS_LOADER_PUBLIC
-bool isLibraryLoaded(const std::string & library_path, const ClassLoader * loader);
+bool isLibraryLoaded(const std::string & library_path, std::shared_ptr<const ClassLoader> loader);
 
 /**
  * @brief Indicates if passed library has been loaded by ANY ClassLoader

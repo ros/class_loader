@@ -57,9 +57,9 @@ const std::string GLOBAL_PLUGINS =  // NOLINT
 
 TEST(ClassLoaderTest, basicLoad) {
   try {
-    class_loader::ClassLoader loader1(LIBRARY_1, false);
+    auto loader1 = class_loader::ClassLoader::Make(LIBRARY_1, false);
     ASSERT_NO_THROW(class_loader::impl::printDebugInfoToScreen());
-    loader1.createInstance<Base>("Cat")->saySomething();  // See if lazy load works
+    loader1->createInstance<Base>("Cat")->saySomething();  // See if lazy load works
   } catch (class_loader::ClassLoaderException & e) {
     FAIL() << "ClassLoaderException: " << e.what() << "\n";
   }
@@ -70,8 +70,8 @@ TEST(ClassLoaderTest, basicLoad) {
 // Requires separate namespace so static variables are isolated
 TEST(ClassLoaderUnmanagedTest, basicLoadUnmanaged) {
   try {
-    class_loader::ClassLoader loader1(LIBRARY_1, false);
-    Base * unmanaged_instance = loader1.createUnmanagedInstance<Base>("Dog");
+    auto loader1 = class_loader::ClassLoader::Make(LIBRARY_1, false);
+    Base * unmanaged_instance = loader1->createUnmanagedInstance<Base>("Dog");
     ASSERT_NE(unmanaged_instance, nullptr);
     unmanaged_instance->saySomething();
     delete unmanaged_instance;
@@ -83,14 +83,14 @@ TEST(ClassLoaderUnmanagedTest, basicLoadUnmanaged) {
 }
 
 TEST(ClassLoaderUniquePtrTest, basicLoadFailures) {
-  class_loader::ClassLoader loader1(LIBRARY_1, false);
-  class_loader::ClassLoader loader2("", false);
-  loader2.loadLibrary();
+  auto loader1 = class_loader::ClassLoader::Make(LIBRARY_1, false);
+  auto loader2 = class_loader::ClassLoader::Make("", false);
+  loader2->loadLibrary();
   EXPECT_THROW(
-    class_loader::impl::loadLibrary("LIBRARY_1", &loader1),
+    class_loader::impl::loadLibrary("LIBRARY_1", loader1.get()),
     class_loader::LibraryLoadException);
   EXPECT_THROW(
-    class_loader::impl::unloadLibrary("LIBRARY_1", &loader1),
+    class_loader::impl::unloadLibrary("LIBRARY_1", loader1.get()),
     class_loader::LibraryUnloadException);
 }
 
@@ -103,12 +103,12 @@ TEST(ClassLoaderUniquePtrTest, MultiLibraryClassLoaderFailures) {
 TEST(ClassLoaderTest, correctNonLazyLoadUnload) {
   try {
     ASSERT_FALSE(class_loader::impl::isLibraryLoadedByAnybody(LIBRARY_1));
-    class_loader::ClassLoader loader1(LIBRARY_1, false);
+    auto loader1 = class_loader::ClassLoader::Make(LIBRARY_1, false);
     ASSERT_TRUE(class_loader::impl::isLibraryLoadedByAnybody(LIBRARY_1));
-    ASSERT_TRUE(loader1.isLibraryLoaded());
-    loader1.unloadLibrary();
+    ASSERT_TRUE(loader1->isLibraryLoaded());
+    loader1->unloadLibrary();
     ASSERT_FALSE(class_loader::impl::isLibraryLoadedByAnybody(LIBRARY_1));
-    ASSERT_FALSE(loader1.isLibraryLoaded());
+    ASSERT_FALSE(loader1->isLibraryLoaded());
     return;
   } catch (class_loader::ClassLoaderException & e) {
     FAIL() << "ClassLoaderException: " << e.what() << "\n";
@@ -120,14 +120,14 @@ TEST(ClassLoaderTest, correctNonLazyLoadUnload) {
 TEST(ClassLoaderTest, correctLazyLoadUnload) {
   try {
     ASSERT_FALSE(class_loader::impl::isLibraryLoadedByAnybody(LIBRARY_1));
-    class_loader::ClassLoader loader1(LIBRARY_1, true);
+    auto loader1 = class_loader::ClassLoader::Make(LIBRARY_1, true);
     ASSERT_FALSE(class_loader::impl::isLibraryLoadedByAnybody(LIBRARY_1));
-    ASSERT_FALSE(loader1.isLibraryLoaded());
+    ASSERT_FALSE(loader1->isLibraryLoaded());
 
     {
-      std::shared_ptr<Base> obj = loader1.createInstance<Base>("Cat");
+      std::shared_ptr<Base> obj = loader1->createInstance<Base>("Cat");
       ASSERT_TRUE(class_loader::impl::isLibraryLoadedByAnybody(LIBRARY_1));
-      ASSERT_TRUE(loader1.isLibraryLoaded());
+      ASSERT_TRUE(loader1->isLibraryLoaded());
     }
 
     // The library will unload automatically when the only plugin object left is destroyed
@@ -141,10 +141,10 @@ TEST(ClassLoaderTest, correctLazyLoadUnload) {
 }
 
 TEST(ClassLoaderTest, nonExistentPlugin) {
-  class_loader::ClassLoader loader1(LIBRARY_1, false);
+  auto loader1 = class_loader::ClassLoader::Make(LIBRARY_1, false);
 
   try {
-    std::shared_ptr<Base> obj = loader1.createInstance<Base>("Bear");
+    std::shared_ptr<Base> obj = loader1->createInstance<Base>("Bear");
     if (nullptr == obj) {
       FAIL() << "Null object being returned instead of exception thrown.";
     }
@@ -162,7 +162,7 @@ TEST(ClassLoaderTest, nonExistentPlugin) {
 
 TEST(ClassLoaderTest, nonExistentLibrary) {
   try {
-    class_loader::ClassLoader loader1("libDoesNotExist.so", false);
+    auto loader1 = class_loader::ClassLoader::Make("libDoesNotExist.so", false);
   } catch (const class_loader::LibraryLoadException &) {
     SUCCEED();
     return;
@@ -179,10 +179,10 @@ class InvalidBase
 
 TEST(ClassLoaderTest, invalidBase) {
   try {
-    class_loader::ClassLoader loader1(LIBRARY_1, false);
-    if (loader1.isClassAvailable<InvalidBase>("Cat")) {
+    auto loader1 = class_loader::ClassLoader::Make(LIBRARY_1, false);
+    if (loader1->isClassAvailable<InvalidBase>("Cat")) {
       FAIL() << "Cat should not be available for InvalidBase";
-    } else if (loader1.isClassAvailable<Base>("Cat")) {
+    } else if (loader1->isClassAvailable<Base>("Cat")) {
       SUCCEED();
       return;
     } else {
@@ -200,7 +200,7 @@ void wait(int seconds)
   std::this_thread::sleep_for(std::chrono::seconds(seconds));
 }
 
-void run(class_loader::ClassLoader * loader)
+void run(std::shared_ptr<class_loader::ClassLoader> loader)
 {
   std::vector<std::string> classes = loader->getAvailableClasses<Base>();
   for (auto & class_ : classes) {
@@ -209,8 +209,8 @@ void run(class_loader::ClassLoader * loader)
 }
 
 TEST(ClassLoaderTest, threadSafety) {
-  class_loader::ClassLoader loader1(LIBRARY_1);
-  ASSERT_TRUE(loader1.isLibraryLoaded());
+  auto loader1 = class_loader::ClassLoader::Make(LIBRARY_1);
+  ASSERT_TRUE(loader1->isLibraryLoaded());
 
   // Note: Hard to test thread safety to make sure memory isn't corrupted.
   // The hope is this test is hard enough that once in a while it'll segfault
@@ -219,7 +219,7 @@ TEST(ClassLoaderTest, threadSafety) {
     std::vector<std::thread *> client_threads;
 
     for (size_t c = 0; c < STRESS_TEST_NUM_THREADS; ++c) {
-      client_threads.push_back(new std::thread(std::bind(&run, &loader1)));
+      client_threads.push_back(new std::thread([loader1]() {run(loader1);}));
     }
 
     for (auto & client_thread : client_threads) {
@@ -230,8 +230,8 @@ TEST(ClassLoaderTest, threadSafety) {
       delete (client_thread);
     }
 
-    loader1.unloadLibrary();
-    ASSERT_FALSE(loader1.isLibraryLoaded());
+    loader1->unloadLibrary();
+    ASSERT_FALSE(loader1->isLibraryLoaded());
   } catch (const class_loader::ClassLoaderException &) {
     FAIL() << "Unexpected ClassLoaderException.";
   } catch (...) {
@@ -241,27 +241,27 @@ TEST(ClassLoaderTest, threadSafety) {
 
 TEST(ClassLoaderTest, loadRefCountingNonLazy) {
   try {
-    class_loader::ClassLoader loader1(LIBRARY_1, false);
-    ASSERT_TRUE(loader1.isLibraryLoaded());
+    auto loader1 = class_loader::ClassLoader::Make(LIBRARY_1, false);
+    ASSERT_TRUE(loader1->isLibraryLoaded());
 
-    loader1.loadLibrary();
-    loader1.loadLibrary();
-    ASSERT_TRUE(loader1.isLibraryLoaded());
+    loader1->loadLibrary();
+    loader1->loadLibrary();
+    ASSERT_TRUE(loader1->isLibraryLoaded());
 
-    loader1.unloadLibrary();
-    ASSERT_TRUE(loader1.isLibraryLoaded());
+    loader1->unloadLibrary();
+    ASSERT_TRUE(loader1->isLibraryLoaded());
 
-    loader1.unloadLibrary();
-    ASSERT_TRUE(loader1.isLibraryLoaded());
+    loader1->unloadLibrary();
+    ASSERT_TRUE(loader1->isLibraryLoaded());
 
-    loader1.unloadLibrary();
-    ASSERT_FALSE(loader1.isLibraryLoaded());
+    loader1->unloadLibrary();
+    ASSERT_FALSE(loader1->isLibraryLoaded());
 
-    loader1.unloadLibrary();
-    ASSERT_FALSE(loader1.isLibraryLoaded());
+    loader1->unloadLibrary();
+    ASSERT_FALSE(loader1->isLibraryLoaded());
 
-    loader1.loadLibrary();
-    ASSERT_TRUE(loader1.isLibraryLoaded());
+    loader1->loadLibrary();
+    ASSERT_TRUE(loader1->isLibraryLoaded());
 
     return;
   } catch (const class_loader::ClassLoaderException &) {
@@ -275,33 +275,33 @@ TEST(ClassLoaderTest, loadRefCountingNonLazy) {
 
 TEST(ClassLoaderTest, loadRefCountingLazy) {
   try {
-    class_loader::ClassLoader loader1(LIBRARY_1, true);
-    ASSERT_FALSE(loader1.isLibraryLoaded());
+    auto loader1 = class_loader::ClassLoader::Make(LIBRARY_1, true);
+    ASSERT_FALSE(loader1->isLibraryLoaded());
 
     {
-      std::shared_ptr<Base> obj = loader1.createInstance<Base>("Dog");
-      ASSERT_TRUE(loader1.isLibraryLoaded());
+      std::shared_ptr<Base> obj = loader1->createInstance<Base>("Dog");
+      ASSERT_TRUE(loader1->isLibraryLoaded());
     }
 
-    ASSERT_FALSE(loader1.isLibraryLoaded());
+    ASSERT_FALSE(loader1->isLibraryLoaded());
 
-    loader1.loadLibrary();
-    ASSERT_TRUE(loader1.isLibraryLoaded());
+    loader1->loadLibrary();
+    ASSERT_TRUE(loader1->isLibraryLoaded());
 
-    loader1.loadLibrary();
-    ASSERT_TRUE(loader1.isLibraryLoaded());
+    loader1->loadLibrary();
+    ASSERT_TRUE(loader1->isLibraryLoaded());
 
-    loader1.unloadLibrary();
-    ASSERT_TRUE(loader1.isLibraryLoaded());
+    loader1->unloadLibrary();
+    ASSERT_TRUE(loader1->isLibraryLoaded());
 
-    loader1.unloadLibrary();
-    ASSERT_FALSE(loader1.isLibraryLoaded());
+    loader1->unloadLibrary();
+    ASSERT_FALSE(loader1->isLibraryLoaded());
 
-    loader1.unloadLibrary();
-    ASSERT_FALSE(loader1.isLibraryLoaded());
+    loader1->unloadLibrary();
+    ASSERT_FALSE(loader1->isLibraryLoaded());
 
-    loader1.loadLibrary();
-    ASSERT_TRUE(loader1.isLibraryLoaded());
+    loader1->loadLibrary();
+    ASSERT_TRUE(loader1->isLibraryLoaded());
 
     return;
   } catch (const class_loader::ClassLoaderException &) {
@@ -369,9 +369,9 @@ TEST(MultiClassLoaderTest, noWarningOnLazyLoad) {
 TEST(ClassLoaderGraveyardTest, loadUnloadLoadFromGraveyard) {
   // This first load/unload adds the plugin to the graveyard
   try {
-    class_loader::ClassLoader loader(GLOBAL_PLUGINS, false);
-    loader.createInstance<Base>("Kangaroo")->saySomething();
-    loader.unloadLibrary();
+    auto loader = class_loader::ClassLoader::Make(GLOBAL_PLUGINS, false);
+    loader->createInstance<Base>("Kangaroo")->saySomething();
+    loader->unloadLibrary();
   } catch (class_loader::ClassLoaderException & e) {
     FAIL() << "ClassLoaderException: " << e.what() << "\n";
   }
@@ -385,13 +385,13 @@ TEST(ClassLoaderGraveyardTest, loadUnloadLoadFromGraveyard) {
   // This load will cause system to use globally relocatable library.
   // For testing purposes, this will cause ClassLoader to revive the library from the graveyard.
   try {
-    class_loader::ClassLoader loader(GLOBAL_PLUGINS, false);
-    loader.createInstance<Base>("Panda")->saySomething();
-    loader.unloadLibrary();
+    auto loader = class_loader::ClassLoader::Make(GLOBAL_PLUGINS, false);
+    loader->createInstance<Base>("Panda")->saySomething();
+    loader->unloadLibrary();
 
-    loader.loadLibrary();
-    loader.createInstance<Base>("Hyena")->saySomething();
-    loader.unloadLibrary();
+    loader->loadLibrary();
+    loader->createInstance<Base>("Hyena")->saySomething();
+    loader->unloadLibrary();
   } catch (class_loader::ClassLoaderException & e) {
     FAIL() << "ClassLoaderException: " << e.what() << "\n";
   }
@@ -399,9 +399,9 @@ TEST(ClassLoaderGraveyardTest, loadUnloadLoadFromGraveyard) {
   dlclose(handle);
   // With all libraries closed, this should act like a normal load/unload.
   try {
-    class_loader::ClassLoader loader(GLOBAL_PLUGINS, false);
-    loader.createInstance<Base>("Alpaca")->saySomething();
-    loader.unloadLibrary();
+    auto loader = class_loader::ClassLoader::Make(GLOBAL_PLUGINS, false);
+    loader->createInstance<Base>("Alpaca")->saySomething();
+    loader->unloadLibrary();
   } catch (class_loader::ClassLoaderException & e) {
     FAIL() << "ClassLoaderException: " << e.what() << "\n";
   }

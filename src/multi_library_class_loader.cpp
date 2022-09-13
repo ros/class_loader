@@ -30,6 +30,7 @@
 #include "class_loader/multi_library_class_loader.hpp"
 
 #include <cstddef>
+#include <memory>
 #include <mutex>
 #include <string>
 #include <vector>
@@ -46,7 +47,7 @@ public:
 };
 
 MultiLibraryClassLoader::MultiLibraryClassLoader(bool enable_ondemand_loadunload)
-: impl_(new MultiLibraryClassLoaderImpl())
+: impl_(std::make_unique<MultiLibraryClassLoaderImpl>())
 {
   impl_->enable_ondemand_loadunload_ = enable_ondemand_loadunload;
 }
@@ -54,7 +55,6 @@ MultiLibraryClassLoader::MultiLibraryClassLoader(bool enable_ondemand_loadunload
 MultiLibraryClassLoader::~MultiLibraryClassLoader()
 {
   shutdownAllClassLoaders();
-  delete impl_;
 }
 
 std::vector<std::string> MultiLibraryClassLoader::getRegisteredLibraries() const
@@ -68,7 +68,8 @@ std::vector<std::string> MultiLibraryClassLoader::getRegisteredLibraries() const
   return libraries;
 }
 
-ClassLoader * MultiLibraryClassLoader::getClassLoaderForLibrary(const std::string & library_path)
+std::shared_ptr<ClassLoader> MultiLibraryClassLoader::getClassLoaderForLibrary(
+  const std::string & library_path)
 {
   return impl_->active_class_loaders_[library_path];
 }
@@ -93,7 +94,7 @@ void MultiLibraryClassLoader::loadLibrary(const std::string & library_path)
 {
   if (!isLibraryAvailable(library_path)) {
     impl_->active_class_loaders_[library_path] =
-      new class_loader::ClassLoader(library_path, isOnDemandLoadUnloadEnabled());
+      class_loader::ClassLoader::Make(library_path, isOnDemandLoadUnloadEnabled());
   }
 }
 
@@ -108,11 +109,10 @@ int MultiLibraryClassLoader::unloadLibrary(const std::string & library_path)
 {
   int remaining_unloads = 0;
   if (isLibraryAvailable(library_path)) {
-    ClassLoader * loader = getClassLoaderForLibrary(library_path);
+    std::shared_ptr<ClassLoader> loader = getClassLoaderForLibrary(library_path);
     remaining_unloads = loader->unloadLibrary();
     if (remaining_unloads == 0) {
-      impl_->active_class_loaders_[library_path] = nullptr;
-      delete (loader);
+      impl_->active_class_loaders_.erase(library_path);
     }
   }
   return remaining_unloads;

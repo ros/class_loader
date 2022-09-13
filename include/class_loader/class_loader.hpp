@@ -76,7 +76,7 @@ std::string systemLibraryFormat(const std::string & library_name);
  * definitions from which objects can be created/destroyed during runtime (i.e. class_loader).
  * Libraries loaded by a ClassLoader are only accessible within scope of that ClassLoader object.
  */
-class ClassLoader
+class ClassLoader : public std::enable_shared_from_this<ClassLoader>
 {
 public:
   template<typename Base>
@@ -86,14 +86,17 @@ public:
   using UniquePtr = std::unique_ptr<Base, DeleterType<Base>>;
 
   /**
-   * @brief Constructor for ClassLoader
+   * @brief This is required (as apposed to the old constructor) to enforce that the lifetime of the ClassLoader
+   * can be preserved by objects that this class creates.
    *
    * @param library_path - The path of the runtime library to load
    * @param ondemand_load_unload - Indicates if on-demand (lazy) unloading/loading of libraries
    * occurs as plugins are created/destroyed.
    */
   CLASS_LOADER_PUBLIC
-  explicit ClassLoader(const std::string & library_path, bool ondemand_load_unload = false);
+  [[nodiscard]] static std::shared_ptr<ClassLoader> Make(
+    const std::string & library_path,
+    bool ondemand_load_unload = false);
 
   /**
    * @brief Destructor for ClassLoader. All libraries opened by this ClassLoader are unloaded automatically.
@@ -109,7 +112,7 @@ public:
   template<class Base>
   std::vector<std::string> getAvailableClasses() const
   {
-    return class_loader::impl::getAvailableClasses<Base>(this);
+    return class_loader::impl::getAvailableClasses<Base>(shared_from_this());
   }
 
   /**
@@ -126,7 +129,9 @@ public:
   {
     return std::shared_ptr<Base>(
       createRawInstance<Base>(derived_class_name, true),
-      std::bind(&ClassLoader::onPluginDeletion<Base>, this, std::placeholders::_1)
+      [class_loader = shared_from_this()](Base * obj) {
+        return class_loader->onPluginDeletion<Base>(obj);
+      }
     );
   }
 
@@ -149,7 +154,9 @@ public:
     Base * raw = createRawInstance<Base>(derived_class_name, true);
     return std::unique_ptr<Base, DeleterType<Base>>(
       raw,
-      std::bind(&ClassLoader::onPluginDeletion<Base>, this, std::placeholders::_1)
+      [class_loader = shared_from_this()](Base * obj) {
+        return class_loader->onPluginDeletion<Base>(obj);
+      }
     );
   }
 
@@ -254,6 +261,16 @@ public:
 
 private:
   /**
+   * @brief Private Constructor for ClassLoader
+   *
+   * @param library_path - The path of the runtime library to load
+   * @param ondemand_load_unload - Indicates if on-demand (lazy) unloading/loading of libraries
+   * occurs as plugins are created/destroyed.
+   */
+  CLASS_LOADER_PUBLIC
+  explicit ClassLoader(const std::string & library_path, bool ondemand_load_unload = false);
+
+  /**
    * @brief Callback method when a plugin created by this class loader is destroyed
    *
    * @param obj - A pointer to the deleted object
@@ -324,7 +341,7 @@ private:
       loadLibrary();
     }
 
-    Base * obj = class_loader::impl::createInstance<Base>(derived_class_name, this);
+    Base * obj = class_loader::impl::createInstance<Base>(derived_class_name, shared_from_this());
     assert(obj != NULL);  // Unreachable assertion if createInstance() throws on failure.
 
     if (managed) {
