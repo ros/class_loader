@@ -269,7 +269,7 @@ registerPlugin(const std::string & class_name, const std::string & base_class_na
   // Create factory
   UniquePtr<AbstractMetaObjectBase> new_factory(
     new impl::MetaObject<Derived, Base>(class_name, base_class_name),
-    [class_name](AbstractMetaObjectBase * p) {
+    [](AbstractMetaObjectBase * p) {
       getMetaObjectGraveyardMutex().lock();
       MetaObjectGraveyardVector & graveyard = getMetaObjectGraveyard();
       for (auto iter = graveyard.begin(); iter != graveyard.end(); ++iter) {
