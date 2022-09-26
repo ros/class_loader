@@ -67,6 +67,38 @@ TEST(ClassLoaderTest, basicLoad) {
   SUCCEED();
 }
 
+TEST(ClassLoaderTest, basicLoadTwice) {
+  try {
+    {
+      class_loader::ClassLoader loader1(LIBRARY_1, false);
+      ASSERT_NO_THROW(class_loader::impl::printDebugInfoToScreen());
+      loader1.createInstance<Base>("Cat")->saySomething();  // See if lazy load works
+    }
+    class_loader::ClassLoader loader1(LIBRARY_1, false);
+    ASSERT_NO_THROW(class_loader::impl::printDebugInfoToScreen());
+    loader1.createInstance<Base>("Cat")->saySomething();  // See if lazy load works
+  } catch (class_loader::ClassLoaderException & e) {
+    FAIL() << "ClassLoaderException: " << e.what() << "\n";
+  }
+
+  SUCCEED();
+}
+
+TEST(ClassLoaderTest, basicLoadTwiceSameTime) {
+  try {
+    class_loader::ClassLoader loader1(LIBRARY_1, false);
+    ASSERT_NO_THROW(class_loader::impl::printDebugInfoToScreen());
+    loader1.createInstance<Base>("Cat")->saySomething();  // See if lazy load works
+    class_loader::ClassLoader loader2(LIBRARY_1, false);
+    ASSERT_NO_THROW(class_loader::impl::printDebugInfoToScreen());
+    loader2.createInstance<Base>("Cat")->saySomething();  // See if lazy load works
+  } catch (class_loader::ClassLoaderException & e) {
+    FAIL() << "ClassLoaderException: " << e.what() << "\n";
+  }
+
+  SUCCEED();
+}
+
 // Requires separate namespace so static variables are isolated
 TEST(ClassLoaderUnmanagedTest, basicLoadUnmanaged) {
   try {
