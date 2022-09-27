@@ -182,6 +182,7 @@ FactoryMap & getFactoryMapForBaseClass()
  *
  * @return A reference to the MetaObjectGraveyardVector contained within the meta object of graveyard.
  */
+CLASS_LOADER_PUBLIC
 MetaObjectGraveyardVector & getMetaObjectGraveyard();
 
 /**
