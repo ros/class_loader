@@ -194,8 +194,6 @@ CLASS_LOADER_PUBLIC
 std::recursive_mutex & getLoadedLibraryVectorMutex();
 CLASS_LOADER_PUBLIC
 std::recursive_mutex & getPluginBaseToFactoryMapMapMutex();
-CLASS_LOADER_PUBLIC
-std::mutex & getMetaObjectGraveyardMutex();
 
 /**
  * @brief Indicates if a library containing more than just plugins has been opened by the running process
@@ -270,7 +268,7 @@ registerPlugin(const std::string & class_name, const std::string & base_class_na
   UniquePtr<AbstractMetaObjectBase> new_factory(
     new impl::MetaObject<Derived, Base>(class_name, base_class_name),
     [](AbstractMetaObjectBase * p) {
-      getMetaObjectGraveyardMutex().lock();
+      getPluginBaseToFactoryMapMapMutex().lock();
       MetaObjectGraveyardVector & graveyard = getMetaObjectGraveyard();
       for (auto iter = graveyard.begin(); iter != graveyard.end(); ++iter) {
         if (*iter == p) {
@@ -278,7 +276,7 @@ registerPlugin(const std::string & class_name, const std::string & base_class_na
           break;
         }
       }
-      getMetaObjectGraveyardMutex().unlock();
+      getPluginBaseToFactoryMapMapMutex().unlock();
 
 #ifndef _WIN32
 #pragma GCC diagnostic push

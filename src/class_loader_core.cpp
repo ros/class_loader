@@ -55,12 +55,6 @@ std::recursive_mutex & getPluginBaseToFactoryMapMapMutex()
   return m;
 }
 
-std::mutex & getMetaObjectGraveyardMutex()
-{
-  static std::mutex m;
-  return m;
-}
-
 BaseToFactoryMapMap & getGlobalPluginBaseToFactoryMapMap()
 {
   static BaseToFactoryMapMap instance;
@@ -220,9 +214,7 @@ void insertMetaObjectIntoGraveyard(AbstractMetaObjectBase * meta_obj)
     "Inserting MetaObject (class = %s, base_class = %s, ptr = %p) into graveyard",
     meta_obj->className().c_str(), meta_obj->baseClassName().c_str(),
     reinterpret_cast<void *>(meta_obj));
-  getMetaObjectGraveyardMutex().lock();
   getMetaObjectGraveyard().push_back(meta_obj);
-  getMetaObjectGraveyardMutex().unlock();
 }
 
 void destroyMetaObjectsForLibrary(
