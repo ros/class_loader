@@ -87,8 +87,10 @@ class MetaObjectGraveyardVector : public MetaObjectVector
 public:
   ~MetaObjectGraveyardVector()
   {
-    // make sure to destroy `meta_object` not to access the pointer value in the class loader plugin
-    // that could be unloaded before `g_register_plugin_ ## UniqueID` in some circumstances.
+    // Make sure not to access the pointer value in the static variable of `getMetaObjectGraveyard()
+    // when destroying `meta_object` in the unique_ptr deleter. Because the static variable in
+    // `getMetaObjectGraveyard()` could be finalized before the static variable
+    // `g_register_plugin_ ## UniqueID` in some circumstances.
     clear();
   }
 };
