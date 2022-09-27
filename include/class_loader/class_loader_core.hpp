@@ -234,6 +234,7 @@ using UniquePtr = std::unique_ptr<Base, DeleterType<Base>>;
  * @param Derived - parameteric type indicating concrete type of plugin
  * @param Base - parameteric type indicating base type of plugin
  * @param class_name - the literal name of the class being registered (NOT MANGLED)
+ * @return A class_loader::impl::UniquePtr<AbstractMetaObjectBase> to newly created meta object.
  */
 template<typename Derived, typename Base>
 UniquePtr<AbstractMetaObjectBase>
