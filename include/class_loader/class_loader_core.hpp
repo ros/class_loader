@@ -34,6 +34,7 @@
 
 #include <cstddef>
 #include <cstdio>
+#include <functional>
 #include <map>
 #include <memory>
 #include <mutex>
@@ -81,6 +82,20 @@ typedef std::map<BaseClassName, FactoryMap> BaseToFactoryMapMap;
 typedef std::pair<LibraryPath, std::shared_ptr<rcpputils::SharedLibrary>> LibraryPair;
 typedef std::vector<LibraryPair> LibraryVector;
 typedef std::vector<AbstractMetaObjectBase *> MetaObjectVector;
+class MetaObjectGraveyardVector : public MetaObjectVector
+{
+public:
+  ~MetaObjectGraveyardVector()
+  {
+    // Make sure not to access the pointer value in the static variable of `getMetaObjectGraveyard()
+    // when destroying `meta_object` in the unique_ptr deleter. Because the static variable in
+    // `getMetaObjectGraveyard()` can be destructed before the static variable
+    // `g_register_plugin_ ## UniqueID` in some circumstances.
+    // NOTE of the vector dtor in the STL: if the elements themselves are pointers, the pointed-to
+    // memory is not touched in any way.  Managing the pointer is the user's responsibility.
+    clear();
+  }
+};
 
 CLASS_LOADER_PUBLIC
 void printDebugInfoToScreen();
@@ -165,6 +180,14 @@ FactoryMap & getFactoryMapForBaseClass()
 }
 
 /**
+ * @brief Gets a handle to a list of meta object of graveyard.
+ *
+ * @return A reference to the MetaObjectGraveyardVector contained within the meta object of graveyard.
+ */
+CLASS_LOADER_PUBLIC
+MetaObjectGraveyardVector & getMetaObjectGraveyard();
+
+/**
  * @brief To provide thread safety, all exposed plugin functions can only be run serially by multiple threads.
  *
  *  This is implemented by using critical sections enforced by a single mutex which is locked and
@@ -193,6 +216,12 @@ bool hasANonPurePluginLibraryBeenOpened();
 CLASS_LOADER_PUBLIC
 void hasANonPurePluginLibraryBeenOpened(bool hasIt);
 
+template<typename Base>
+using DeleterType = std::function<void (Base *)>;
+
+template<typename Base>
+using UniquePtr = std::unique_ptr<Base, DeleterType<Base>>;
+
 // Plugin Functions
 
 /**
@@ -205,9 +234,11 @@ void hasANonPurePluginLibraryBeenOpened(bool hasIt);
  * @param Derived - parameteric type indicating concrete type of plugin
  * @param Base - parameteric type indicating base type of plugin
  * @param class_name - the literal name of the class being registered (NOT MANGLED)
+ * @return A class_loader::impl::UniquePtr<AbstractMetaObjectBase> to newly created meta object.
  */
 template<typename Derived, typename Base>
-void registerPlugin(const std::string & class_name, const std::string & base_class_name)
+UniquePtr<AbstractMetaObjectBase>
+registerPlugin(const std::string & class_name, const std::string & base_class_name)
 {
   // Note: This function will be automatically invoked when a dlopen() call
   // opens a library. Normally it will happen within the scope of loadLibrary(),
@@ -240,8 +271,28 @@ void registerPlugin(const std::string & class_name, const std::string & base_cla
   }
 
   // Create factory
-  impl::AbstractMetaObject<Base> * new_factory =
-    new impl::MetaObject<Derived, Base>(class_name, base_class_name);
+  UniquePtr<AbstractMetaObjectBase> new_factory(
+    new impl::MetaObject<Derived, Base>(class_name, base_class_name),
+    [](AbstractMetaObjectBase * p) {
+      getPluginBaseToFactoryMapMapMutex().lock();
+      MetaObjectGraveyardVector & graveyard = getMetaObjectGraveyard();
+      for (auto iter = graveyard.begin(); iter != graveyard.end(); ++iter) {
+        if (*iter == p) {
+          graveyard.erase(iter);
+          break;
+        }
+      }
+      getPluginBaseToFactoryMapMapMutex().unlock();
+
+#ifndef _WIN32
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdelete-non-virtual-dtor"
+#endif
+      delete (p);  // Note: This is the only place where metaobjects can be destroyed
+#ifndef _WIN32
+#pragma GCC diagnostic pop
+#endif
+    });
   new_factory->addOwningClassLoader(getCurrentlyActiveClassLoader());
   new_factory->setAssociatedLibraryPath(getCurrentlyLoadingLibraryName());
 
@@ -260,13 +311,14 @@ void registerPlugin(const std::string & class_name, const std::string & base_cla
       "and use either class_loader::ClassLoader/MultiLibraryClassLoader to open.",
       class_name.c_str());
   }
-  factoryMap[class_name] = new_factory;
+  factoryMap[class_name] = new_factory.get();
   getPluginBaseToFactoryMapMapMutex().unlock();
 
   CONSOLE_BRIDGE_logDebug(
     "class_loader.impl: "
     "Registration of %s complete (Metaobject Address = %p)",
-    class_name.c_str(), reinterpret_cast<void *>(new_factory));
+    class_name.c_str(), reinterpret_cast<void *>(new_factory.get()));
+  return new_factory;
 }
 
 /**

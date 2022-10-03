@@ -72,9 +72,9 @@ FactoryMap & getFactoryMapForBaseClass(const std::string & typeid_base_class_nam
   return factoryMapMap[base_class_name];
 }
 
-MetaObjectVector & getMetaObjectGraveyard()
+MetaObjectGraveyardVector & getMetaObjectGraveyard()
 {
-  static MetaObjectVector instance;
+  static MetaObjectGraveyardVector instance;
   return instance;
 }
 
@@ -352,7 +352,7 @@ void revivePreviouslyCreateMetaobjectsFromGraveyard(
   const std::string & library_path, ClassLoader * loader)
 {
   std::lock_guard<std::recursive_mutex> b2fmm_lock(getPluginBaseToFactoryMapMapMutex());
-  MetaObjectVector & graveyard = getMetaObjectGraveyard();
+  MetaObjectGraveyardVector & graveyard = getMetaObjectGraveyard();
 
   for (auto & obj : graveyard) {
     if (obj->getAssociatedLibraryPath() == library_path) {
@@ -373,14 +373,14 @@ void revivePreviouslyCreateMetaobjectsFromGraveyard(
 }
 
 void purgeGraveyardOfMetaobjects(
-  const std::string & library_path, ClassLoader * loader, bool delete_objs)
+  const std::string & library_path, ClassLoader * loader)
 {
   MetaObjectVector all_meta_objs = allMetaObjects();
   // Note: Lock must happen after call to allMetaObjects as that will lock
   std::lock_guard<std::recursive_mutex> b2fmm_lock(getPluginBaseToFactoryMapMapMutex());
 
-  MetaObjectVector & graveyard = getMetaObjectGraveyard();
-  MetaObjectVector::iterator itr = graveyard.begin();
+  MetaObjectGraveyardVector & graveyard = getMetaObjectGraveyard();
+  MetaObjectGraveyardVector::iterator itr = graveyard.begin();
 
   while (itr != graveyard.end()) {
     AbstractMetaObjectBase * obj = *itr;
@@ -393,34 +393,7 @@ void purgeGraveyardOfMetaobjects(
         reinterpret_cast<void *>(loader),
         nullptr == loader ? "NULL" : loader->getLibraryPath().c_str());
 
-      bool is_address_in_graveyard_same_as_global_factory_map =
-        std::find(all_meta_objs.begin(), all_meta_objs.end(), *itr) != all_meta_objs.end();
       itr = graveyard.erase(itr);
-      if (delete_objs) {
-        if (is_address_in_graveyard_same_as_global_factory_map) {
-          CONSOLE_BRIDGE_logDebug(
-            "%s",
-            "class_loader.impl: "
-            "Newly created metaobject factory in global factory map map has same address as "
-            "one in graveyard -- metaobject has been purged from graveyard but not deleted.");
-        } else {
-          assert(hasANonPurePluginLibraryBeenOpened() == false);
-          CONSOLE_BRIDGE_logDebug(
-            "class_loader.impl: "
-            "Also destroying metaobject %p (class = %s, base_class = %s, library_path = %s) "
-            "in addition to purging it from graveyard.",
-            reinterpret_cast<void *>(obj), obj->className().c_str(), obj->baseClassName().c_str(),
-            obj->getAssociatedLibraryPath().c_str());
-#ifndef _WIN32
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdelete-non-virtual-dtor"
-#endif
-          delete (obj);  // Note: This is the only place where metaobjects can be destroyed
-#ifndef _WIN32
-#pragma GCC diagnostic pop
-#endif
-        }
-      }
     } else {
       itr++;
     }
@@ -484,16 +457,14 @@ void loadLibrary(const std::string & library_path, ClassLoader * loader)
       "Checking factory graveyard for previously loaded metaobjects...",
       library_path.c_str());
     revivePreviouslyCreateMetaobjectsFromGraveyard(library_path, loader);
-    // Note: The 'false' indicates we don't want to invoke delete on the metaobject
-    purgeGraveyardOfMetaobjects(library_path, loader, false);
   } else {
     CONSOLE_BRIDGE_logDebug(
       "class_loader.impl: "
       "Library %s generated new factory metaobjects on load. "
       "Destroying graveyarded objects from previous loads...",
       library_path.c_str());
-    purgeGraveyardOfMetaobjects(library_path, loader, true);
   }
+  purgeGraveyardOfMetaobjects(library_path, loader);
 
   // Insert library into global loaded library vectory
   std::lock_guard<std::recursive_mutex> llv_lock(getLoadedLibraryVectorMutex());

@@ -56,8 +56,10 @@
       if (!std::string(Message).empty()) { \
         CONSOLE_BRIDGE_logInform("%s", Message); \
       } \
-      class_loader::impl::registerPlugin<_derived, _base>(#Derived, #Base); \
+      holder = class_loader::impl::registerPlugin<_derived, _base>(#Derived, #Base); \
     } \
+private: \
+    class_loader::impl::UniquePtr<class_loader::impl::AbstractMetaObjectBase> holder; \
   }; \
   static ProxyExec ## UniqueID g_register_plugin_ ## UniqueID; \
   }  // namespace
