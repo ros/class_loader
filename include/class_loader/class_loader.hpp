@@ -238,7 +238,7 @@ public:
 
   /**
    * @brief  Attempts to unload a library loaded within scope of the ClassLoader. If the library is
-   * not opened, this method has no effect. If the library is opened by other another ClassLoader,
+   * not opened, this method has no effect. If the library is opened by another ClassLoader,
    * the library will NOT be unloaded internally -- however this ClassLoader will no longer be able
    * to instantiate class_loader bound to that library. If there are plugin objects that exist in
    * memory created by this classloader, a warning message will appear and the library will not be
