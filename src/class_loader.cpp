@@ -117,10 +117,10 @@ int ClassLoader::unloadLibrary()
 
 int ClassLoader::unloadLibraryInternal(bool lock_plugin_ref_count)
 {
-  std::lock_guard<std::recursive_mutex> load_ref_lock(load_ref_count_mutex_);
   if (lock_plugin_ref_count) {
     plugin_ref_count_mutex_.lock();
   }
+  std::lock_guard<std::recursive_mutex> load_ref_lock(load_ref_count_mutex_);
 
   try {
     if (plugin_ref_count_ > 0) {
