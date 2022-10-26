@@ -37,7 +37,24 @@
 namespace class_loader
 {
 
-class MultiLibraryClassLoaderImpl
+class ClassLoaderDependency
+{
+protected:
+  ClassLoaderDependency()
+  {
+    // make the static variable in `ClassLoader` destroyed after `active_class_loaders_`
+    class_loader::impl::getLoadedLibraryVectorMutex();
+    class_loader::impl::getPluginBaseToFactoryMapMapMutex();
+    class_loader::impl::getGlobalPluginBaseToFactoryMapMap();
+    class_loader::impl::getMetaObjectGraveyard();
+    class_loader::impl::getLoadedLibraryVector();
+    class_loader::impl::getCurrentlyLoadingLibraryName();
+    class_loader::impl::getCurrentlyActiveClassLoader();
+    class_loader::impl::hasANonPurePluginLibraryBeenOpened();
+  }
+};
+
+class MultiLibraryClassLoaderImpl : public ClassLoaderDependency
 {
 public:
   LibraryToClassLoaderMap active_class_loaders_;
