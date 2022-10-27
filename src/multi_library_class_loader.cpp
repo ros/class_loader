@@ -44,7 +44,9 @@ class ClassLoaderDependency
 protected:
   ClassLoaderDependency()
   {
-    // make the static variable in `ClassLoader` destroyed after `active_class_loaders_`
+    // make the static variable in `ClassLoader` destroyed after `class_loader_ptrs_`,
+    // which is a member of ClassLoaderPtrVectorImpl defined as a static instance in the
+    // `getClassLoaderPtrVectorImpl`
     class_loader::impl::getLoadedLibraryVectorMutex();
     class_loader::impl::getPluginBaseToFactoryMapMapMutex();
     class_loader::impl::getGlobalPluginBaseToFactoryMapMap();
@@ -60,7 +62,7 @@ class ClassLoaderPtrVectorImpl : public ClassLoaderDependency
 {
 public:
   ClassLoaderPtrVector class_loader_ptrs_;
-  std::recursive_mutex loader_mutex_;
+  std::mutex loader_mutex_;
 };
 
 class MultiLibraryClassLoaderImpl
@@ -68,7 +70,6 @@ class MultiLibraryClassLoaderImpl
 public:
   bool enable_ondemand_loadunload_;
   LibraryToClassLoaderMap active_class_loaders_;
-  std::mutex loader_mutex_;
 };
 
 ClassLoaderPtrVectorImpl & getClassLoaderPtrVectorImpl()
@@ -124,7 +125,7 @@ bool MultiLibraryClassLoader::isLibraryAvailable(const std::string & library_nam
 void MultiLibraryClassLoader::loadLibrary(const std::string & library_path)
 {
   if (!isLibraryAvailable(library_path)) {
-    std::lock_guard<std::recursive_mutex> lock(getClassLoaderPtrVectorImpl().loader_mutex_);
+    std::lock_guard<std::mutex> lock(getClassLoaderPtrVectorImpl().loader_mutex_);
     getClassLoaderPtrVectorImpl().class_loader_ptrs_.emplace_back(
       std::make_shared<class_loader::ClassLoader>(library_path, isOnDemandLoadUnloadEnabled())
     );
@@ -148,7 +149,7 @@ int MultiLibraryClassLoader::unloadLibrary(const std::string & library_path)
     remaining_unloads = loader->unloadLibrary();
     if (remaining_unloads == 0) {
       impl_->active_class_loaders_[library_path] = nullptr;
-      std::lock_guard<std::recursive_mutex> lock(getClassLoaderPtrVectorImpl().loader_mutex_);
+      std::lock_guard<std::mutex> lock(getClassLoaderPtrVectorImpl().loader_mutex_);
       auto & class_loader_ptrs = getClassLoaderPtrVectorImpl().class_loader_ptrs_;
       for (auto iter = class_loader_ptrs.begin(); iter != class_loader_ptrs.end(); ++iter) {
         if (iter->get() == loader) {
