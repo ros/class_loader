@@ -56,7 +56,7 @@ namespace class_loader
 {
 
 typedef std::string LibraryPath;
-typedef std::map<LibraryPath, std::shared_ptr<class_loader::ClassLoader>> LibraryToClassLoaderMap;
+typedef std::map<LibraryPath, class_loader::ClassLoader *> LibraryToClassLoaderMap;
 typedef std::vector<ClassLoader *> ClassLoaderVector;
 
 class MultiLibraryClassLoaderImpl;
@@ -355,7 +355,7 @@ private:
    */
   void shutdownAllClassLoaders();
 
-  bool enable_ondemand_loadunload_;
+  MultiLibraryClassLoaderImpl * impl_;
 };
 
 

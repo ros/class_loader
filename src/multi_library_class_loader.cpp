@@ -37,6 +37,8 @@
 namespace class_loader
 {
 
+typedef std::vector<std::shared_ptr<class_loader::ClassLoader>> ClassLoaderPtrVector;
+
 class ClassLoaderDependency
 {
 protected:
@@ -54,34 +56,43 @@ protected:
   }
 };
 
-class MultiLibraryClassLoaderImpl : public ClassLoaderDependency
+class ClassLoaderPtrVectorImpl : public ClassLoaderDependency
 {
 public:
-  LibraryToClassLoaderMap active_class_loaders_;
+  ClassLoaderPtrVector class_loader_ptrs_;
   std::recursive_mutex loader_mutex_;
 };
 
-MultiLibraryClassLoaderImpl & getMultiLibraryClassLoaderImpl()
+class MultiLibraryClassLoaderImpl
 {
-  static MultiLibraryClassLoaderImpl instance;
+public:
+  bool enable_ondemand_loadunload_;
+  LibraryToClassLoaderMap active_class_loaders_;
+  std::mutex loader_mutex_;
+};
+
+ClassLoaderPtrVectorImpl & getClassLoaderPtrVectorImpl()
+{
+  static ClassLoaderPtrVectorImpl instance;
   return instance;
 }
 
 MultiLibraryClassLoader::MultiLibraryClassLoader(bool enable_ondemand_loadunload)
-: enable_ondemand_loadunload_(enable_ondemand_loadunload)
+: impl_(new MultiLibraryClassLoaderImpl())
 {
+  impl_->enable_ondemand_loadunload_ = enable_ondemand_loadunload;
 }
 
 MultiLibraryClassLoader::~MultiLibraryClassLoader()
 {
   shutdownAllClassLoaders();
+  delete impl_;
 }
 
 std::vector<std::string> MultiLibraryClassLoader::getRegisteredLibraries() const
 {
   std::vector<std::string> libraries;
-  std::lock_guard<std::recursive_mutex> lock(getMultiLibraryClassLoaderImpl().loader_mutex_);
-  for (auto & it : getMultiLibraryClassLoaderImpl().active_class_loaders_) {
+  for (auto & it : impl_->active_class_loaders_) {
     if (it.second != nullptr) {
       libraries.push_back(it.first);
     }
@@ -91,16 +102,14 @@ std::vector<std::string> MultiLibraryClassLoader::getRegisteredLibraries() const
 
 ClassLoader * MultiLibraryClassLoader::getClassLoaderForLibrary(const std::string & library_path)
 {
-  std::lock_guard<std::recursive_mutex> lock(getMultiLibraryClassLoaderImpl().loader_mutex_);
-  return getMultiLibraryClassLoaderImpl().active_class_loaders_[library_path].get();
+  return impl_->active_class_loaders_[library_path];
 }
 
 ClassLoaderVector MultiLibraryClassLoader::getAllAvailableClassLoaders() const
 {
   ClassLoaderVector loaders;
-  std::lock_guard<std::recursive_mutex> lock(getMultiLibraryClassLoaderImpl().loader_mutex_);
-  for (auto & it : getMultiLibraryClassLoaderImpl().active_class_loaders_) {
-    loaders.push_back(it.second.get());
+  for (auto & it : impl_->active_class_loaders_) {
+    loaders.push_back(it.second);
   }
   return loaders;
 }
@@ -114,16 +123,18 @@ bool MultiLibraryClassLoader::isLibraryAvailable(const std::string & library_nam
 
 void MultiLibraryClassLoader::loadLibrary(const std::string & library_path)
 {
-  std::lock_guard<std::recursive_mutex> lock(getMultiLibraryClassLoaderImpl().loader_mutex_);
   if (!isLibraryAvailable(library_path)) {
-    getMultiLibraryClassLoaderImpl().active_class_loaders_[library_path] =
-      std::make_shared<class_loader::ClassLoader>(library_path, isOnDemandLoadUnloadEnabled());
+    std::lock_guard<std::recursive_mutex> lock(getClassLoaderPtrVectorImpl().loader_mutex_);
+    getClassLoaderPtrVectorImpl().class_loader_ptrs_.emplace_back(
+      std::make_shared<class_loader::ClassLoader>(library_path, isOnDemandLoadUnloadEnabled())
+    );
+    impl_->active_class_loaders_[library_path] =
+      getClassLoaderPtrVectorImpl().class_loader_ptrs_.back().get();
   }
 }
 
 void MultiLibraryClassLoader::shutdownAllClassLoaders()
 {
-  std::lock_guard<std::recursive_mutex> lock(getMultiLibraryClassLoaderImpl().loader_mutex_);
   for (auto & library_path : getRegisteredLibraries()) {
     unloadLibrary(library_path);
   }
@@ -131,13 +142,20 @@ void MultiLibraryClassLoader::shutdownAllClassLoaders()
 
 int MultiLibraryClassLoader::unloadLibrary(const std::string & library_path)
 {
-  std::lock_guard<std::recursive_mutex> lock(getMultiLibraryClassLoaderImpl().loader_mutex_);
   int remaining_unloads = 0;
   if (isLibraryAvailable(library_path)) {
     ClassLoader * loader = getClassLoaderForLibrary(library_path);
     remaining_unloads = loader->unloadLibrary();
     if (remaining_unloads == 0) {
-      getMultiLibraryClassLoaderImpl().active_class_loaders_[library_path] = nullptr;
+      impl_->active_class_loaders_[library_path] = nullptr;
+      std::lock_guard<std::recursive_mutex> lock(getClassLoaderPtrVectorImpl().loader_mutex_);
+      auto & class_loader_ptrs = getClassLoaderPtrVectorImpl().class_loader_ptrs_;
+      for (auto iter = class_loader_ptrs.begin(); iter != class_loader_ptrs.end(); ++iter) {
+        if (iter->get() == loader) {
+          class_loader_ptrs.erase(iter);
+          break;
+        }
+      }
     }
   }
   return remaining_unloads;
@@ -145,7 +163,7 @@ int MultiLibraryClassLoader::unloadLibrary(const std::string & library_path)
 
 bool MultiLibraryClassLoader::isOnDemandLoadUnloadEnabled() const
 {
-  return enable_ondemand_loadunload_;
+  return impl_->enable_ondemand_loadunload_;
 }
 
 }  // namespace class_loader
