@@ -2,6 +2,13 @@
 Changelog for package class_loader
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Remove appveyor configuration. (`#204 <https://github.com/ros/class_loader/issues/204>`_)
+* Just fix a typo in a comment. (`#203 <https://github.com/ros/class_loader/issues/203>`_)
+* make the meta-object alive in the lifecycle of the registered plugin (`#201 <https://github.com/ros/class_loader/issues/201>`_)
+* Contributors: Chen Lihui, Chris Lalancette
+
 2.3.1 (2022-09-13)
 ------------------
 * Mirror rolling to ros2
