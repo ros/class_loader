@@ -516,6 +516,7 @@ void unloadLibrary(const std::string & library_path, ClassLoader * loader)
             ", keeping library %s open.",
             library_path.c_str());
         }
+        purgeGraveyardOfMetaobjects(library_path, loader, true);
         return;
       } catch (const std::runtime_error & e) {
         throw class_loader::LibraryUnloadException(

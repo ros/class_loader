@@ -71,6 +71,9 @@ AbstractMetaObjectBase::~AbstractMetaObjectBase()
     "class_loader.impl.AbstractMetaObjectBase: "
     "Destroying MetaObject %p (base = %s, derived = %s, library path = %s)",
     this, baseClassName().c_str(), className().c_str(), getAssociatedLibraryPath().c_str());
+  for (unsigned int i = 0; i < impl_->associated_class_loaders_.size(); i++) {
+    delete impl_->associated_class_loaders_[i];
+  }
   delete impl_;
 }
 
