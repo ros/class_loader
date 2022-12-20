@@ -30,6 +30,8 @@
 #include "class_loader/class_loader_core.hpp"
 #include "class_loader/class_loader.hpp"
 
+#include <boost/filesystem.hpp>
+
 #include <Poco/SharedLibrary.h>
 
 #include <cassert>
@@ -450,7 +452,18 @@ void loadLibrary(const std::string & library_path, ClassLoader * loader)
     try {
       setCurrentlyActiveClassLoader(loader);
       setCurrentlyLoadingLibraryName(library_path);
-      library_handle = new Poco::SharedLibrary(library_path);
+
+      // Try to resolve symlinks in the library path, placed here just before load such that all current caching
+      // logic etc still works, the actual poco object's path doesn't seem to be used anywhere.
+      boost::system::error_code error_code;
+      const auto absolute_library_path = boost::filesystem::canonical(library_path, error_code);
+
+      auto library_path_to_load = library_path;
+      if (error_code.value() == boost::system::errc::success) {
+          library_path_to_load = absolute_library_path.string();
+      }
+
+      library_handle = new Poco::SharedLibrary(library_path_to_load);
     } catch (const Poco::LibraryLoadException & e) {
       setCurrentlyLoadingLibraryName("");
       setCurrentlyActiveClassLoader(nullptr);
