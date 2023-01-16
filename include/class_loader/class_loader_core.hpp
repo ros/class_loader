@@ -282,6 +282,23 @@ registerPlugin(const std::string & class_name, const std::string & base_class_na
           break;
         }
       }
+
+      BaseToFactoryMapMap & factory_map_map = getGlobalPluginBaseToFactoryMapMap();
+      bool erase_flag = false;
+      for (auto & factory_map_item : factory_map_map) {
+        FactoryMap & factory_map = factory_map_item.second;
+        for (auto iter = factory_map.begin(); iter != factory_map.end(); ++iter) {
+          if (iter->second == p) {
+            factory_map.erase(iter);
+            erase_flag = true;
+            break;
+          }
+        }
+        if (erase_flag) {
+          break;
+        }
+      }
+
       getPluginBaseToFactoryMapMapMutex().unlock();
 
 #ifndef _WIN32
