@@ -2,8 +2,8 @@
 Changelog for package class_loader
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.5.0 (2023-02-13)
+------------------
 * make sanitizer happy (`#205 <https://github.com/ros/class_loader/issues/205>`_)
 * [rolling] Update maintainers - 2022-11-07 (`#206 <https://github.com/ros/class_loader/issues/206>`_)
 * Contributors: Audrow Nash, Chen Lihui
