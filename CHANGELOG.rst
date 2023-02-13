@@ -2,6 +2,12 @@
 Changelog for package class_loader
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* make sanitizer happy (`#205 <https://github.com/ros/class_loader/issues/205>`_)
+* [rolling] Update maintainers - 2022-11-07 (`#206 <https://github.com/ros/class_loader/issues/206>`_)
+* Contributors: Audrow Nash, Chen Lihui
+
 2.4.0 (2022-11-02)
 ------------------
 * Remove appveyor configuration. (`#204 <https://github.com/ros/class_loader/issues/204>`_)
