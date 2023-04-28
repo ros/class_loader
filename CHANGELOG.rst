@@ -2,6 +2,9 @@
 Changelog for package class_loader
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 2.5.0 (2023-02-13)
 ------------------
 * make sanitizer happy (`#205 <https://github.com/ros/class_loader/issues/205>`_)
