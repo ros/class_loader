@@ -2,8 +2,8 @@
 Changelog for package class_loader
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.7.0 (2023-12-26)
+------------------
 * Remove all uses of ament_target_dependencies. (`#210 <https://github.com/ros/class_loader/issues/210>`_)
 * Update to C++17 (`#209 <https://github.com/ros/class_loader/issues/209>`_)
 * Contributors: Chris Lalancette
