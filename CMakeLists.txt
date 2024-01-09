@@ -86,7 +86,7 @@ endif()
 if(NOT catkin_FOUND)
   set(TARGET_NAME ${PROJECT_NAME})
   set(PKGCONFIG_LIBS
-    ${Boost_LIBRARIES}
+    boost_thread boost_system
     ${console_bridge_LIBRARIES}
     ${Poco_LIBRARIES}
   )
