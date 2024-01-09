@@ -555,6 +555,7 @@ void unloadLibrary(const std::string & library_path, ClassLoader * loader)
           assert(library->isLoaded() == false);
           delete (library);
           itr = open_libraries.erase(itr);
+          purgeGraveyardOfMetaobjects(library_path, loader, true);
         } else {
           CONSOLE_BRIDGE_logDebug(
             "class_loader.impl: "
