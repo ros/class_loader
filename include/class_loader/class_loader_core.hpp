@@ -163,6 +163,15 @@ bool hasANonPurePluginLibraryBeenOpened();
 CLASS_LOADER_PUBLIC
 void hasANonPurePluginLibraryBeenOpened(bool hasIt);
 
+#if defined(__has_feature)
+#if __has_feature(address_sanitizer) // for clang
+#define __SANITIZE_ADDRESS__         // GCC already sets this
+#endif
+#endif
+
+#if defined(__SANITIZE_ADDRESS__)
+#include <sanitizer/lsan_interface.h>
+#endif
 // Plugin Functions
 
 /**
@@ -207,6 +216,11 @@ void registerPlugin(const std::string & class_name, const std::string & base_cla
   // Create factory
   impl::AbstractMetaObject<Base> * new_factory =
     new impl::MetaObject<Derived, Base>(class_name, base_class_name);
+
+#if defined(__SANITIZE_ADDRESS__)
+  __lsan_ignore_object(new_factory);
+#endif
+
   new_factory->addOwningClassLoader(getCurrentlyActiveClassLoader());
   new_factory->setAssociatedLibraryPath(getCurrentlyLoadingLibraryName());
 
