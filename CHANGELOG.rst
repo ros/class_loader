@@ -2,8 +2,8 @@
 Changelog for package class_loader
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.5.1 (2025-04-10)
+------------------
 * Declare newly-required boost component (`#208 <https://github.com/ros/class_loader/issues/208>`_)
 * Resolve symlinks fully before loading the library. (`#207 <https://github.com/ros/class_loader/issues/207>`_)
 * Include library name into library unload exceptions to make debugging easier. (`#194 <https://github.com/ros/class_loader/issues/194>`_)
