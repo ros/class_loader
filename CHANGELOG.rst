@@ -2,6 +2,16 @@
 Changelog for package class_loader
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Declare newly-required boost component (`#208 <https://github.com/ros/class_loader/issues/208>`_)
+* Resolve symlinks fully before loading the library. (`#207 <https://github.com/ros/class_loader/issues/207>`_)
+* Include library name into library unload exceptions to make debugging easier. (`#194 <https://github.com/ros/class_loader/issues/194>`_)
+* Switch to new boost/bind/bind.hpp (`#193 <https://github.com/ros/class_loader/issues/193>`_)
+* Fix spelling mistake (`#183 <https://github.com/ros/class_loader/issues/183>`_)
+* Update package maintainers. (`#170 <https://github.com/ros/class_loader/issues/170>`_)
+* Contributors: David V. Lu!!, Ivor Wanders, Jochen Sprickerhof, Michael Görner, Michel Hidalgo, Remo Diethelm
+
 0.5.0 (2020-02-07)
 ------------------
 * Declare specific boost dependencies. (`#136 <https://github.com/ros/class_loader/issues/136>`_)
