@@ -2,8 +2,8 @@
 Changelog for package class_loader
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.5.2 (2025-04-25)
+------------------
 * Fix shebang line for python3 (`#158 <https://github.com/ros/class_loader/issues/158>`_)
 * Suppress sanitizer warning about (expected) leak (`#220 <https://github.com/ros/class_loader/issues/220>`_)
 * Fix shebang for class_loader_headers_update.py (`#180 <https://github.com/ros/class_loader/issues/180>`_) (`#219 <https://github.com/ros/class_loader/issues/219>`_)
