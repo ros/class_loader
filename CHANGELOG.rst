@@ -2,6 +2,13 @@
 Changelog for package class_loader
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Fix shebang line for python3 (`#158 <https://github.com/ros/class_loader/issues/158>`_)
+* Suppress sanitizer warning about (expected) leak (`#220 <https://github.com/ros/class_loader/issues/220>`_)
+* Fix shebang for class_loader_headers_update.py (`#180 <https://github.com/ros/class_loader/issues/180>`_) (`#219 <https://github.com/ros/class_loader/issues/219>`_)
+* Contributors: Mikael Arguedas, Shane Loretz
+
 0.5.1 (2025-04-10)
 ------------------
 * Declare newly-required boost component (`#208 <https://github.com/ros/class_loader/issues/208>`_)
