@@ -37,13 +37,46 @@
 namespace class_loader
 {
 
+typedef std::vector<std::shared_ptr<class_loader::ClassLoader>> ClassLoaderPtrVector;
+
+class ClassLoaderDependency
+{
+protected:
+  ClassLoaderDependency()
+  {
+    // make the static variable in `ClassLoader` destroyed after `class_loader_ptrs_`,
+    // which is a member of ClassLoaderPtrVectorImpl defined as a static instance in the
+    // `getClassLoaderPtrVectorImpl`
+    class_loader::impl::getLoadedLibraryVectorMutex();
+    class_loader::impl::getPluginBaseToFactoryMapMapMutex();
+    class_loader::impl::getGlobalPluginBaseToFactoryMapMap();
+    class_loader::impl::getMetaObjectGraveyard();
+    class_loader::impl::getLoadedLibraryVector();
+    class_loader::impl::getCurrentlyLoadingLibraryName();
+    class_loader::impl::getCurrentlyActiveClassLoader();
+    class_loader::impl::hasANonPurePluginLibraryBeenOpened();
+  }
+};
+
+class ClassLoaderPtrVectorImpl : public ClassLoaderDependency
+{
+public:
+  ClassLoaderPtrVector class_loader_ptrs_;
+  std::mutex loader_mutex_;
+};
+
 class MultiLibraryClassLoaderImpl
 {
 public:
   bool enable_ondemand_loadunload_;
   LibraryToClassLoaderMap active_class_loaders_;
-  std::mutex loader_mutex_;
 };
+
+ClassLoaderPtrVectorImpl & getClassLoaderPtrVectorImpl()
+{
+  static ClassLoaderPtrVectorImpl instance;
+  return instance;
+}
 
 MultiLibraryClassLoader::MultiLibraryClassLoader(bool enable_ondemand_loadunload)
 : impl_(new MultiLibraryClassLoaderImpl())
@@ -92,8 +125,12 @@ bool MultiLibraryClassLoader::isLibraryAvailable(const std::string & library_nam
 void MultiLibraryClassLoader::loadLibrary(const std::string & library_path)
 {
   if (!isLibraryAvailable(library_path)) {
+    std::lock_guard<std::mutex> lock(getClassLoaderPtrVectorImpl().loader_mutex_);
+    getClassLoaderPtrVectorImpl().class_loader_ptrs_.emplace_back(
+      std::make_shared<class_loader::ClassLoader>(library_path, isOnDemandLoadUnloadEnabled())
+    );
     impl_->active_class_loaders_[library_path] =
-      new class_loader::ClassLoader(library_path, isOnDemandLoadUnloadEnabled());
+      getClassLoaderPtrVectorImpl().class_loader_ptrs_.back().get();
   }
 }
 
@@ -112,7 +149,14 @@ int MultiLibraryClassLoader::unloadLibrary(const std::string & library_path)
     remaining_unloads = loader->unloadLibrary();
     if (remaining_unloads == 0) {
       impl_->active_class_loaders_[library_path] = nullptr;
-      delete (loader);
+      std::lock_guard<std::mutex> lock(getClassLoaderPtrVectorImpl().loader_mutex_);
+      auto & class_loader_ptrs = getClassLoaderPtrVectorImpl().class_loader_ptrs_;
+      for (auto iter = class_loader_ptrs.begin(); iter != class_loader_ptrs.end(); ++iter) {
+        if (iter->get() == loader) {
+          class_loader_ptrs.erase(iter);
+          break;
+        }
+      }
     }
   }
   return remaining_unloads;

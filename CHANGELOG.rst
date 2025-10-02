@@ -2,6 +2,36 @@
 Changelog for package class_loader
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+2.9.0 (2025-04-25)
+------------------
+* Remove CODEOWNERS and mirror-rolling-to-main workflow (`#215 <https://github.com/ros/class_loader/issues/215>`_)
+* Contributors: Alejandro Hernández Cordero
+
+2.8.0 (2024-04-26)
+------------------
+
+2.7.0 (2023-12-26)
+------------------
+* Remove all uses of ament_target_dependencies. (`#210 <https://github.com/ros/class_loader/issues/210>`_)
+* Update to C++17 (`#209 <https://github.com/ros/class_loader/issues/209>`_)
+* Contributors: Chris Lalancette
+
+2.6.0 (2023-04-28)
+------------------
+
+2.5.0 (2023-02-13)
+------------------
+* make sanitizer happy (`#205 <https://github.com/ros/class_loader/issues/205>`_)
+* [rolling] Update maintainers - 2022-11-07 (`#206 <https://github.com/ros/class_loader/issues/206>`_)
+* Contributors: Audrow Nash, Chen Lihui
+
+2.4.0 (2022-11-02)
+------------------
+* Remove appveyor configuration. (`#204 <https://github.com/ros/class_loader/issues/204>`_)
+* Just fix a typo in a comment. (`#203 <https://github.com/ros/class_loader/issues/203>`_)
+* make the meta-object alive in the lifecycle of the registered plugin (`#201 <https://github.com/ros/class_loader/issues/201>`_)
+* Contributors: Chen Lihui, Chris Lalancette
+
 2.3.1 (2022-09-13)
 ------------------
 * Mirror rolling to ros2

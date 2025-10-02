@@ -2,9 +2,10 @@ cmake_minimum_required(VERSION 3.5)
 
 project(class_loader)
 
-# Default to C++14
+# Default to C++17
 if(NOT CMAKE_CXX_STANDARD)
-  set(CMAKE_CXX_STANDARD 14)
+  set(CMAKE_CXX_STANDARD 17)
+  set(CMAKE_CXX_STANDARD_REQUIRED ON)
 endif()
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
@@ -30,19 +31,18 @@ if(ament_cmake_FOUND)
   ament_export_dependencies(rcpputils)
 endif()
 
-set(${PROJECT_NAME}_SRCS
+add_library(${PROJECT_NAME} ${explicit_library_type}
   src/class_loader.cpp
   src/class_loader_core.cpp
   src/meta_object.cpp
   src/multi_library_class_loader.cpp
 )
-add_library(${PROJECT_NAME} ${explicit_library_type} ${${PROJECT_NAME}_SRCS})
 target_include_directories(${PROJECT_NAME} PUBLIC
   "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
   "$<INSTALL_INTERFACE:include/${PROJECT_NAME}>")
 
 if(ament_cmake_FOUND)
-  target_link_libraries(${PROJECT_NAME}
+  target_link_libraries(${PROJECT_NAME} PUBLIC
     console_bridge::console_bridge
     rcpputils::rcpputils)
   ament_export_targets(${PROJECT_NAME})

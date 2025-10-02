@@ -521,9 +521,12 @@ void unloadLibrary(const std::string & library_path, ClassLoader * loader)
         throw class_loader::LibraryUnloadException(
                 "Could not unload library (rcpputils exception = " + std::string(e.what()) + ")");
       }
+    } else {
+      CONSOLE_BRIDGE_logDebug(
+        "class_loader.impl: "
+        "Attempt to unload library %s that class_loader is unaware of or is already unloaded",
+        library_path.c_str());
     }
-    throw class_loader::LibraryUnloadException(
-            "Attempt to unload library that class_loader is unaware of.");
   }
 }
 
