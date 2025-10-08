@@ -35,7 +35,8 @@ if(TARGET ${PROJECT_NAME}_utest)
   if(ament_cmake_FOUND)
     target_include_directories(${PROJECT_NAME}_utest
       PUBLIC "../include")
-    ament_target_dependencies(${PROJECT_NAME}_utest "console_bridge")
+    target_link_libraries(${PROJECT_NAME}_utest
+      console_bridge::console_bridge)
   else()
     target_include_directories(${PROJECT_NAME}_utest
       PUBLIC "../include" ${console_bridge_INCLUDE_DIRS})
@@ -59,7 +60,6 @@ if(TARGET ${PROJECT_NAME}_unique_ptr_test)
   if(ament_cmake_FOUND)
     target_include_directories(${PROJECT_NAME}_unique_ptr_test
       PUBLIC "../include")
-    ament_target_dependencies(${PROJECT_NAME}_unique_ptr_test)
   else()
     target_include_directories(${PROJECT_NAME}_unique_ptr_test
       PUBLIC "../include")
