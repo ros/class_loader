@@ -301,12 +301,12 @@ registerPlugin(const std::string & class_name, const std::string & base_class_na
 
       getPluginBaseToFactoryMapMapMutex().unlock();
 
-#ifndef _WIN32
+#ifndef _MSC_VER
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdelete-non-virtual-dtor"
 #endif
       delete (p);  // Note: This is the only place where metaobjects can be destroyed
-#ifndef _WIN32
+#ifndef _MSC_VER
 #pragma GCC diagnostic pop
 #endif
     });
