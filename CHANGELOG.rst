@@ -2,6 +2,12 @@
 Changelog for package class_loader
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+2.9.1 (2025-10-17)
+------------------
+* Thread and Address Sanitizer CI (`#198 <https://github.com/ros/class_loader/issues/198>`_)
+* Update cmake requirement
+* Contributors: Tyler Weaver, mosfet80
+
 2.9.0 (2025-04-25)
 ------------------
 * Remove CODEOWNERS and mirror-rolling-to-main workflow (`#215 <https://github.com/ros/class_loader/issues/215>`_)
