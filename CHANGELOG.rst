@@ -2,6 +2,12 @@
 Changelog for package class_loader
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+2.8.1 (2025-10-17)
+------------------
+* Update cmake requirement (`#222 <https://github.com/ros/class_loader/issues/222>`_)
+* Remove CODEOWNERS and mirror-rolling-to-main workflow (`#215 <https://github.com/ros/class_loader/issues/215>`_)
+* Contributors: Alejandro Hernández Cordero, mergify[bot]
+
 2.8.0 (2024-04-26)
 ------------------
 
