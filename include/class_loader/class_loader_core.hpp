@@ -55,6 +55,7 @@
 #endif
 
 #include "class_loader/exceptions.hpp"
+#include "class_loader/interface_traits.hpp"
 #include "class_loader/meta_object.hpp"
 #include "class_loader/visibility_control.hpp"
 
@@ -344,10 +345,13 @@ registerPlugin(const std::string & class_name, const std::string & base_class_na
  *
  * @param derived_class_name - The name of the derived class (unmangled)
  * @param loader - The ClassLoader whose scope we are within
+ * @param args - Arguments for the constructor of the derived class (types defined
+ * by InterfaceTraits of the Base class)
  * @return A pointer to newly created plugin, note caller is responsible for object destruction
  */
-template<typename Base>
-Base * createInstance(const std::string & derived_class_name, ClassLoader * loader)
+template<typename Base, class ... Args,
+  std::enable_if_t<is_interface_constructible_v<Base, Args...>, bool> = true>
+Base * createInstance(const std::string & derived_class_name, ClassLoader * loader, Args &&... args)
 {
   AbstractMetaObject<Base> * factory = nullptr;
 
@@ -363,28 +367,26 @@ Base * createInstance(const std::string & derived_class_name, ClassLoader * load
 
   Base * obj = nullptr;
   if (factory != nullptr && factory->isOwnedBy(loader)) {
-    obj = factory->create();
+    obj = factory->create(std::forward<Args>(args)...);
+  } else if (factory && factory->isOwnedBy(nullptr)) {
+    CONSOLE_BRIDGE_logDebug(
+      "%s",
+      "class_loader.impl: ALERT!!! "
+      "A metaobject (i.e. factory) exists for desired class, but has no owner. "
+      "This implies that the library containing the class was dlopen()ed by means other than "
+      "through the class_loader interface. "
+      "This can happen if you build plugin libraries that contain more than just plugins "
+      "(i.e. normal code your app links against) -- that intrinsically will trigger a dlopen() "
+      "prior to main(). "
+      "You should isolate your plugins into their own library, otherwise it will not be "
+      "possible to shutdown the library!");
+
+    obj = factory->create(std::forward<Args>(args)...);
   }
 
   if (nullptr == obj) {  // Was never created
-    if (factory && factory->isOwnedBy(nullptr)) {
-      CONSOLE_BRIDGE_logDebug(
-        "%s",
-        "class_loader.impl: ALERT!!! "
-        "A metaobject (i.e. factory) exists for desired class, but has no owner. "
-        "This implies that the library containing the class was dlopen()ed by means other than "
-        "through the class_loader interface. "
-        "This can happen if you build plugin libraries that contain more than just plugins "
-        "(i.e. normal code your app links against) -- that intrinsically will trigger a dlopen() "
-        "prior to main(). "
-        "You should isolate your plugins into their own library, otherwise it will not be "
-        "possible to shutdown the library!");
-
-      obj = factory->create();
-    } else {
-      throw class_loader::CreateClassException(
-              "Could not create instance of type " + derived_class_name);
-    }
+    throw class_loader::CreateClassException(
+            "Could not create instance of type " + derived_class_name);
   }
 
   CONSOLE_BRIDGE_logDebug(

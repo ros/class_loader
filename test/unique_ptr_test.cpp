@@ -45,6 +45,7 @@
 
 const std::string LIBRARY_1 = class_loader::systemLibraryFormat("class_loader_TestPlugins1");  // NOLINT
 const std::string LIBRARY_2 = class_loader::systemLibraryFormat("class_loader_TestPlugins2");  // NOLINT
+const std::string LIBRARY_3 = class_loader::systemLibraryFormat("class_loader_TestPlugins3");  // NOLINT
 
 using class_loader::ClassLoader;
 
@@ -80,6 +81,25 @@ TEST(ClassLoaderUniquePtrTest, basicLoadTwiceSameTime) {
     loader1.createUniqueInstance<Base>("Cat")->saySomething();  // See if lazy load works
     ClassLoader loader2(LIBRARY_1, false);
     loader2.createUniqueInstance<Base>("Cat")->saySomething();  // See if lazy load works
+    ASSERT_NO_THROW(class_loader::impl::printDebugInfoToScreen());
+    SUCCEED();
+  } catch (class_loader::ClassLoaderException & e) {
+    FAIL() << "ClassLoaderException: " << e.what() << "\n";
+  }
+}
+
+TEST(ClassLoaderUniquePtrTest, constructorLoad) {
+  try {
+    ClassLoader loader1(LIBRARY_3, false);
+    ASSERT_EQ(loader1.createUniqueInstance<BaseWithInterfaceCtor>("Identity", "identity 1",
+      std::make_unique<int>(1))->get_number(), 1);
+    ASSERT_EQ(loader1.createUniqueInstance<BaseWithInterfaceCtor>("Identity", "identity 2",
+      std::make_unique<int>(10))->get_number(),
+      10);
+    ASSERT_EQ(loader1.createUniqueInstance<BaseWithInterfaceCtor>("Double", "double 1",
+      std::make_unique<int>(1))->get_number(), 2);
+    ASSERT_EQ(loader1.createUniqueInstance<BaseWithInterfaceCtor>("Double", "double 2",
+      std::make_unique<int>(10))->get_number(), 20);
     ASSERT_NO_THROW(class_loader::impl::printDebugInfoToScreen());
     SUCCEED();
   } catch (class_loader::ClassLoaderException & e) {
@@ -242,10 +262,20 @@ void testMultiClassLoader(bool lazy)
     class_loader::MultiLibraryClassLoader loader(lazy);
     loader.loadLibrary(LIBRARY_1);
     loader.loadLibrary(LIBRARY_2);
+    loader.loadLibrary(LIBRARY_3);
     for (int i = 0; i < 2; ++i) {
       loader.createUniqueInstance<Base>("Cat")->saySomething();
       loader.createUniqueInstance<Base>("Dog")->saySomething();
       loader.createUniqueInstance<Base>("Robot")->saySomething();
+      ASSERT_EQ(loader.createUniqueInstance<BaseWithInterfaceCtor>("Identity", "identity 1",
+        std::make_unique<int>(1))->get_number(), 1);
+      ASSERT_EQ(loader.createUniqueInstance<BaseWithInterfaceCtor>("Identity", "identity 2",
+        std::make_unique<int>(10))->get_number(),
+        10);
+      ASSERT_EQ(loader.createUniqueInstance<BaseWithInterfaceCtor>("Double", "double 1",
+        std::make_unique<int>(1))->get_number(), 2);
+      ASSERT_EQ(loader.createUniqueInstance<BaseWithInterfaceCtor>("Double", "double 2",
+        std::make_unique<int>(10))->get_number(), 20);
     }
   } catch (class_loader::ClassLoaderException & e) {
     FAIL() << "ClassLoaderException: " << e.what() << "\n";

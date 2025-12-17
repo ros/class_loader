@@ -1,5 +1,7 @@
 /*
- * Copyright (c) 2012, Willow Garage, Inc.
+ * Software License Agreement (BSD License)
+ *
+ * Copyright (c) 2025, Multi-robot Systems (MRS) group at Czech Technical University in Prague
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -10,14 +12,14 @@
  *     * Redistributions in binary form must reproduce the above copyright
  *       notice, this list of conditions and the following disclaimer in the
  *       documentation and/or other materials provided with the distribution.
- *     * Neither the name of the Willow Garage, Inc. nor the names of its
+ *     * Neither the name of the copyright holder nor the names of its
  *       contributors may be used to endorse or promote products derived from
  *       this software without specific prior written permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
  * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
  * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
  * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
@@ -27,42 +29,39 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef BASE_HPP_
-#define BASE_HPP_
+#include "class_loader/register_macro.hpp"
 
-#include <memory>
-#include <string>
+#include "./base.hpp"
 
-#include "class_loader/interface_traits.hpp"
-
-// This was originally at 1000, but arm32 platforms we have tested on are not able to
-// successfully spin up 1000 threads in this test process. Using 500 as a reliably passing number.
-static constexpr size_t STRESS_TEST_NUM_THREADS = 500;
-
-class Base
+class Identity : public BaseWithInterfaceCtor
 {
 public:
-  virtual ~Base() {}
-  virtual void saySomething() = 0;
+  explicit Identity(std::string name, std::unique_ptr<int> number)
+  : BaseWithInterfaceCtor(name), number_(*number) {}
+
+  int get_number() override
+  {
+    return number_;
+  }
+
+private:
+  int number_;
 };
 
-class BaseWithInterfaceCtor
+class Double : public BaseWithInterfaceCtor
 {
 public:
-  // constructor parameters for the base class do not need to match the derived classes
-  explicit BaseWithInterfaceCtor(std::string) {}
-  virtual ~BaseWithInterfaceCtor() = default;
+  explicit Double(std::string name, std::unique_ptr<int> number)
+  : BaseWithInterfaceCtor(name), number_(*number) {}
 
-  virtual int get_number() = 0;
+  int get_number() override
+  {
+    return 2 * number_;
+  }
+
+private:
+  int number_;
 };
 
-template<>
-struct class_loader::InterfaceTraits<BaseWithInterfaceCtor>
-{
-  // - string to check that arguments are not mixed up with class names and
-  //   that they do not create ambiguous calls
-  // - unique_ptr to check that the construction works correctly with move only types
-  using constructor_signature = BaseWithInterfaceCtor(std::string, std::unique_ptr<int>);
-};
-
-#endif  // BASE_HPP_
+CLASS_LOADER_REGISTER_CLASS(Identity, BaseWithInterfaceCtor)
+CLASS_LOADER_REGISTER_CLASS(Double, BaseWithInterfaceCtor)
