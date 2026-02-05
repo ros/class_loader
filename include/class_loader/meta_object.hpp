@@ -154,9 +154,9 @@ protected:
   AbstractMetaObjectBaseImpl * impl_;
 };
 
-template<class ...>
+template<class ... Ts>
 class AbstractMetaObjectImpl {
-  static_assert(false, "Base template selected.");
+  static_assert(false_v<Ts...>, "Base template selected.");
 };
 
 template<class B, class ... Args>
@@ -204,9 +204,9 @@ private:
   AbstractMetaObject & operator=(const AbstractMetaObject &);
 };
 
-template<class ...>
+template<class ... Ts>
 class MetaObjectImpl {
-  static_assert(false, "Base template selected.");
+  static_assert(false_v<Ts...>, "Base template selected.");
 };
 
 template<class C, class B, class ... Args>

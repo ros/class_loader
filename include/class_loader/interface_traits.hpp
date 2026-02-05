@@ -162,6 +162,14 @@ template<class Base, class ... Args>
 constexpr bool is_interface_constructible_v =
   is_interface_constructible<Base, Args...>::value;
 
+namespace impl
+{
+
+template<class ...>
+constexpr bool false_v = false;
+
+}  // namespace impl
+
 }  // namespace class_loader
 
 #endif  // CLASS_LOADER__INTERFACE_TRAITS_HPP_
