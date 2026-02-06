@@ -160,7 +160,7 @@ class AbstractMetaObjectImpl {
 };
 
 template<class B, class ... Args>
-class AbstractMetaObjectImpl<B(Args...)>: public AbstractMetaObjectBase {
+class AbstractMetaObjectImpl<B, ConstructorParameters<Args...>>: public AbstractMetaObjectBase {
 protected:
   using AbstractMetaObjectBase::AbstractMetaObjectBase;
 
@@ -183,9 +183,9 @@ public:
  * @parm B The base class interface for the plugin
  */
 template<class B>
-class AbstractMetaObject : public AbstractMetaObjectImpl<interface_constructor_signature_t<B>>
+class AbstractMetaObject : public AbstractMetaObjectImpl<B, interface_constructor_parameters_t<B>>
 {
-  using Base = AbstractMetaObjectImpl<interface_constructor_signature_t<B>>;
+  using Base = AbstractMetaObjectImpl<B, interface_constructor_parameters_t<B>>;
 
 public:
   /**
@@ -210,7 +210,7 @@ class MetaObjectImpl {
 };
 
 template<class C, class B, class ... Args>
-class MetaObjectImpl<C, B(Args...)>: public AbstractMetaObject<B>
+class MetaObjectImpl<C, B, ConstructorParameters<Args...>>: public AbstractMetaObject<B>
 {
 protected:
   using AbstractMetaObject<B>::AbstractMetaObject;
@@ -238,9 +238,9 @@ public:
  * @parm B The base class interface for the plugin
  */
 template<class C, class B>
-class MetaObject : public MetaObjectImpl<C, interface_constructor_signature_t<B>>
+class MetaObject : public MetaObjectImpl<C, B, interface_constructor_parameters_t<B>>
 {
-  using Base = MetaObjectImpl<C, interface_constructor_signature_t<B>>;
+  using Base = MetaObjectImpl<C, B, interface_constructor_parameters_t<B>>;
 
 public:
   /**

@@ -62,7 +62,21 @@ struct class_loader::InterfaceTraits<BaseWithInterfaceCtor>
   // - string to check that arguments are not mixed up with class names and
   //   that they do not create ambiguous calls
   // - unique_ptr to check that the construction works correctly with move only types
-  using constructor_signature = BaseWithInterfaceCtor(std::string, std::unique_ptr<int>);
+  using constructor_parameters = class_loader::ConstructorParameters<std::string,
+      std::unique_ptr<int>>;
 };
+
+static_assert(
+  class_loader::is_interface_constructible_v<BaseWithInterfaceCtor, std::string,
+  std::unique_ptr<int>>,
+  "BaseWithInterfaceCtor should be interface constructible with the specifed types."
+);
+
+static_assert(
+  class_loader::is_interface_constructible_v<BaseWithInterfaceCtor, const std::string &,
+  std::unique_ptr<int>&&>,
+  "BaseWithInterfaceCtor should be interface constructible with the specifed types."
+);
+
 
 #endif  // BASE_HPP_

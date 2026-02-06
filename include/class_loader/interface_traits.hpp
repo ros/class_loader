@@ -37,6 +37,17 @@
 namespace class_loader
 {
 
+namespace impl
+{
+
+template<class ...>
+constexpr bool false_v = false;
+
+}  // namespace impl
+
+template<class ... Params>
+struct ConstructorParameters {};
+
 /**
  * @brief Customization point that allows setting additional properties of
  * an interface class.
@@ -50,14 +61,14 @@ namespace class_loader
  * specified.
  *
  * Supported properties:
- * - `constructor_signature` (member type)
- *   - accessor: interface_constructor_signature
- *   - default: T()
- *   - defines the signature with which will the class loader instantiate the
+ * - `constructor_parameters` (member type)
+ *   - accessor: interface_constructor_parameters
+ *   - default: ConstructorParameters<>
+ *   - defines the parameters with which will the class loader instantiate the
  *     derived classes
  *   - example:
  *     \code
- *     using constructor_signature = T(double, int);
+ *     using constructor_parameters = ConstructorParameters<double, int>;
  *     \endcode
  *     defines that derived classes of class T (replace with the base class type
  *     used in this specialization) will be instantiated with `double` and `int`
@@ -80,7 +91,7 @@ namespace class_loader
  * struct class_loader::InterfaceTraits<BaseWithInterfaceCtor>
  * {
  *   // derived classes will be instantiated with two parameters (string and unique_ptr<int>)
- *   using constructor_signature = BaseWithInterfaceCtor(std::string, std::unique_ptr<int>);
+ *   using constructor_parameters = ConstructorParameters<std::string, std::unique_ptr<int>>;
  * };
  * \endcode
  */
@@ -93,46 +104,63 @@ namespace impl
 {
 
 template<class T, class = void>
-struct interface_constructor_signature_impl
+struct interface_constructor_parameters_impl
 {
-  using type = T();
+  using type = ConstructorParameters<>;
 };
 
 template<class T>
-struct interface_constructor_signature_impl<T,
-  std::void_t<typename InterfaceTraits<T>::constructor_signature>>
+struct interface_constructor_parameters_impl<T,
+  std::void_t<typename InterfaceTraits<T>::constructor_parameters>>
 {
-  using type = typename InterfaceTraits<T>::constructor_signature;
+  using type = typename InterfaceTraits<T>::constructor_parameters;
 };
 
 }  // namespace impl
 
 /**
- * @brief Type trait for extracting the `constructor_signature` of
+ * @brief Type trait for extracting the `constructor_parameters` of
  * InterfaceTraits.
  *
  * @tparam T same as in InterfaceTraits
  *
  * Helper type:\n
- * @ref interface_constructor_signature_t<T> = interface_constructor_signature<T>::type;
+ * @ref interface_constructor_parameters_t<T> = interface_constructor_parameters<T>::type;
  */
 template<class T>
-struct interface_constructor_signature
+struct interface_constructor_parameters
 {
   /**
-   * @brief InterfaceTraits<T>::constructor_signature if present, otherwise the
+   * @brief InterfaceTraits<T>::constructor_parameters if present, otherwise the
    * default value (see InterfaceTraits).
    */
-  using type = typename impl::interface_constructor_signature_impl<T>::type;
+  using type = typename impl::interface_constructor_parameters_impl<T>::type;
 };
 
 /**
- * @brief Helper type alias @ref interface_constructor_signature<T>::type
- * @see interface_constructor_signature
+ * @brief Helper type alias @ref interface_constructor_parameters<T>::type
+ * @see interface_constructor_parameters
  */
 template<class T>
-using interface_constructor_signature_t =
-  typename interface_constructor_signature<T>::type;
+using interface_constructor_parameters_t =
+  typename interface_constructor_parameters<T>::type;
+
+namespace impl
+{
+
+template<class ... Ts>
+struct is_interface_constructible_impl
+{
+  static_assert(false_v<Ts...>, "Base template selected.");
+};
+
+template<class ... Params, class ... Args>
+struct is_interface_constructible_impl<ConstructorParameters<Params...>, Args...>
+  : std::is_invocable<void(Params...), Args...>
+{
+};
+
+}  // namespace impl
 
 /**
  * @brief Type trait for checking whether plugins derived from T can be
@@ -150,7 +178,7 @@ using interface_constructor_signature_t =
  */
 template<class Base, class ... Args>
 struct is_interface_constructible
-  : std::is_invocable<interface_constructor_signature_t<Base>, Args...>
+  : impl::is_interface_constructible_impl<interface_constructor_parameters_t<Base>, Args...>
 {
 };
 
@@ -161,14 +189,6 @@ struct is_interface_constructible
 template<class Base, class ... Args>
 constexpr bool is_interface_constructible_v =
   is_interface_constructible<Base, Args...>::value;
-
-namespace impl
-{
-
-template<class ...>
-constexpr bool false_v = false;
-
-}  // namespace impl
 
 }  // namespace class_loader
 
