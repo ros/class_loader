@@ -1,7 +1,7 @@
 /*
  * Software License Agreement (BSD License)
  *
- * Copyright (c) 2025, Multi-robot Systems (MRS) group at Czech Technical University in Prague
+ * Copyright (c) 2026, Multi-robot Systems (MRS) group at Czech Technical University in Prague
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
