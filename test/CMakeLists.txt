@@ -15,6 +15,10 @@ add_library(${PROJECT_NAME}_TestPlugins2 EXCLUDE_FROM_ALL SHARED plugins2.cpp)
 target_link_libraries(${PROJECT_NAME}_TestPlugins2 ${PROJECT_NAME})
 class_loader_hide_library_symbols(${PROJECT_NAME}_TestPlugins2)
 
+add_library(${PROJECT_NAME}_TestPlugins3 EXCLUDE_FROM_ALL SHARED plugins3.cpp)
+target_link_libraries(${PROJECT_NAME}_TestPlugins3 ${PROJECT_NAME})
+class_loader_hide_library_symbols(${PROJECT_NAME}_TestPlugins3)
+
 # These plugins are loaded using dlopen() with RTLD_GLOBAL in utest and may cause side effects
 # in other tests if they are used elsewhere.
 add_library(${PROJECT_NAME}_TestGlobalPlugins EXCLUDE_FROM_ALL SHARED global_plugins.cpp)
@@ -50,6 +54,7 @@ if(TARGET ${PROJECT_NAME}_utest)
   add_dependencies(${PROJECT_NAME}_utest
     ${PROJECT_NAME}_TestPlugins1
     ${PROJECT_NAME}_TestPlugins2
+    ${PROJECT_NAME}_TestPlugins3
     ${PROJECT_NAME}_TestGlobalPlugins)
 endif()
 
@@ -72,7 +77,8 @@ if(TARGET ${PROJECT_NAME}_unique_ptr_test)
   endif()
   add_dependencies(${PROJECT_NAME}_unique_ptr_test
     ${PROJECT_NAME}_TestPlugins1
-    ${PROJECT_NAME}_TestPlugins2)
+    ${PROJECT_NAME}_TestPlugins2
+    ${PROJECT_NAME}_TestPlugins3)
 endif()
 
 add_subdirectory(fviz_case_study)

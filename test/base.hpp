@@ -30,6 +30,11 @@
 #ifndef BASE_HPP_
 #define BASE_HPP_
 
+#include <memory>
+#include <string>
+
+#include "class_loader/interface_traits.hpp"
+
 // This was originally at 1000, but arm32 platforms we have tested on are not able to
 // successfully spin up 1000 threads in this test process. Using 500 as a reliably passing number.
 static constexpr size_t STRESS_TEST_NUM_THREADS = 500;
@@ -40,5 +45,38 @@ public:
   virtual ~Base() {}
   virtual void saySomething() = 0;
 };
+
+class BaseWithInterfaceCtor
+{
+public:
+  // constructor parameters for the base class do not need to match the derived classes
+  explicit BaseWithInterfaceCtor(std::string) {}
+  virtual ~BaseWithInterfaceCtor() = default;
+
+  virtual int get_number() = 0;
+};
+
+template<>
+struct class_loader::InterfaceTraits<BaseWithInterfaceCtor>
+{
+  // - string to check that arguments are not mixed up with class names and
+  //   that they do not create ambiguous calls
+  // - unique_ptr to check that the construction works correctly with move only types
+  using constructor_parameters = class_loader::ConstructorParameters<std::string,
+      std::unique_ptr<int>>;
+};
+
+static_assert(
+  class_loader::is_interface_constructible_v<BaseWithInterfaceCtor, std::string,
+  std::unique_ptr<int>>,
+  "BaseWithInterfaceCtor should be interface constructible with the specifed types."
+);
+
+static_assert(
+  class_loader::is_interface_constructible_v<BaseWithInterfaceCtor, const std::string &,
+  std::unique_ptr<int>&&>,
+  "BaseWithInterfaceCtor should be interface constructible with the specifed types."
+);
+
 
 #endif  // BASE_HPP_

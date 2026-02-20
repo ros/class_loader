@@ -39,6 +39,7 @@
 #include <memory>
 #include <mutex>
 #include <string>
+#include <utility>
 #include <vector>
 
 // TODO(mikaelarguedas) remove this once console_bridge complies with this
@@ -119,13 +120,16 @@ public:
    * if the library is not yet loaded (which typically happens when in "On Demand Load/Unload" mode).
    *
    * @param derived_class_name The name of the class we want to create (@see getAvailableClasses())
+   * @param args Arguments for the constructor of the derived class (types defined
+   * by InterfaceTraits of the Base class)
    * @return A std::shared_ptr<Base> to newly created plugin object
    */
-  template<class Base>
-  std::shared_ptr<Base> createInstance(const std::string & derived_class_name)
+  template<class Base, class ... Args,
+    std::enable_if_t<is_interface_constructible_v<Base, Args...>, bool> = true>
+  std::shared_ptr<Base> createInstance(const std::string & derived_class_name, Args &&... args)
   {
     return std::shared_ptr<Base>(
-      createRawInstance<Base>(derived_class_name, true),
+      createRawInstance<Base>(derived_class_name, true, std::forward<Args>(args)...),
       std::bind(&ClassLoader::onPluginDeletion<Base>, this, std::placeholders::_1)
     );
   }
@@ -141,12 +145,15 @@ public:
    *
    * @param derived_class_name
    *   The name of the class we want to create (@see getAvailableClasses()).
+   * @param args Arguments for the constructor of the derived class (types defined
+   * by InterfaceTraits of the Base class)
    * @return A std::unique_ptr<Base> to newly created plugin object.
    */
-  template<class Base>
-  UniquePtr<Base> createUniqueInstance(const std::string & derived_class_name)
+  template<class Base, class ... Args,
+    std::enable_if_t<is_interface_constructible_v<Base, Args...>, bool> = true>
+  UniquePtr<Base> createUniqueInstance(const std::string & derived_class_name, Args &&... args)
   {
-    Base * raw = createRawInstance<Base>(derived_class_name, true);
+    Base * raw = createRawInstance<Base>(derived_class_name, true, std::forward<Args>(args)...);
     return std::unique_ptr<Base, DeleterType<Base>>(
       raw,
       std::bind(&ClassLoader::onPluginDeletion<Base>, this, std::placeholders::_1)
@@ -164,12 +171,15 @@ public:
    *
    * @param derived_class_name
    *   The name of the class we want to create (@see getAvailableClasses()).
+   * @param args Arguments for the constructor of the derived class (types defined
+   * by InterfaceTraits of the Base class)
    * @return An unmanaged (i.e. not a shared_ptr) Base* to newly created plugin object.
    */
-  template<class Base>
-  Base * createUnmanagedInstance(const std::string & derived_class_name)
+  template<class Base, class ... Args,
+    std::enable_if_t<is_interface_constructible_v<Base, Args...>, bool> = true>
+  Base * createUnmanagedInstance(const std::string & derived_class_name, Args &&... args)
   {
-    return createRawInstance<Base>(derived_class_name, false);
+    return createRawInstance<Base>(derived_class_name, false, std::forward<Args>(args)...);
   }
 
   /**
@@ -297,10 +307,13 @@ private:
    * @param managed
    *   If true, the returned pointer is assumed to be wrapped in a smart
    *   pointer by the caller.
+   * @param args Arguments for the constructor of the derived class (types defined
+   * by InterfaceTraits of the Base class)
    * @return A Base* to newly created plugin object.
    */
-  template<class Base>
-  Base * createRawInstance(const std::string & derived_class_name, bool managed)
+  template<class Base, class ... Args,
+    std::enable_if_t<is_interface_constructible_v<Base, Args...>, bool> = true>
+  Base * createRawInstance(const std::string & derived_class_name, bool managed, Args &&... args)
   {
     if (!managed) {
       this->setUnmanagedInstanceBeenCreated(true);
@@ -324,7 +337,8 @@ private:
       loadLibrary();
     }
 
-    Base * obj = class_loader::impl::createInstance<Base>(derived_class_name, this);
+    Base * obj = class_loader::impl::createInstance<Base>(derived_class_name, this,
+        std::forward<Args>(args)...);
     assert(obj != NULL);  // Unreachable assertion if createInstance() throws on failure.
 
     if (managed) {

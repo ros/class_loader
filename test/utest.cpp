@@ -49,6 +49,7 @@
 
 const std::string LIBRARY_1 = class_loader::systemLibraryFormat("class_loader_TestPlugins1");  // NOLINT
 const std::string LIBRARY_2 = class_loader::systemLibraryFormat("class_loader_TestPlugins2");  // NOLINT
+const std::string LIBRARY_3 = class_loader::systemLibraryFormat("class_loader_TestPlugins3");  // NOLINT
 
 // These are loaded with dlopen() and RTLD_GLOBAL in loadUnloadLoadFromGraveyard and may cause
 // unexpected side-effects if used elsewhere
@@ -99,6 +100,25 @@ TEST(ClassLoaderTest, basicLoadTwiceSameTime) {
   SUCCEED();
 }
 
+TEST(ClassLoaderTest, constructorLoad) {
+  try {
+    class_loader::ClassLoader loader1(LIBRARY_3, false);
+    ASSERT_NO_THROW(class_loader::impl::printDebugInfoToScreen());
+    ASSERT_EQ(loader1.createInstance<BaseWithInterfaceCtor>("Identity", "identity 1",
+      std::make_unique<int>(1))->get_number(), 1);
+    ASSERT_EQ(loader1.createInstance<BaseWithInterfaceCtor>("Identity", "identity 2",
+      std::make_unique<int>(10))->get_number(), 10);
+    ASSERT_EQ(loader1.createInstance<BaseWithInterfaceCtor>("Double", "double 1",
+      std::make_unique<int>(1))->get_number(), 2);
+    ASSERT_EQ(loader1.createInstance<BaseWithInterfaceCtor>("Double", "double 2",
+      std::make_unique<int>(10))->get_number(), 20);
+  } catch (class_loader::ClassLoaderException & e) {
+    FAIL() << "ClassLoaderException: " << e.what() << "\n";
+  }
+
+  SUCCEED();
+}
+
 // Requires separate namespace so static variables are isolated
 TEST(ClassLoaderUnmanagedTest, basicLoadUnmanaged) {
   try {
@@ -106,6 +126,23 @@ TEST(ClassLoaderUnmanagedTest, basicLoadUnmanaged) {
     Base * unmanaged_instance = loader1.createUnmanagedInstance<Base>("Dog");
     ASSERT_NE(unmanaged_instance, nullptr);
     unmanaged_instance->saySomething();
+    delete unmanaged_instance;
+  } catch (class_loader::ClassLoaderException & e) {
+    FAIL() << "ClassLoaderException: " << e.what() << "\n";
+  }
+
+  SUCCEED();
+}
+
+// Requires separate namespace so static variables are isolated
+TEST(ClassLoaderUnmanagedTest, constructorLoadUnmanaged) {
+  try {
+    class_loader::ClassLoader loader1(LIBRARY_3, false);
+    BaseWithInterfaceCtor * unmanaged_instance =
+      loader1.createUnmanagedInstance<BaseWithInterfaceCtor>("Identity", "identity",
+      std::make_unique<int>(1));
+    ASSERT_NE(unmanaged_instance, nullptr);
+    ASSERT_EQ(unmanaged_instance->get_number(), 1);
     delete unmanaged_instance;
   } catch (class_loader::ClassLoaderException & e) {
     FAIL() << "ClassLoaderException: " << e.what() << "\n";
@@ -348,10 +385,19 @@ void testMultiClassLoader(bool lazy)
     class_loader::MultiLibraryClassLoader loader(lazy);
     loader.loadLibrary(LIBRARY_1);
     loader.loadLibrary(LIBRARY_2);
+    loader.loadLibrary(LIBRARY_3);
     for (int i = 0; i < 2; ++i) {
       loader.createInstance<Base>("Cat")->saySomething();
       loader.createInstance<Base>("Dog")->saySomething();
       loader.createInstance<Base>("Robot")->saySomething();
+      ASSERT_EQ(loader.createInstance<BaseWithInterfaceCtor>("Identity", "identity 1",
+        std::make_unique<int>(1))->get_number(), 1);
+      ASSERT_EQ(loader.createInstance<BaseWithInterfaceCtor>("Identity", "identity 2",
+        std::make_unique<int>(10))->get_number(), 10);
+      ASSERT_EQ(loader.createInstance<BaseWithInterfaceCtor>("Double", "double 1",
+        std::make_unique<int>(1))->get_number(), 2);
+      ASSERT_EQ(loader.createInstance<BaseWithInterfaceCtor>("Double", "double 2",
+        std::make_unique<int>(10))->get_number(), 20);
     }
   } catch (class_loader::ClassLoaderException & e) {
     FAIL() << "ClassLoaderException: " << e.what() << "\n";
