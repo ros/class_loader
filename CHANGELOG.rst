@@ -2,6 +2,11 @@
 Changelog for package class_loader
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+2.9.2 (2026-02-23)
+------------------
+* Add support for passing arguments to constructors (`#223 <https://github.com/ros/class_loader//issues/223>`_)
+* Contributors: pum1k
+
 2.9.1 (2025-10-17)
 ------------------
 * Thread and Address Sanitizer CI (`#198 <https://github.com/ros/class_loader/issues/198>`_)
