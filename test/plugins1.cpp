@@ -36,7 +36,7 @@
 class Dog : public Base
 {
 public:
-  void saySomething()
+  void saySomething() override
   {
     printf("Bark\n");
   }
@@ -45,7 +45,7 @@ public:
 class Cat : public Base
 {
 public:
-  void saySomething()
+  void saySomething() override
   {
     printf("Meow\n");
   }
@@ -54,7 +54,7 @@ public:
 class Duck : public Base
 {
 public:
-  void saySomething()
+  void saySomething() override
   {
     printf("Quack\n");
   }
@@ -63,7 +63,7 @@ public:
 class Cow : public Base
 {
 public:
-  void saySomething()
+  void saySomething() override
   {
     printf("Moooo\n");
   }
@@ -72,7 +72,7 @@ public:
 class Sheep : public Base
 {
 public:
-  void saySomething()
+  void saySomething() override
   {
     printf("Baaah\n");
   }
