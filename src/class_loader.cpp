@@ -34,16 +34,16 @@
 namespace class_loader
 {
 
-bool ClassLoader::has_unmananged_instance_been_created_ = false;
+bool ClassLoader::has_unmanaged_instance_been_created_ = false;
 
 bool ClassLoader::hasUnmanagedInstanceBeenCreated()
 {
-  return ClassLoader::has_unmananged_instance_been_created_;
+  return ClassLoader::has_unmanaged_instance_been_created_;
 }
 
 void ClassLoader::setUnmanagedInstanceBeenCreated(bool state)
 {
-  ClassLoader::has_unmananged_instance_been_created_ = state;
+  ClassLoader::has_unmanaged_instance_been_created_ = state;
 }
 
 std::string systemLibraryFormat(const std::string & library_name)

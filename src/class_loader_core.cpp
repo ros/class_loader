@@ -140,12 +140,8 @@ void hasANonPurePluginLibraryBeenOpened(bool hasIt)
 MetaObjectVector allMetaObjects(const FactoryMap & factories)
 {
   MetaObjectVector all_meta_objs;
-  for (
-    FactoryMap::const_iterator factoryItr = factories.begin();
-    factoryItr != factories.end(); factoryItr++
-  )
-  {
-    all_meta_objs.push_back(factoryItr->second);
+  for (const auto & factory_entry : factories) {
+    all_meta_objs.push_back(factory_entry.second);
   }
   return all_meta_objs;
 }
@@ -495,17 +491,17 @@ void unloadLibrary(const std::string & library_path, ClassLoader * loader)
     LibraryVector::iterator itr = findLoadedLibrary(library_path);
     if (itr != open_libraries.end()) {
       auto library = itr->second;
-      std::string library_path = itr->first;
+      const std::string & lib_path = itr->first;
       try {
-        destroyMetaObjectsForLibrary(library_path, loader);
+        destroyMetaObjectsForLibrary(lib_path, loader);
 
         // Remove from loaded library list as well if no more factories associated with said library
-        if (!areThereAnyExistingMetaObjectsForLibrary(library_path)) {
+        if (!areThereAnyExistingMetaObjectsForLibrary(lib_path)) {
           CONSOLE_BRIDGE_logDebug(
             "class_loader.impl: "
             "There are no more MetaObjects left for %s so unloading library and "
             "removing from loaded library vector.\n",
-            library_path.c_str());
+            lib_path.c_str());
 
           library->unload_library();
           itr = open_libraries.erase(itr);
@@ -514,7 +510,7 @@ void unloadLibrary(const std::string & library_path, ClassLoader * loader)
             "class_loader.impl: "
             "MetaObjects still remain in memory meaning other ClassLoaders are still using library"
             ", keeping library %s open.",
-            library_path.c_str());
+            lib_path.c_str());
         }
         return;
       } catch (const std::runtime_error & e) {
