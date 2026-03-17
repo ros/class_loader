@@ -106,6 +106,16 @@ ClassLoader * MultiLibraryClassLoader::getClassLoaderForLibrary(const std::strin
   return impl_->active_class_loaders_[library_path];
 }
 
+const ClassLoader *
+MultiLibraryClassLoader::getClassLoaderForLibrary(const std::string & library_path) const
+{
+  auto it = impl_->active_class_loaders_.find(library_path);
+  if (it == impl_->active_class_loaders_.end()) {
+    return nullptr;
+  }
+  return it->second;
+}
+
 ClassLoaderVector MultiLibraryClassLoader::getAllAvailableClassLoaders() const
 {
   ClassLoaderVector loaders;

@@ -41,7 +41,7 @@ namespace class_loader
 {
 
 /**
- * @class ClassLoader sException
+ * @class ClassLoaderException
  * @brief A base class for all class_loader exceptions that inherits from std::runtime_exception
  */
 class ClassLoaderException : public std::runtime_error

@@ -294,7 +294,7 @@ public:
    * @return A vector<string> of the available classes in the passed library
    */
   template<class Base>
-  std::vector<std::string> getAvailableClassesForLibrary(const std::string & library_path)
+  std::vector<std::string> getAvailableClassesForLibrary(const std::string & library_path) const
   {
     ClassLoader * loader = getClassLoaderForLibrary(library_path);
     if (nullptr == loader) {
@@ -345,6 +345,7 @@ private:
    * @return A pointer to the ClassLoader*, == nullptr if not found
    */
   ClassLoader * getClassLoaderForLibrary(const std::string & library_path);
+  const ClassLoader * getClassLoaderForLibrary(const std::string & library_path) const;
 
   /// Gets a handle to the class loader corresponding to a specific class.
   /**
