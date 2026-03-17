@@ -42,7 +42,7 @@ static constexpr size_t STRESS_TEST_NUM_THREADS = 500;
 class Base
 {
 public:
-  virtual ~Base() {}
+  virtual ~Base() = default;
   virtual void saySomething() = 0;
 };
 

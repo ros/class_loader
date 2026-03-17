@@ -20,8 +20,8 @@
 class Bar : public FvizPluginBase
 {
 public:
-  virtual ~Bar() = default;
-  void speak()
+  ~Bar() override = default;
+  void speak() override
   {
     foo("from plugin Bar");
   }
@@ -30,8 +30,8 @@ public:
 class Baz : public FvizPluginBase
 {
 public:
-  virtual ~Baz() = default;
-  void speak()
+  ~Baz() override = default;
+  void speak() override
   {
     foo("from plugin Baz");
   }

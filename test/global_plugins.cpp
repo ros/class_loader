@@ -39,7 +39,7 @@
 class Kangaroo : public Base
 {
 public:
-  void saySomething()
+  void saySomething() override
   {
     printf("[Angry growl]\n");
   }
@@ -48,7 +48,7 @@ public:
 class Panda : public Base
 {
 public:
-  void saySomething()
+  void saySomething() override
   {
     printf("[Excited squeaks!!!]\n");
   }
@@ -57,7 +57,7 @@ public:
 class Hyena : public Base
 {
 public:
-  void saySomething()
+  void saySomething() override
   {
     printf("[Cackling laugh]\n");
   }
@@ -66,7 +66,7 @@ public:
 class Alpaca : public Base
 {
 public:
-  void saySomething()
+  void saySomething() override
   {
     printf("hhhaaaaaaaaaa\n");
   }

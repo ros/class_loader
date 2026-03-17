@@ -295,7 +295,7 @@ TEST(MultiClassLoaderUniquePtrTest, nonLazyLoad) {
 }
 TEST(MultiClassLoaderUniquePtrTest, noWarningOnLazyLoad) {
   try {
-    ClassLoader::UniquePtr<Base> cat = nullptr, dog = nullptr, rob = nullptr;
+    ClassLoader::UniquePtr<Base> cat, dog, rob;
     {
       class_loader::MultiLibraryClassLoader loader(true);
       loader.loadLibrary(LIBRARY_1);
