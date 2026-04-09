@@ -2,6 +2,14 @@
 Changelog for package class_loader
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+2.9.3 (2026-04-09)
+------------------
+* Remove ament_cmake_ros dependency (`#226 <https://github.com/ros/class_loader/issues/226>`_)
+  The dependent ament_cmake_ros package transitively pulls in RMW-layer packages which is unnecessarily heavy to class_loader that is supposed to be an independent plugin loading library. This commit removes the ament_cmake_ros dependency and replaces with a plain ament_cmake with an explicit SHARED library type to keep the dependency minimal.
+* Improvements (`#225 <https://github.com/ros/class_loader/issues/225>`_)
+* Clean up tests (`#224 <https://github.com/ros/class_loader/issues/224>`_)
+* Contributors: Alejandro Hernández Cordero, CY Chen
+
 2.9.2 (2026-02-23)
 ------------------
 * Add support for passing arguments to constructors (`#223 <https://github.com/ros/class_loader//issues/223>`_)
