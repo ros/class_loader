@@ -296,7 +296,7 @@ public:
   template<class Base>
   std::vector<std::string> getAvailableClassesForLibrary(const std::string & library_path) const
   {
-    ClassLoader * loader = getClassLoaderForLibrary(library_path);
+    const ClassLoader * loader = getClassLoaderForLibrary(library_path);
     if (nullptr == loader) {
       throw class_loader::NoClassLoaderExistsException(
               "There is no ClassLoader in MultiLibraryClassLoader bound to library " +
