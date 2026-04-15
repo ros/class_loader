@@ -2,6 +2,13 @@
 Changelog for package class_loader
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+2.9.4 (2026-04-15)
+------------------
+
+* Fix compiler error with clang (`#227 <https://github.com/ros/class_loader/issues/227>`_)
+
+* Contributors: Alejandro Hernández Cordero
+
 2.9.3 (2026-04-09)
 ------------------
 * Remove ament_cmake_ros dependency (`#226 <https://github.com/ros/class_loader/issues/226>`_)
