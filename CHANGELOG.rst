@@ -2,11 +2,13 @@
 Changelog for package class_loader
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+3.0.0 (2026-05-06)
+------------------
+
 2.9.4 (2026-04-15)
 ------------------
 
 * Fix compiler error with clang (`#227 <https://github.com/ros/class_loader/issues/227>`_)
-
 * Contributors: Alejandro Hernández Cordero
 
 2.9.3 (2026-04-09)
