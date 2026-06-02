@@ -2,6 +2,12 @@
 Changelog for package class_loader
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Remove CODEOWNERS and mirror-rolling-to-main workflow (`#215 <https://github.com/ros/class_loader/issues/215>`_)
+  (cherry picked from commit 464fd149cd82e2259d3e1f6f77d6669d1819e124)
+* Contributors: Alejandro Hernández Cordero
+
 2.7.0 (2023-12-26)
 ------------------
 * Remove all uses of ament_target_dependencies. (`#210 <https://github.com/ros/class_loader/issues/210>`_)
