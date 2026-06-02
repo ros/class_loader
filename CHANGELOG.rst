@@ -2,8 +2,8 @@
 Changelog for package class_loader
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.7.1 (2026-06-02)
+------------------
 * Remove CODEOWNERS and mirror-rolling-to-main workflow (`#215 <https://github.com/ros/class_loader/issues/215>`_)
   (cherry picked from commit 464fd149cd82e2259d3e1f6f77d6669d1819e124)
 * Contributors: Alejandro Hernández Cordero
