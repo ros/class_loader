@@ -34,7 +34,7 @@
 namespace class_loader
 {
 
-bool ClassLoader::has_unmanaged_instance_been_created_ = false;
+std::atomic<bool> ClassLoader::has_unmanaged_instance_been_created_{false};
 
 bool ClassLoader::hasUnmanagedInstanceBeenCreated()
 {

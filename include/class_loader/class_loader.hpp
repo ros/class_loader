@@ -33,6 +33,7 @@
 #define CLASS_LOADER__CLASS_LOADER_HPP_
 
 #include <algorithm>
+#include <atomic>
 #include <cassert>
 #include <cstddef>
 #include <functional>
@@ -379,7 +380,7 @@ private:
   std::recursive_mutex load_ref_count_mutex_;
   int plugin_ref_count_;
   std::recursive_mutex plugin_ref_count_mutex_;
-  static bool has_unmanaged_instance_been_created_;
+  static std::atomic<bool> has_unmanaged_instance_been_created_;
 };
 
 }  // namespace class_loader
