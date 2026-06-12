@@ -56,9 +56,9 @@
 namespace class_loader
 {
 
-typedef std::string LibraryPath;
-typedef std::map<LibraryPath, class_loader::ClassLoader *> LibraryToClassLoaderMap;
-typedef std::vector<ClassLoader *> ClassLoaderVector;
+using LibraryPath = std::string;
+using LibraryToClassLoaderMap = std::map<LibraryPath, class_loader::ClassLoader *>;
+using ClassLoaderVector = std::vector<ClassLoader *>;
 
 class MultiLibraryClassLoaderImpl;
 
@@ -94,7 +94,8 @@ public:
    */
   template<class Base, class ... Args,
     std::enable_if_t<is_interface_constructible_v<Base, Args...>, bool> = true>
-  std::shared_ptr<Base> createInstance(const std::string & class_name, Args &&... args)
+  [[nodiscard]] std::shared_ptr<Base> createInstance(
+    const std::string & class_name, Args &&... args)
   {
     CONSOLE_BRIDGE_logDebug(
       "class_loader::MultiLibraryClassLoader: "
@@ -125,7 +126,7 @@ public:
    */
   template<class Base, class ... Args,
     std::enable_if_t<is_interface_constructible_v<Base, Args...>, bool> = true>
-  std::shared_ptr<Base> createInstance(
+  [[nodiscard]] std::shared_ptr<Base> createInstance(
     const std::string & class_name, const std::string & library_path, Args &&... args)
   {
     ClassLoader * loader = getClassLoaderForLibrary(library_path);
@@ -151,7 +152,8 @@ public:
    */
   template<class Base, class ... Args,
     std::enable_if_t<is_interface_constructible_v<Base, Args...>, bool> = true>
-  ClassLoader::UniquePtr<Base> createUniqueInstance(const std::string & class_name, Args &&... args)
+  [[nodiscard]] ClassLoader::UniquePtr<Base> createUniqueInstance(
+    const std::string & class_name, Args &&... args)
   {
     CONSOLE_BRIDGE_logDebug(
       "class_loader::MultiLibraryClassLoader: Attempting to create instance of class type %s.",
@@ -180,7 +182,7 @@ public:
    */
   template<class Base, class ... Args,
     std::enable_if_t<is_interface_constructible_v<Base, Args...>, bool> = true>
-  ClassLoader::UniquePtr<Base>
+  [[nodiscard]] ClassLoader::UniquePtr<Base>
   createUniqueInstance(
     const std::string & class_name, const std::string & library_path,
     Args &&... args)
@@ -209,7 +211,7 @@ public:
    */
   template<class Base, class ... Args,
     std::enable_if_t<is_interface_constructible_v<Base, Args...>, bool> = true>
-  Base * createUnmanagedInstance(const std::string & class_name, Args &&... args)
+  [[nodiscard]] Base * createUnmanagedInstance(const std::string & class_name, Args &&... args)
   {
     ClassLoader * loader = getClassLoaderForClass<Base>(class_name);
     if (nullptr == loader) {
@@ -232,7 +234,7 @@ public:
    */
   template<class Base, class ... Args,
     std::enable_if_t<is_interface_constructible_v<Base, Args...>, bool> = true>
-  Base * createUnmanagedInstance(
+  [[nodiscard]] Base * createUnmanagedInstance(
     const std::string & class_name, const std::string & library_path,
     Args &&... args)
   {
@@ -254,7 +256,7 @@ public:
    * @return true if loaded, false otherwise
    */
   template<class Base>
-  bool isClassAvailable(const std::string & class_name) const
+  [[nodiscard]] bool isClassAvailable(const std::string & class_name) const
   {
     std::vector<std::string> available_classes = getAvailableClasses<Base>();
     return available_classes.end() != std::find(
@@ -267,7 +269,7 @@ public:
    * @param library_path - The full qualified path to the runtime library
    * @return true if library is loaded, false otherwise
    */
-  bool isLibraryAvailable(const std::string & library_path) const;
+  [[nodiscard]] bool isLibraryAvailable(const std::string & library_path) const;
 
   /**
    * @brief Gets a list of all classes that are loaded by the class loader
@@ -276,7 +278,7 @@ public:
    * @return A vector<string> of the available classes
    */
   template<class Base>
-  std::vector<std::string> getAvailableClasses() const
+  [[nodiscard]] std::vector<std::string> getAvailableClasses() const
   {
     std::vector<std::string> available_classes;
     for (auto & loader : getAllAvailableClassLoaders()) {
@@ -294,7 +296,8 @@ public:
    * @return A vector<string> of the available classes in the passed library
    */
   template<class Base>
-  std::vector<std::string> getAvailableClassesForLibrary(const std::string & library_path) const
+  [[nodiscard]] std::vector<std::string> getAvailableClassesForLibrary(
+    const std::string & library_path) const
   {
     const ClassLoader * loader = getClassLoaderForLibrary(library_path);
     if (nullptr == loader) {
@@ -311,7 +314,7 @@ public:
    *
    * @return A list of libraries opened by this class loader
    */
-  std::vector<std::string> getRegisteredLibraries() const;
+  [[nodiscard]] std::vector<std::string> getRegisteredLibraries() const;
 
   /**
    * @brief Loads a library into memory for this class loader

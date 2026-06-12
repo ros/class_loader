@@ -108,7 +108,7 @@ public:
    * @return vector of strings indicating names of instantiable classes derived from <Base>
    */
   template<class Base>
-  std::vector<std::string> getAvailableClasses() const
+  [[nodiscard]] std::vector<std::string> getAvailableClasses() const
   {
     return class_loader::impl::getAvailableClasses<Base>(this);
   }
@@ -126,11 +126,12 @@ public:
    */
   template<class Base, class ... Args,
     std::enable_if_t<is_interface_constructible_v<Base, Args...>, bool> = true>
-  std::shared_ptr<Base> createInstance(const std::string & derived_class_name, Args &&... args)
+  [[nodiscard]] std::shared_ptr<Base> createInstance(
+    const std::string & derived_class_name, Args &&... args)
   {
     return std::shared_ptr<Base>(
       createRawInstance<Base>(derived_class_name, true, std::forward<Args>(args)...),
-      std::bind(&ClassLoader::onPluginDeletion<Base>, this, std::placeholders::_1)
+      [this](Base * p) {onPluginDeletion<Base>(p);}
     );
   }
 
@@ -151,12 +152,13 @@ public:
    */
   template<class Base, class ... Args,
     std::enable_if_t<is_interface_constructible_v<Base, Args...>, bool> = true>
-  UniquePtr<Base> createUniqueInstance(const std::string & derived_class_name, Args &&... args)
+  [[nodiscard]] UniquePtr<Base> createUniqueInstance(
+    const std::string & derived_class_name, Args &&... args)
   {
     Base * raw = createRawInstance<Base>(derived_class_name, true, std::forward<Args>(args)...);
     return std::unique_ptr<Base, DeleterType<Base>>(
       raw,
-      std::bind(&ClassLoader::onPluginDeletion<Base>, this, std::placeholders::_1)
+      [this](Base * p) {onPluginDeletion<Base>(p);}
     );
   }
 
@@ -177,7 +179,8 @@ public:
    */
   template<class Base, class ... Args,
     std::enable_if_t<is_interface_constructible_v<Base, Args...>, bool> = true>
-  Base * createUnmanagedInstance(const std::string & derived_class_name, Args &&... args)
+  [[nodiscard]] Base * createUnmanagedInstance(
+    const std::string & derived_class_name, Args &&... args)
   {
     return createRawInstance<Base>(derived_class_name, false, std::forward<Args>(args)...);
   }
@@ -190,7 +193,7 @@ public:
    * @return true if yes it is available, false otherwise
    */
   template<class Base>
-  bool isClassAvailable(const std::string & class_name) const
+  [[nodiscard]] bool isClassAvailable(const std::string & class_name) const
   {
     std::vector<std::string> available_classes = getAvailableClasses<Base>();
     return std::find(
@@ -202,7 +205,7 @@ public:
    *
    * @return the full-qualified path and name of the library
    */
-  CLASS_LOADER_PUBLIC
+  [[nodiscard]] CLASS_LOADER_PUBLIC
   const std::string & getLibraryPath() const;
 
   /**
@@ -215,7 +218,7 @@ public:
    * @param library_path The path to the library to load
    * @return true if library is loaded within this ClassLoader object's scope, otherwise false
    */
-  CLASS_LOADER_PUBLIC
+  [[nodiscard]] CLASS_LOADER_PUBLIC
   bool isLibraryLoaded() const;
 
   /**
@@ -224,7 +227,7 @@ public:
    *
    * @return true if library is loaded within the scope of the plugin system, otherwise false
    */
-  CLASS_LOADER_PUBLIC
+  [[nodiscard]] CLASS_LOADER_PUBLIC
   bool isLibraryLoadedByAnyClassloader() const;
 
   /**
@@ -234,7 +237,7 @@ public:
    *
    * @return true if ondemand load and unload is active, otherwise false
    */
-  CLASS_LOADER_PUBLIC
+  [[nodiscard]] CLASS_LOADER_PUBLIC
   bool isOnDemandLoadUnloadEnabled() const;
 
   /**
