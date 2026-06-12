@@ -124,8 +124,8 @@ public:
    * by InterfaceTraits of the Base class)
    * @return A std::shared_ptr<Base> to newly created plugin object
    */
-  template<class Base, class ... Args,
-    std::enable_if_t<is_interface_constructible_v<Base, Args...>, bool> = true>
+  template<class Base, class ... Args>
+  requires InterfaceConstructible<Base, Args...>
   [[nodiscard]] std::shared_ptr<Base> createInstance(
     const std::string & derived_class_name, Args &&... args)
   {
@@ -150,8 +150,8 @@ public:
    * by InterfaceTraits of the Base class)
    * @return A std::unique_ptr<Base> to newly created plugin object.
    */
-  template<class Base, class ... Args,
-    std::enable_if_t<is_interface_constructible_v<Base, Args...>, bool> = true>
+  template<class Base, class ... Args>
+  requires InterfaceConstructible<Base, Args...>
   [[nodiscard]] UniquePtr<Base> createUniqueInstance(
     const std::string & derived_class_name, Args &&... args)
   {
@@ -177,8 +177,8 @@ public:
    * by InterfaceTraits of the Base class)
    * @return An unmanaged (i.e. not a shared_ptr) Base* to newly created plugin object.
    */
-  template<class Base, class ... Args,
-    std::enable_if_t<is_interface_constructible_v<Base, Args...>, bool> = true>
+  template<class Base, class ... Args>
+  requires InterfaceConstructible<Base, Args...>
   [[nodiscard]] Base * createUnmanagedInstance(
     const std::string & derived_class_name, Args &&... args)
   {
@@ -196,8 +196,7 @@ public:
   [[nodiscard]] bool isClassAvailable(const std::string & class_name) const
   {
     std::vector<std::string> available_classes = getAvailableClasses<Base>();
-    return std::find(
-      available_classes.begin(), available_classes.end(), class_name) != available_classes.end();
+    return std::ranges::find(available_classes, class_name) != available_classes.end();
   }
 
   /**
@@ -314,8 +313,8 @@ private:
    * by InterfaceTraits of the Base class)
    * @return A Base* to newly created plugin object.
    */
-  template<class Base, class ... Args,
-    std::enable_if_t<is_interface_constructible_v<Base, Args...>, bool> = true>
+  template<class Base, class ... Args>
+  requires InterfaceConstructible<Base, Args...>
   Base * createRawInstance(const std::string & derived_class_name, bool managed, Args &&... args)
   {
     if (!managed) {

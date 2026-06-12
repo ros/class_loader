@@ -32,6 +32,7 @@
 #ifndef CLASS_LOADER__MULTI_LIBRARY_CLASS_LOADER_HPP_
 #define CLASS_LOADER__MULTI_LIBRARY_CLASS_LOADER_HPP_
 
+#include <algorithm>
 #include <cstddef>
 #include <map>
 #include <memory>
@@ -92,8 +93,8 @@ public:
    * by InterfaceTraits of the Base class)
    * @return A std::shared_ptr<Base> to newly created plugin
    */
-  template<class Base, class ... Args,
-    std::enable_if_t<is_interface_constructible_v<Base, Args...>, bool> = true>
+  template<class Base, class ... Args>
+  requires InterfaceConstructible<Base, Args...>
   [[nodiscard]] std::shared_ptr<Base> createInstance(
     const std::string & class_name, Args &&... args)
   {
@@ -124,8 +125,8 @@ public:
    * by InterfaceTraits of the Base class)
    * @return A std::shared_ptr<Base> to newly created plugin
    */
-  template<class Base, class ... Args,
-    std::enable_if_t<is_interface_constructible_v<Base, Args...>, bool> = true>
+  template<class Base, class ... Args>
+  requires InterfaceConstructible<Base, Args...>
   [[nodiscard]] std::shared_ptr<Base> createInstance(
     const std::string & class_name, const std::string & library_path, Args &&... args)
   {
@@ -150,8 +151,8 @@ public:
    * by InterfaceTraits of the Base class)
    * @return A unique pointer to newly created plugin
    */
-  template<class Base, class ... Args,
-    std::enable_if_t<is_interface_constructible_v<Base, Args...>, bool> = true>
+  template<class Base, class ... Args>
+  requires InterfaceConstructible<Base, Args...>
   [[nodiscard]] ClassLoader::UniquePtr<Base> createUniqueInstance(
     const std::string & class_name, Args &&... args)
   {
@@ -180,8 +181,8 @@ public:
    * by InterfaceTraits of the Base class)
    * @return A unique pointer to newly created plugin
    */
-  template<class Base, class ... Args,
-    std::enable_if_t<is_interface_constructible_v<Base, Args...>, bool> = true>
+  template<class Base, class ... Args>
+  requires InterfaceConstructible<Base, Args...>
   [[nodiscard]] ClassLoader::UniquePtr<Base>
   createUniqueInstance(
     const std::string & class_name, const std::string & library_path,
@@ -209,8 +210,8 @@ public:
    * by InterfaceTraits of the Base class)
    * @return An unmanaged Base* to newly created plugin
    */
-  template<class Base, class ... Args,
-    std::enable_if_t<is_interface_constructible_v<Base, Args...>, bool> = true>
+  template<class Base, class ... Args>
+  requires InterfaceConstructible<Base, Args...>
   [[nodiscard]] Base * createUnmanagedInstance(const std::string & class_name, Args &&... args)
   {
     ClassLoader * loader = getClassLoaderForClass<Base>(class_name);
@@ -232,8 +233,8 @@ public:
    * @param args - arguments for the constructor of the derived class (types defined
    * by InterfaceTraits of the Base class)
    */
-  template<class Base, class ... Args,
-    std::enable_if_t<is_interface_constructible_v<Base, Args...>, bool> = true>
+  template<class Base, class ... Args>
+  requires InterfaceConstructible<Base, Args...>
   [[nodiscard]] Base * createUnmanagedInstance(
     const std::string & class_name, const std::string & library_path,
     Args &&... args)
@@ -259,8 +260,7 @@ public:
   [[nodiscard]] bool isClassAvailable(const std::string & class_name) const
   {
     std::vector<std::string> available_classes = getAvailableClasses<Base>();
-    return available_classes.end() != std::find(
-      available_classes.begin(), available_classes.end(), class_name);
+    return std::ranges::find(available_classes, class_name) != available_classes.end();
   }
 
   /**
