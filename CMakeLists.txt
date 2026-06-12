@@ -2,11 +2,9 @@ cmake_minimum_required(VERSION 3.20)
 
 project(class_loader)
 
-# Default to C++17
-if(NOT CMAKE_CXX_STANDARD)
-  set(CMAKE_CXX_STANDARD 17)
-  set(CMAKE_CXX_STANDARD_REQUIRED ON)
-endif()
+# The C++/C standard comes from ament_ros_defaults (cxx_std_20 / c_std_17),
+# linked PRIVATE below so it applies to this library's own translation units
+# only and is not propagated to downstream consumers.
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
@@ -15,6 +13,7 @@ set(CLASS_LOADER_IGNORE_AMENT FALSE CACHE BOOL
   "Do not use ament when building this package.")
 if(NOT CLASS_LOADER_IGNORE_AMENT)
   find_package(ament_cmake REQUIRED)
+  find_package(ament_cmake_ros_core REQUIRED)
   set(explicit_library_type "SHARED")
 else()
   set(explicit_library_type "SHARED")
@@ -44,11 +43,18 @@ if(ament_cmake_FOUND)
   target_link_libraries(${PROJECT_NAME} PUBLIC
     console_bridge::console_bridge
     rcpputils::rcpputils)
+  # ament_ros_defaults is an INTERFACE target providing cxx_std_20 / c_std_17.
+  # Linked PRIVATE so the standard applies to our own sources without leaking
+  # into the exported interface (a SHARED library does not propagate PRIVATE
+  # link requirements to consumers).
+  target_link_libraries(${PROJECT_NAME} PRIVATE ament_cmake_ros_core::ament_ros_defaults)
   ament_export_targets(${PROJECT_NAME})
 else()
   target_include_directories(${PROJECT_NAME}
     PUBLIC ${console_bridge_INCLUDE_DIRS})
   target_link_libraries(${PROJECT_NAME} ${console_bridge_LIBRARIES})
+  # Standalone (non-ament) build: request C++20 for our own translation units.
+  target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_20)
 endif()
 if(WIN32)
   # Causes the visibility macros to use dllexport rather than dllimport
