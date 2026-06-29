@@ -34,6 +34,7 @@
 #include <iostream>
 #include <string>
 #include <thread>
+#include <tuple>
 #include <vector>
 
 #include "gtest/gtest.h"
@@ -119,7 +120,8 @@ TEST(ClassLoaderUniquePtrTest, basicLoadFailures) {
 TEST(ClassLoaderUniquePtrTest, MultiLibraryClassLoaderFailures) {
   class_loader::MultiLibraryClassLoader loader(true);
   loader.loadLibrary(LIBRARY_1);
-  EXPECT_THROW(loader.createUniqueInstance<Base>("Cat2"), class_loader::ClassLoaderException);
+  EXPECT_THROW(std::ignore = loader.createUniqueInstance<Base>("Cat2"),
+    class_loader::ClassLoaderException);
 }
 
 TEST(ClassLoaderUniquePtrTest, LibrariesUsedByClassLoader) {
