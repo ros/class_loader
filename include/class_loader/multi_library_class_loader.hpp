@@ -379,7 +379,7 @@ private:
    */
   void shutdownAllClassLoaders();
 
-  MultiLibraryClassLoaderImpl * impl_;
+  std::unique_ptr<MultiLibraryClassLoaderImpl> impl_;
 };
 
 

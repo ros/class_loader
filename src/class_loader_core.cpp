@@ -30,6 +30,7 @@
 #include "class_loader/class_loader_core.hpp"
 #include "class_loader/class_loader.hpp"
 
+#include <algorithm>
 #include <cassert>
 #include <cstddef>
 #include <memory>
@@ -63,13 +64,9 @@ BaseToFactoryMapMap & getGlobalPluginBaseToFactoryMapMap()
 
 FactoryMap & getFactoryMapForBaseClass(const std::string & typeid_base_class_name)
 {
-  BaseToFactoryMapMap & factoryMapMap = getGlobalPluginBaseToFactoryMapMap();
-  std::string base_class_name = typeid_base_class_name;
-  if (factoryMapMap.find(base_class_name) == factoryMapMap.end()) {
-    factoryMapMap[base_class_name] = FactoryMap();
-  }
-
-  return factoryMapMap[base_class_name];
+  // std::map::operator[] value-initializes (an empty FactoryMap) when the key is
+  // absent, so a single lookup both finds and inserts as needed.
+  return getGlobalPluginBaseToFactoryMapMap()[typeid_base_class_name];
 }
 
 MetaObjectGraveyardVector & getMetaObjectGraveyard()
@@ -275,12 +272,7 @@ bool areThereAnyExistingMetaObjectsForLibrary(const std::string & library_path)
 LibraryVector::iterator findLoadedLibrary(const std::string & library_path)
 {
   LibraryVector & open_libraries = getLoadedLibraryVector();
-  for (auto it = open_libraries.begin(); it != open_libraries.end(); ++it) {
-    if (it->first == library_path) {
-      return it;
-    }
-  }
-  return open_libraries.end();
+  return std::ranges::find(open_libraries, library_path, &LibraryPair::first);
 }
 
 bool isLibraryLoadedByAnybody(const std::string & library_path)
@@ -317,7 +309,7 @@ std::vector<std::string> getAllLibrariesUsedByClassLoader(const ClassLoader * lo
   std::vector<std::string> all_libs;
   for (auto & meta_obj : all_loader_meta_objs) {
     std::string lib_path = meta_obj->getAssociatedLibraryPath();
-    if (std::find(all_libs.begin(), all_libs.end(), lib_path) == all_libs.end()) {
+    if (std::ranges::find(all_libs, lib_path) == all_libs.end()) {
       all_libs.push_back(lib_path);
     }
   }

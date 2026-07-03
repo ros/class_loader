@@ -27,6 +27,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <algorithm>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -38,7 +40,7 @@ namespace class_loader
 namespace impl
 {
 
-typedef std::vector<class_loader::ClassLoader *> ClassLoaderVector;
+using ClassLoaderVector = std::vector<class_loader::ClassLoader *>;
 
 class AbstractMetaObjectBaseImpl
 {
@@ -53,7 +55,7 @@ public:
 AbstractMetaObjectBase::AbstractMetaObjectBase(
   const std::string & class_name, const std::string & base_class_name,
   const std::string & typeid_base_class_name)
-: impl_(new AbstractMetaObjectBaseImpl())
+: impl_(std::make_unique<AbstractMetaObjectBaseImpl>())
 {
   impl_->associated_library_path_ = "Unknown";
   impl_->base_class_name_ = base_class_name;
@@ -71,7 +73,6 @@ AbstractMetaObjectBase::~AbstractMetaObjectBase()
     "class_loader.impl.AbstractMetaObjectBase: "
     "Destroying MetaObject %p (base = %s, derived = %s, library path = %s)",
     this, baseClassName().c_str(), className().c_str(), getAssociatedLibraryPath().c_str());
-  delete impl_;
 }
 
 const std::string & AbstractMetaObjectBase::className() const
@@ -102,7 +103,7 @@ void AbstractMetaObjectBase::setAssociatedLibraryPath(const std::string & librar
 void AbstractMetaObjectBase::addOwningClassLoader(ClassLoader * loader)
 {
   ClassLoaderVector & v = impl_->associated_class_loaders_;
-  if (std::find(v.begin(), v.end(), loader) == v.end()) {
+  if (std::ranges::find(v, loader) == v.end()) {
     v.push_back(loader);
   }
 }
@@ -110,8 +111,7 @@ void AbstractMetaObjectBase::addOwningClassLoader(ClassLoader * loader)
 void AbstractMetaObjectBase::removeOwningClassLoader(const ClassLoader * loader)
 {
   ClassLoaderVector & v = impl_->associated_class_loaders_;
-  ClassLoaderVector::iterator itr = std::find(v.begin(), v.end(), loader);
-  if (itr != v.end()) {
+  if (auto itr = std::ranges::find(v, loader); itr != v.end()) {
     v.erase(itr);
   }
 }
@@ -119,8 +119,7 @@ void AbstractMetaObjectBase::removeOwningClassLoader(const ClassLoader * loader)
 bool AbstractMetaObjectBase::isOwnedBy(const ClassLoader * loader) const
 {
   const ClassLoaderVector & v = impl_->associated_class_loaders_;
-  auto it = std::find(v.begin(), v.end(), loader);
-  return it != v.end();
+  return std::ranges::find(v, loader) != v.end();
 }
 
 bool AbstractMetaObjectBase::isOwnedByAnybody() const

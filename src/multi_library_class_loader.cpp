@@ -29,7 +29,9 @@
 
 #include "class_loader/multi_library_class_loader.hpp"
 
+#include <algorithm>
 #include <cstddef>
+#include <memory>
 #include <mutex>
 #include <string>
 #include <vector>
@@ -37,7 +39,7 @@
 namespace class_loader
 {
 
-typedef std::vector<std::shared_ptr<class_loader::ClassLoader>> ClassLoaderPtrVector;
+using ClassLoaderPtrVector = std::vector<std::shared_ptr<class_loader::ClassLoader>>;
 
 class ClassLoaderDependency
 {
@@ -79,7 +81,7 @@ ClassLoaderPtrVectorImpl & getClassLoaderPtrVectorImpl()
 }
 
 MultiLibraryClassLoader::MultiLibraryClassLoader(bool enable_ondemand_loadunload)
-: impl_(new MultiLibraryClassLoaderImpl())
+: impl_(std::make_unique<MultiLibraryClassLoaderImpl>())
 {
   impl_->enable_ondemand_loadunload_ = enable_ondemand_loadunload;
 }
@@ -87,7 +89,6 @@ MultiLibraryClassLoader::MultiLibraryClassLoader(bool enable_ondemand_loadunload
 MultiLibraryClassLoader::~MultiLibraryClassLoader()
 {
   shutdownAllClassLoaders();
-  delete impl_;
 }
 
 std::vector<std::string> MultiLibraryClassLoader::getRegisteredLibraries() const
@@ -128,8 +129,7 @@ ClassLoaderVector MultiLibraryClassLoader::getAllAvailableClassLoaders() const
 bool MultiLibraryClassLoader::isLibraryAvailable(const std::string & library_name) const
 {
   std::vector<std::string> available_libraries = getRegisteredLibraries();
-  return available_libraries.end() != std::find(
-    available_libraries.begin(), available_libraries.end(), library_name);
+  return std::ranges::find(available_libraries, library_name) != available_libraries.end();
 }
 
 void MultiLibraryClassLoader::loadLibrary(const std::string & library_path)
@@ -161,11 +161,11 @@ int MultiLibraryClassLoader::unloadLibrary(const std::string & library_path)
       impl_->active_class_loaders_[library_path] = nullptr;
       std::lock_guard<std::mutex> lock(getClassLoaderPtrVectorImpl().loader_mutex_);
       auto & class_loader_ptrs = getClassLoaderPtrVectorImpl().class_loader_ptrs_;
-      for (auto iter = class_loader_ptrs.begin(); iter != class_loader_ptrs.end(); ++iter) {
-        if (iter->get() == loader) {
-          class_loader_ptrs.erase(iter);
-          break;
-        }
+      if (auto iter = std::ranges::find(
+          class_loader_ptrs, loader, [](const auto & p) {return p.get();});
+        iter != class_loader_ptrs.end())
+      {
+        class_loader_ptrs.erase(iter);
       }
     }
   }

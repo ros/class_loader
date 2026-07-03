@@ -34,6 +34,7 @@
 #ifndef CLASS_LOADER__META_OBJECT_HPP_
 #define CLASS_LOADER__META_OBJECT_HPP_
 
+#include <memory>
 #include <string>
 #include <typeinfo>
 #include <utility>
@@ -151,7 +152,7 @@ protected:
    */
   virtual void dummyMethod() {}
 
-  AbstractMetaObjectBaseImpl * impl_;
+  std::unique_ptr<AbstractMetaObjectBaseImpl> impl_;
 };
 
 template<class ... Ts>
