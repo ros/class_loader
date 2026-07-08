@@ -103,15 +103,17 @@ struct InterfaceTraits
 namespace impl
 {
 
-template<class T, class = void>
+template<class T>
 struct interface_constructor_parameters_impl
 {
   using type = ConstructorParameters<>;
 };
 
+// Constrained partial specialization replaces the std::void_t detection idiom:
+// it is selected when InterfaceTraits<T> defines a `constructor_parameters` member.
 template<class T>
-struct interface_constructor_parameters_impl<T,
-  std::void_t<typename InterfaceTraits<T>::constructor_parameters>>
+requires requires {typename InterfaceTraits<T>::constructor_parameters;}
+struct interface_constructor_parameters_impl<T>
 {
   using type = typename InterfaceTraits<T>::constructor_parameters;
 };
@@ -189,6 +191,17 @@ struct is_interface_constructible
 template<class Base, class ... Args>
 constexpr bool is_interface_constructible_v =
   is_interface_constructible<Base, Args...>::value;
+
+/**
+ * @brief Concept satisfied when a plugin deriving from @p Base can be constructed
+ * from @p Args, as declared by its InterfaceTraits.
+ *
+ * Used in place of std::enable_if to constrain the create*Instance() factories,
+ * yielding clearer diagnostics ("constraint not satisfied") on a mismatch.
+ * @see is_interface_constructible
+ */
+template<class Base, class ... Args>
+concept InterfaceConstructible = is_interface_constructible_v<Base, Args...>;
 
 }  // namespace class_loader
 

@@ -32,6 +32,7 @@
 #ifndef CLASS_LOADER__CLASS_LOADER_CORE_HPP_
 #define CLASS_LOADER__CLASS_LOADER_CORE_HPP_
 
+#include <algorithm>
 #include <cstddef>
 #include <cstdio>
 #include <functional>
@@ -277,25 +278,16 @@ registerPlugin(const std::string & class_name, const std::string & base_class_na
     [](AbstractMetaObjectBase * p) {
       getPluginBaseToFactoryMapMapMutex().lock();
       MetaObjectGraveyardVector & graveyard = getMetaObjectGraveyard();
-      for (auto iter = graveyard.begin(); iter != graveyard.end(); ++iter) {
-        if (*iter == p) {
-          graveyard.erase(iter);
-          break;
-        }
+      if (auto iter = std::ranges::find(graveyard, p); iter != graveyard.end()) {
+        graveyard.erase(iter);
       }
 
       BaseToFactoryMapMap & factory_map_map = getGlobalPluginBaseToFactoryMapMap();
-      bool erase_flag = false;
-      for (auto & factory_map_item : factory_map_map) {
-        FactoryMap & factory_map = factory_map_item.second;
-        for (auto iter = factory_map.begin(); iter != factory_map.end(); ++iter) {
-          if (iter->second == p) {
-            factory_map.erase(iter);
-            erase_flag = true;
-            break;
-          }
-        }
-        if (erase_flag) {
+      for (auto & [base_class_name, factory_map] : factory_map_map) {
+        if (auto iter = std::ranges::find(factory_map, p, &FactoryMap::value_type::second);
+        iter != factory_map.end())
+        {
+          factory_map.erase(iter);
           break;
         }
       }
@@ -318,7 +310,7 @@ registerPlugin(const std::string & class_name, const std::string & base_class_na
   // Add it to global factory map map
   getPluginBaseToFactoryMapMapMutex().lock();
   FactoryMap & factoryMap = getFactoryMapForBaseClass<Base>();
-  if (factoryMap.find(class_name) != factoryMap.end()) {
+  if (factoryMap.contains(class_name)) {
     CONSOLE_BRIDGE_logWarn(
       "class_loader.impl: SEVERE WARNING!!! "
       "A namespace collision has occurred with plugin factory for class %s. "
@@ -349,16 +341,16 @@ registerPlugin(const std::string & class_name, const std::string & base_class_na
  * by InterfaceTraits of the Base class)
  * @return A pointer to newly created plugin, note caller is responsible for object destruction
  */
-template<typename Base, class ... Args,
-  std::enable_if_t<is_interface_constructible_v<Base, Args...>, bool> = true>
+template<typename Base, class ... Args>
+requires InterfaceConstructible<Base, Args...>
 Base * createInstance(const std::string & derived_class_name, ClassLoader * loader, Args &&... args)
 {
   AbstractMetaObject<Base> * factory = nullptr;
 
   getPluginBaseToFactoryMapMapMutex().lock();
   FactoryMap & factoryMap = getFactoryMapForBaseClass<Base>();
-  if (factoryMap.find(derived_class_name) != factoryMap.end()) {
-    factory = dynamic_cast<impl::AbstractMetaObject<Base> *>(factoryMap[derived_class_name]);
+  if (auto it = factoryMap.find(derived_class_name); it != factoryMap.end()) {
+    factory = dynamic_cast<impl::AbstractMetaObject<Base> *>(it->second);
   } else {
     CONSOLE_BRIDGE_logError(
       "class_loader.impl: No metaobject exists for class type %s.", derived_class_name.c_str());
