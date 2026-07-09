@@ -2,6 +2,14 @@
 Changelog for package class_loader
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+3.0.1 (2026-07-09)
+------------------
+* concurrent accesses well-defined (`#231 <https://github.com/ros/class_loader//issues/231>`_)
+* Cpp20 part3 (`#230 <https://github.com/ros/class_loader//issues/230>`_)
+* Cpp20 part2 (`#229 <https://github.com/ros/class_loader//issues/229>`_)
+* Include CPP20 and related changes (`#228 <https://github.com/ros/class_loader//issues/228>`_)
+* Contributors: Alejandro Hernández Cordero
+
 3.0.0 (2026-05-06)
 ------------------
 
