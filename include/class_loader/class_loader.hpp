@@ -343,10 +343,8 @@ private:
     Base * obj = class_loader::impl::createInstance<Base>(derived_class_name, this,
         std::forward<Args>(args)...);
 
-    if (managed) {
-      std::lock_guard<std::recursive_mutex> lock(plugin_ref_count_mutex_);
-      ++plugin_ref_count_;
-    }
+    std::lock_guard<std::recursive_mutex> lock(plugin_ref_count_mutex_);
+    ++plugin_ref_count_;
 
     return obj;
   }
