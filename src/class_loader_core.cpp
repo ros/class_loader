@@ -56,6 +56,16 @@ std::recursive_mutex & getPluginBaseToFactoryMapMapMutex()
   return m;
 }
 
+namespace
+{
+// Serializes loadLibrary()/unloadLibrary() so a dlopen() never overlaps a dlclose().
+std::recursive_mutex & getLoaderMutex()
+{
+  static std::recursive_mutex m;
+  return m;
+}
+}  // namespace
+
 BaseToFactoryMapMap & getGlobalPluginBaseToFactoryMapMap()
 {
   static BaseToFactoryMapMap instance;
@@ -390,6 +400,8 @@ void purgeGraveyardOfMetaobjects(
 
 void loadLibrary(const std::string & library_path, ClassLoader * loader)
 {
+  std::lock_guard<std::recursive_mutex> loader_lock(getLoaderMutex());
+
   CONSOLE_BRIDGE_logDebug(
     "class_loader.impl: "
     "Attempting to load library %s on behalf of ClassLoader handle %p...\n",
@@ -397,6 +409,7 @@ void loadLibrary(const std::string & library_path, ClassLoader * loader)
 
   // If it's already open, just update existing metaobjects to have an additional owner.
   if (isLibraryLoadedByAnybody(library_path)) {
+    std::lock_guard<std::recursive_mutex> lock(getPluginBaseToFactoryMapMapMutex());
     CONSOLE_BRIDGE_logDebug(
       "%s",
       "class_loader.impl: "
@@ -407,11 +420,7 @@ void loadLibrary(const std::string & library_path, ClassLoader * loader)
 
   std::shared_ptr<rcpputils::SharedLibrary> library_handle;
 
-  static std::recursive_mutex loader_mutex;
-
   {
-    std::lock_guard<std::recursive_mutex> loader_lock(loader_mutex);
-
     setCurrentlyActiveClassLoader(loader);
     setCurrentlyLoadingLibraryName(library_path);
     try {
@@ -463,6 +472,8 @@ void loadLibrary(const std::string & library_path, ClassLoader * loader)
 
 void unloadLibrary(const std::string & library_path, ClassLoader * loader)
 {
+  std::lock_guard<std::recursive_mutex> loader_lock(getLoaderMutex());
+
   if (hasANonPurePluginLibraryBeenOpened()) {
     CONSOLE_BRIDGE_logDebug(
       "class_loader.impl: "
@@ -479,6 +490,7 @@ void unloadLibrary(const std::string & library_path, ClassLoader * loader)
       "Unloading library %s on behalf of ClassLoader %p...",
       library_path.c_str(), reinterpret_cast<void *>(loader));
 
+    std::lock_guard<std::recursive_mutex> llv_lock(getLoadedLibraryVectorMutex());
     LibraryVector & open_libraries = getLoadedLibraryVector();
     LibraryVector::iterator itr = findLoadedLibrary(library_path);
     if (itr != open_libraries.end()) {
