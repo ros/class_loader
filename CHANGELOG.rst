@@ -2,6 +2,11 @@
 Changelog for package class_loader
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+3.0.2 (2026-09-04)
+------------------
+* Make loadLibrary()/unloadLibrary() safe against concurrent load and unload (`#234 <https://github.com/ros/class_loader/issues/234>`_)
+* Contributors: Tamaki Nishino
+
 3.0.1 (2026-07-09)
 ------------------
 * concurrent accesses well-defined (`#231 <https://github.com/ros/class_loader//issues/231>`_)
