@@ -272,7 +272,7 @@ void run(class_loader::ClassLoader * loader)
 {
   std::vector<std::string> classes = loader->getAvailableClasses<Base>();
   for (auto & class_ : classes) {
-    loader->createInstance<Base>(class_)->saySomething();
+    (void)loader->createInstance<Base>(class_);
   }
 }
 

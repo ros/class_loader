@@ -187,7 +187,7 @@ void run(ClassLoader * loader)
 {
   std::vector<std::string> classes = loader->getAvailableClasses<Base>();
   for (auto & class_ : classes) {
-    loader->createUniqueInstance<Base>(class_)->saySomething();
+    (void)loader->createUniqueInstance<Base>(class_);
   }
 }
 
