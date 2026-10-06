@@ -19,15 +19,11 @@
   <author>Mirza Shah</author>
   <author email="stevenragnarok@osrfoundation.org">Steven! Ragnarök</author>
 
-  <build_depend>console_bridge_vendor</build_depend>
-  <build_depend>libconsole-bridge-dev</build_depend>
-
   <buildtool_depend>ament_cmake</buildtool_depend>
   <buildtool_depend>ament_cmake_ros_core</buildtool_depend>
 
-  <exec_depend>console_bridge_vendor</exec_depend>
-  <exec_depend>libconsole-bridge-dev</exec_depend>
-
+  <depend>console_bridge_vendor</depend>
+  <depend>libconsole-bridge-dev</depend>
   <depend>rcpputils</depend>
 
   <test_depend>ament_cmake_gtest</test_depend>
