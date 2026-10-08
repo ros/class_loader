@@ -27,6 +27,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <atomic>
 #include <chrono>
 #include <cstddef>
 
@@ -305,6 +306,50 @@ TEST(ClassLoaderTest, threadSafety) {
   } catch (...) {
     FAIL() << "Unknown exception.";
   }
+}
+
+// Regression test: unlike threadSafety above (one ClassLoader shared by every thread, so
+// isOwnedBy() is always queried with the loader that already, and permanently, owns the
+// metaobject), this constructs a *separate* ClassLoader per thread for the same library.
+// Each construction/destruction concurrently mutates AbstractMetaObjectBase's
+// associated_class_loaders_ vector (via addOwningClassLoader()/removeOwningClassLoader())
+// while other threads concurrently read it via isOwnedBy() in createInstance() - previously
+// unguarded, since createInstance() released getPluginBaseToFactoryMapMapMutex() before
+// reading isOwnedBy(), and addOwningClassLoader()/removeOwningClassLoader()/isOwnedBy() took
+// no lock of their own. Reported by ThreadSanitizer as a data race on the vector's
+// push_back()/erase() (via std::vector's internal reallocation).
+//
+// `anchor` is kept alive for the whole test so the library's owner count never reaches zero
+// and none of the worker threads ever trigger the actual unload/dlclose path: that path has
+// its own pre-existing, unrelated bug (a library can be dlclose()-d twice when independent
+// ClassLoaders for the same library race to be "last owner out"), which this test isn't
+// targeting and would otherwise crash it intermittently regardless of the fix under test here.
+TEST(ClassLoaderTest, threadSafetyMultipleLoadersPerLibrary) {
+  class_loader::ClassLoader anchor(LIBRARY_1);
+
+  std::vector<std::thread> client_threads;
+  std::atomic<int> failures{0};
+
+  for (size_t c = 0; c < STRESS_TEST_NUM_THREADS; ++c) {
+    client_threads.emplace_back(
+      [&failures]() {
+        try {
+          class_loader::ClassLoader loader(LIBRARY_1);
+          std::vector<std::string> classes = loader.getAvailableClasses<Base>();
+          for (auto & class_name : classes) {
+            loader.createInstance<Base>(class_name)->saySomething();
+          }
+        } catch (...) {
+          ++failures;
+        }
+      });
+  }
+
+  for (auto & client_thread : client_threads) {
+    client_thread.join();
+  }
+
+  EXPECT_EQ(0, failures.load());
 }
 
 TEST(ClassLoaderTest, loadRefCountingNonLazy) {
