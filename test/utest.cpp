@@ -381,6 +381,26 @@ TEST(ClassLoaderTest, loadRefCountingLazy) {
   FAIL() << "Did not throw exception as expected.\n";
 }
 
+TEST(ClassLoaderTest, isLibraryLoadedScopedToLoader) {
+  class_loader::ClassLoader loader1(LIBRARY_1, false);
+  ASSERT_TRUE(loader1.isLibraryLoaded());
+
+  class_loader::ClassLoader loader2(LIBRARY_1, true);
+  ASSERT_TRUE(class_loader::impl::isLibraryLoadedByAnybody(LIBRARY_1));
+  ASSERT_FALSE(loader2.isLibraryLoaded());
+
+  loader2.loadLibrary();
+  ASSERT_TRUE(loader2.isLibraryLoaded());
+
+  loader2.unloadLibrary();
+  ASSERT_FALSE(loader2.isLibraryLoaded());
+  ASSERT_TRUE(loader1.isLibraryLoaded());
+  ASSERT_TRUE(class_loader::impl::isLibraryLoadedByAnybody(LIBRARY_1));
+
+  loader1.unloadLibrary();
+  ASSERT_FALSE(class_loader::impl::isLibraryLoadedByAnybody(LIBRARY_1));
+}
+
 void testMultiClassLoader(bool lazy)
 {
   try {
