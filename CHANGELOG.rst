@@ -2,6 +2,11 @@
 Changelog for package class_loader
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+3.0.3 (2026-10-22)
+------------------
+* Include missing dependency in package.xml (`#235 <https://github.com/ros/class_loader/issues/235>`_)
+* Contributors: Alejandro Hernández Cordero
+
 3.0.2 (2026-09-04)
 ------------------
 * Make loadLibrary()/unloadLibrary() safe against concurrent load and unload (`#234 <https://github.com/ros/class_loader/issues/234>`_)
