@@ -43,7 +43,7 @@ class Base
 {
 public:
   virtual ~Base() = default;
-  virtual void saySomething() = 0;
+  virtual std::string saySomething() = 0;
 };
 
 class BaseWithInterfaceCtor
