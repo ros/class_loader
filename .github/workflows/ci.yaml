@@ -26,5 +26,10 @@ jobs:
     name: ${{ matrix.env.NAME }}
     steps:
       - uses: actions/checkout@v2
+      # ThreadSanitizer fails with "incompatible memory layout" under the
+      # runner kernel's default ASLR entropy (vm.mmap_rnd_bits=32). The
+      # industrial_ci container shares the host kernel, so lower it here.
+      - name: Lower ASLR entropy for ThreadSanitizer
+        run: sudo sysctl vm.mmap_rnd_bits=28
       - uses: 'ros-industrial/industrial_ci@master'
         env: ${{matrix.env}}
