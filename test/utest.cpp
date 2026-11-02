@@ -300,6 +300,24 @@ TYPED_TEST(MultiClassLoaderTest, nonExistentPlugin) {
     class_loader::ClassLoaderException);
 }
 
+// An instance keeps its library loaded after the MultiLibraryClassLoader that created it is
+// destroyed, and the library is unloaded once the last instance goes away.
+TYPED_TEST(MultiClassLoaderTest, instanceOutlivesLoader) {
+  for (bool lazy : {false, true}) {
+    SCOPED_TRACE(lazy ? "lazy" : "non-lazy");
+    typename TypeParam::template Ptr<Base> dog;
+    {
+      class_loader::MultiLibraryClassLoader loader(lazy);
+      loader.loadLibrary(LIBRARY_1);
+      dog = TypeParam::template create<Base>(loader, "Dog");
+    }
+    EXPECT_TRUE(class_loader::impl::isLibraryLoadedByAnybody(LIBRARY_1));
+    EXPECT_EQ("Bark", dog->saySomething());
+    dog.reset();
+    EXPECT_FALSE(class_loader::impl::isLibraryLoadedByAnybody(LIBRARY_1));
+  }
+}
+
 // Tests that don't depend on how instances are managed.
 
 TEST(ClassLoaderBasicTest, basicLoadFailures) {

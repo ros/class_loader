@@ -111,7 +111,8 @@ public:
               "was explicitly loaded through MultiLibraryClassLoader::loadLibrary()");
     }
 
-    return loader->createInstance<Base>(class_name, std::forward<Args>(args)...);
+    return keepLoaderAlive<Base>(
+      loader, loader->createInstance<Base>(class_name, std::forward<Args>(args)...));
   }
 
   /**
@@ -137,7 +138,8 @@ public:
               "MultiLibraryClassLoader bound to library " + library_path +
               " Ensure you called MultiLibraryClassLoader::loadLibrary()");
     }
-    return loader->createInstance<Base>(class_name, std::forward<Args>(args)...);
+    return keepLoaderAlive<Base>(
+      loader, loader->createInstance<Base>(class_name, std::forward<Args>(args)...));
   }
 
   /// Creates an instance of an object of given class name with ancestor class Base
@@ -167,7 +169,8 @@ public:
               "Make sure that the library exists and was explicitly loaded through "
               "MultiLibraryClassLoader::loadLibrary()");
     }
-    return loader->createUniqueInstance<Base>(class_name, std::forward<Args>(args)...);
+    return keepLoaderAlive<Base>(
+      loader, loader->createUniqueInstance<Base>(class_name, std::forward<Args>(args)...));
   }
 
   /// Creates an instance of an object of given class name with ancestor class Base
@@ -195,7 +198,8 @@ public:
               "MultiLibraryClassLoader bound to library " + library_path +
               " Ensure you called MultiLibraryClassLoader::loadLibrary()");
     }
-    return loader->createUniqueInstance<Base>(class_name, std::forward<Args>(args)...);
+    return keepLoaderAlive<Base>(
+      loader, loader->createUniqueInstance<Base>(class_name, std::forward<Args>(args)...));
   }
 
   /**
@@ -333,6 +337,35 @@ public:
   int unloadLibrary(const std::string & library_path);
 
 private:
+  std::shared_ptr<ClassLoader> getSharedClassLoader(const ClassLoader * loader) const;
+
+  /// Makes the instance keep its ClassLoader alive, so it may outlive this MultiLibraryClassLoader.
+  template<class Base>
+  std::shared_ptr<Base> keepLoaderAlive(const ClassLoader * loader, std::shared_ptr<Base> obj) const
+  {
+    struct Holder  // Members are destroyed in reverse order: the instance before its loader.
+    {
+      std::shared_ptr<ClassLoader> loader;
+      std::shared_ptr<Base> obj;
+    };
+    auto holder = std::make_shared<Holder>(Holder{getSharedClassLoader(loader), std::move(obj)});
+    return std::shared_ptr<Base>(holder, holder->obj.get());
+  }
+
+  /// Makes the instance keep its ClassLoader alive, so it may outlive this MultiLibraryClassLoader.
+  template<class Base>
+  ClassLoader::UniquePtr<Base> keepLoaderAlive(
+    const ClassLoader * loader, ClassLoader::UniquePtr<Base> obj) const
+  {
+    auto deleter = obj.get_deleter();
+    return ClassLoader::UniquePtr<Base>(
+      obj.release(),
+      [deleter = std::move(deleter), keep_alive = getSharedClassLoader(loader)](Base * p) mutable {
+        deleter(p);
+        keep_alive.reset();  // unique_ptr::reset() keeps the deleter alive, so release here.
+      });
+  }
+
   /**
    * @brief Indicates if on-demand (lazy) load/unload is enabled so libraries are loaded/unloaded
    *
