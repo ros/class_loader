@@ -27,7 +27,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <iostream>
+#include <string>
 
 #include "class_loader/class_loader.hpp"
 
@@ -36,45 +36,45 @@
 class Dog : public Base
 {
 public:
-  void saySomething() override
+  std::string saySomething() override
   {
-    printf("Bark\n");
+    return "Bark";
   }
 };
 
 class Cat : public Base
 {
 public:
-  void saySomething() override
+  std::string saySomething() override
   {
-    printf("Meow\n");
+    return "Meow";
   }
 };
 
 class Duck : public Base
 {
 public:
-  void saySomething() override
+  std::string saySomething() override
   {
-    printf("Quack\n");
+    return "Quack";
   }
 };
 
 class Cow : public Base
 {
 public:
-  void saySomething() override
+  std::string saySomething() override
   {
-    printf("Moooo\n");
+    return "Moooo";
   }
 };
 
 class Sheep : public Base
 {
 public:
-  void saySomething() override
+  std::string saySomething() override
   {
-    printf("Baaah\n");
+    return "Baaah";
   }
 };
 

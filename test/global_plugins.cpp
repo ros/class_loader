@@ -30,7 +30,7 @@
  * 2020, Copied from plugins1.cpp and plugins2.cpp and changing class names
  */
 
-#include <iostream>
+#include <string>
 
 #include "class_loader/class_loader.hpp"
 
@@ -39,36 +39,36 @@
 class Kangaroo : public Base
 {
 public:
-  void saySomething() override
+  std::string saySomething() override
   {
-    printf("[Angry growl]\n");
+    return "[Angry growl]";
   }
 };
 
 class Panda : public Base
 {
 public:
-  void saySomething() override
+  std::string saySomething() override
   {
-    printf("[Excited squeaks!!!]\n");
+    return "[Excited squeaks!!!]";
   }
 };
 
 class Hyena : public Base
 {
 public:
-  void saySomething() override
+  std::string saySomething() override
   {
-    printf("[Cackling laugh]\n");
+    return "[Cackling laugh]";
   }
 };
 
 class Alpaca : public Base
 {
 public:
-  void saySomething() override
+  std::string saySomething() override
   {
-    printf("hhhaaaaaaaaaa\n");
+    return "hhhaaaaaaaaaa";
   }
 };
 

@@ -27,7 +27,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <iostream>
+#include <string>
 
 #include "class_loader/class_loader.hpp"
 
@@ -36,36 +36,36 @@
 class Robot : public Base
 {
 public:
-  void saySomething() override
+  std::string saySomething() override
   {
-    printf("Beep boop\n");
+    return "Beep boop";
   }
 };
 
 class Alien : public Base
 {
 public:
-  void saySomething() override
+  std::string saySomething() override
   {
-    printf("Znornoff!!!\n");
+    return "Znornoff!!!";
   }
 };
 
 class Monster : public Base
 {
 public:
-  void saySomething() override
+  std::string saySomething() override
   {
-    printf("BEAAAHHHH\n");
+    return "BEAAAHHHH";
   }
 };
 
 class Zombie : public Base
 {
 public:
-  void saySomething() override
+  std::string saySomething() override
   {
-    printf("Brains!!!\n");
+    return "Brains!!!";
   }
 };
 
