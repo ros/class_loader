@@ -75,6 +75,16 @@ ClassLoader::~ClassLoader()
     "class_loader.ClassLoader: Destroying class loader, "
     "unloading associated library...\n");
   std::lock_guard<std::recursive_mutex> lock(deleter_context_->mutex);
+  {
+    // The deferred on-demand unload in onPluginDeletion() can't happen once this loader is gone.
+    std::lock_guard<std::recursive_mutex> ref_count_lock(plugin_ref_count_mutex_);
+    if (plugin_ref_count_ > 0 && isOnDemandLoadUnloadEnabled()) {
+      CONSOLE_BRIDGE_logWarn(
+        "%s",
+        "class_loader.ClassLoader: SEVERE WARNING!!! "
+        "Destroying ClassLoader while objects created by it exist in the heap!");
+    }
+  }
   unloadLibrary();  // TODO(mikaelarguedas): while(unloadLibrary() > 0){} ??
   deleter_context_->loader = nullptr;
 }
@@ -127,7 +137,9 @@ int ClassLoader::unloadLibraryInternal(bool lock_plugin_ref_count)
   std::lock_guard<std::recursive_mutex> load_ref_lock(load_ref_count_mutex_);
 
   try {
-    if (plugin_ref_count_ > 0) {
+    if (plugin_ref_count_ > 0 && isOnDemandLoadUnloadEnabled()) {
+      // Expected: onPluginDeletion() unloads the library once the last object is destroyed.
+    } else if (plugin_ref_count_ > 0) {
       CONSOLE_BRIDGE_logWarn(
         "%s",
         "class_loader.ClassLoader: SEVERE WARNING!!! "

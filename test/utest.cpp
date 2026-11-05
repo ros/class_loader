@@ -44,6 +44,7 @@
 #include "class_loader/class_loader.hpp"
 #include "class_loader/multi_library_class_loader.hpp"
 
+#include "console_bridge/console.h"
 #include "gtest/gtest.h"
 
 #include "./base.hpp"
@@ -56,6 +57,18 @@ const std::string LIBRARY_3 = class_loader::systemLibraryFormat("class_loader_Te
 // unexpected side-effects if used elsewhere
 const std::string GLOBAL_PLUGINS =  // NOLINT
   class_loader::systemLibraryFormat("class_loader_TestGlobalPlugins");
+
+// Collects console_bridge warnings and errors logged while in scope.
+struct WarningCapture : console_bridge::OutputHandler
+{
+  WarningCapture() {console_bridge::useOutputHandler(this);}
+  ~WarningCapture() override {console_bridge::restorePreviousOutputHandler();}
+  void log(const std::string & text, console_bridge::LogLevel level, const char *, int) override
+  {
+    if (level >= console_bridge::CONSOLE_BRIDGE_LOG_WARN) {warnings += text;}
+  }
+  std::string warnings;
+};
 
 TEST(ClassLoaderTest, basicLoad) {
   try {
@@ -381,6 +394,26 @@ TEST(ClassLoaderTest, loadRefCountingLazy) {
   FAIL() << "Did not throw exception as expected.\n";
 }
 
+TEST(ClassLoaderTest, isLibraryLoadedScopedToLoader) {
+  class_loader::ClassLoader loader1(LIBRARY_1, false);
+  ASSERT_TRUE(loader1.isLibraryLoaded());
+
+  class_loader::ClassLoader loader2(LIBRARY_1, true);
+  ASSERT_TRUE(class_loader::impl::isLibraryLoadedByAnybody(LIBRARY_1));
+  ASSERT_FALSE(loader2.isLibraryLoaded());
+
+  loader2.loadLibrary();
+  ASSERT_TRUE(loader2.isLibraryLoaded());
+
+  loader2.unloadLibrary();
+  ASSERT_FALSE(loader2.isLibraryLoaded());
+  ASSERT_TRUE(loader1.isLibraryLoaded());
+  ASSERT_TRUE(class_loader::impl::isLibraryLoadedByAnybody(LIBRARY_1));
+
+  loader1.unloadLibrary();
+  ASSERT_FALSE(class_loader::impl::isLibraryLoadedByAnybody(LIBRARY_1));
+}
+
 void testMultiClassLoader(bool lazy)
 {
   try {
@@ -419,6 +452,7 @@ TEST(MultiClassLoaderTest, nonLazyLoad) {
 }
 TEST(MultiClassLoaderTest, noWarningOnLazyLoad) {
   try {
+    WarningCapture capture;
     std::shared_ptr<Base> cat, dog, rob;
     {
       class_loader::MultiLibraryClassLoader loader(true);
@@ -432,6 +466,7 @@ TEST(MultiClassLoaderTest, noWarningOnLazyLoad) {
     cat->saySomething();
     dog->saySomething();
     rob->saySomething();
+    EXPECT_EQ("", capture.warnings);
   } catch (class_loader::ClassLoaderException & e) {
     FAIL() << "ClassLoaderException: " << e.what() << "\n";
   }

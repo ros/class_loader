@@ -308,7 +308,7 @@ bool isLibraryLoaded(const std::string & library_path, const ClassLoader * loade
     allMetaObjectsForLibraryOwnedBy(library_path, loader).size();
   bool are_meta_objs_bound_to_loader =
     (0 == num_meta_objs_for_lib) ? true : (
-    num_meta_objs_for_lib_bound_to_loader <= num_meta_objs_for_lib);
+    num_meta_objs_for_lib_bound_to_loader == num_meta_objs_for_lib);
 
   return is_lib_loaded_by_anyone && are_meta_objs_bound_to_loader;
 }
