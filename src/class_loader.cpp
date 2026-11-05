@@ -55,8 +55,10 @@ ClassLoader::ClassLoader(const std::string & library_path, bool ondemand_load_un
 : ondemand_load_unload_(ondemand_load_unload),
   library_path_(library_path),
   load_ref_count_(0),
-  plugin_ref_count_(0)
+  plugin_ref_count_(0),
+  deleter_context_(std::make_shared<DeleterContext>())
 {
+  deleter_context_->loader = this;
   CONSOLE_BRIDGE_logDebug(
     "class_loader.ClassLoader: "
     "Constructing new ClassLoader (%p) bound to library %s.",
@@ -72,9 +74,10 @@ ClassLoader::~ClassLoader()
     "%s",
     "class_loader.ClassLoader: Destroying class loader, "
     "unloading associated library...\n");
+  std::lock_guard<std::recursive_mutex> lock(deleter_context_->mutex);
   {
     // The deferred on-demand unload in onPluginDeletion() can't happen once this loader is gone.
-    std::lock_guard<std::recursive_mutex> lock(plugin_ref_count_mutex_);
+    std::lock_guard<std::recursive_mutex> ref_count_lock(plugin_ref_count_mutex_);
     if (plugin_ref_count_ > 0 && isOnDemandLoadUnloadEnabled()) {
       CONSOLE_BRIDGE_logWarn(
         "%s",
@@ -83,6 +86,7 @@ ClassLoader::~ClassLoader()
     }
   }
   unloadLibrary();  // TODO(mikaelarguedas): while(unloadLibrary() > 0){} ??
+  deleter_context_->loader = nullptr;
 }
 
 const std::string & ClassLoader::getLibraryPath() const

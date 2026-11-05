@@ -521,6 +521,19 @@ TEST(ClassLoaderGraveyardTest, loadUnloadLoadFromGraveyard) {
 
 #endif  // ifndef _WIN32
 
+// Leaves LIBRARY_2 loaded, so keep this suite last.
+TEST(ClassLoaderLifetimeTest, instancesOutliveLoader) {
+  auto loader = std::make_unique<class_loader::ClassLoader>(LIBRARY_2, false);
+  std::shared_ptr<Base> shared = loader->createInstance<Base>("Robot");
+  class_loader::ClassLoader::UniquePtr<Base> unique = loader->createUniqueInstance<Base>("Robot");
+  loader.reset();
+  EXPECT_EQ("Beep boop", shared->saySomething());
+  EXPECT_EQ("Beep boop", unique->saySomething());
+  // Must not use the destroyed loader (heap-use-after-free under AddressSanitizer).
+  shared.reset();
+  unique.reset();
+}
+
 // Run all the tests that were declared with TEST()
 int main(int argc, char ** argv)
 {

@@ -132,7 +132,7 @@ public:
   {
     return std::shared_ptr<Base>(
       createRawInstance<Base>(derived_class_name, true, std::forward<Args>(args)...),
-      [this](Base * p) {onPluginDeletion<Base>(p);}
+      makeDeleter<Base>()
     );
   }
 
@@ -159,7 +159,7 @@ public:
     Base * raw = createRawInstance<Base>(derived_class_name, true, std::forward<Args>(args)...);
     return std::unique_ptr<Base, DeleterType<Base>>(
       raw,
-      [this](Base * p) {onPluginDeletion<Base>(p);}
+      makeDeleter<Base>()
     );
   }
 
@@ -266,6 +266,20 @@ public:
   int unloadLibrary();
 
 private:
+  /// Deleter for managed instances that stays valid if the instance outlives this ClassLoader.
+  template<class Base>
+  DeleterType<Base> makeDeleter()
+  {
+    return [context = deleter_context_](Base * p) {
+             std::lock_guard<std::recursive_mutex> lock(context->mutex);
+             if (context->loader) {
+               context->loader->onPluginDeletion<Base>(p);
+             } else {
+               delete p;  // The library is still loaded: it is not unloaded while instances exist.
+             }
+           };
+  }
+
   /**
    * @brief Callback method when a plugin created by this class loader is destroyed
    *
@@ -381,6 +395,13 @@ private:
   int plugin_ref_count_;
   std::recursive_mutex plugin_ref_count_mutex_;
   static std::atomic<bool> has_unmanaged_instance_been_created_;
+
+  struct DeleterContext
+  {
+    std::recursive_mutex mutex;
+    ClassLoader * loader = nullptr;  // Cleared when the ClassLoader is destroyed.
+  };
+  std::shared_ptr<DeleterContext> deleter_context_;
 };
 
 }  // namespace class_loader
