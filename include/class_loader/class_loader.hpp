@@ -171,6 +171,8 @@ public:
    *
    * Creating an unmanaged instance disables dynamically unloading libraries when
    * managed pointers go out of scope for all class loaders in this process.
+   * The library the instance came from stays in memory until the process exits, so the instance
+   * remains usable after this ClassLoader is destroyed or the library is unloaded.
    *
    * @param derived_class_name
    *   The name of the class we want to create (@see getAvailableClasses()).
@@ -356,6 +358,11 @@ private:
 
     Base * obj = class_loader::impl::createInstance<Base>(derived_class_name, this,
         std::forward<Args>(args)...);
+
+    if (!managed) {
+      // Unmanaged instances may outlive this loader or its library being unloaded.
+      class_loader::impl::pinLibrary(getLibraryPath());
+    }
 
     if (managed) {
       std::lock_guard<std::recursive_mutex> lock(plugin_ref_count_mutex_);
