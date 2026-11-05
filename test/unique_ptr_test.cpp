@@ -37,6 +37,7 @@
 #include <tuple>
 #include <vector>
 
+#include "console_bridge/console.h"
 #include "gtest/gtest.h"
 
 #include "class_loader/class_loader.hpp"
@@ -47,6 +48,18 @@
 const std::string LIBRARY_1 = class_loader::systemLibraryFormat("class_loader_TestPlugins1");  // NOLINT
 const std::string LIBRARY_2 = class_loader::systemLibraryFormat("class_loader_TestPlugins2");  // NOLINT
 const std::string LIBRARY_3 = class_loader::systemLibraryFormat("class_loader_TestPlugins3");  // NOLINT
+
+// Collects console_bridge warnings and errors logged while in scope.
+struct WarningCapture : console_bridge::OutputHandler
+{
+  WarningCapture() {console_bridge::useOutputHandler(this);}
+  ~WarningCapture() override {console_bridge::restorePreviousOutputHandler();}
+  void log(const std::string & text, console_bridge::LogLevel level, const char *, int) override
+  {
+    if (level >= console_bridge::CONSOLE_BRIDGE_LOG_WARN) {warnings += text;}
+  }
+  std::string warnings;
+};
 
 using class_loader::ClassLoader;
 
@@ -297,6 +310,7 @@ TEST(MultiClassLoaderUniquePtrTest, nonLazyLoad) {
 }
 TEST(MultiClassLoaderUniquePtrTest, noWarningOnLazyLoad) {
   try {
+    WarningCapture capture;
     ClassLoader::UniquePtr<Base> cat, dog, rob;
     {
       class_loader::MultiLibraryClassLoader loader(true);
@@ -310,6 +324,7 @@ TEST(MultiClassLoaderUniquePtrTest, noWarningOnLazyLoad) {
     cat->saySomething();
     dog->saySomething();
     rob->saySomething();
+    EXPECT_EQ("", capture.warnings);
   } catch (class_loader::ClassLoaderException & e) {
     FAIL() << "ClassLoaderException: " << e.what() << "\n";
   }
