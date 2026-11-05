@@ -29,6 +29,7 @@
 
 #include <algorithm>
 #include <memory>
+#include <mutex>
 #include <string>
 #include <vector>
 
@@ -45,6 +46,10 @@ using ClassLoaderVector = std::vector<class_loader::ClassLoader *>;
 class AbstractMetaObjectBaseImpl
 {
 public:
+  // Guards associated_class_loaders_: class_loader_core.hpp's createInstance() reads
+  // isOwnedBy() after releasing getPluginBaseToFactoryMapMapMutex(), so this vector needs
+  // its own lock independent of that outer mutex.
+  mutable std::recursive_mutex associated_class_loaders_mutex_;
   ClassLoaderVector associated_class_loaders_;
   std::string associated_library_path_;
   std::string base_class_name_;
@@ -102,6 +107,7 @@ void AbstractMetaObjectBase::setAssociatedLibraryPath(const std::string & librar
 
 void AbstractMetaObjectBase::addOwningClassLoader(ClassLoader * loader)
 {
+  std::lock_guard<std::recursive_mutex> lock(impl_->associated_class_loaders_mutex_);
   ClassLoaderVector & v = impl_->associated_class_loaders_;
   if (std::ranges::find(v, loader) == v.end()) {
     v.push_back(loader);
@@ -110,6 +116,7 @@ void AbstractMetaObjectBase::addOwningClassLoader(ClassLoader * loader)
 
 void AbstractMetaObjectBase::removeOwningClassLoader(const ClassLoader * loader)
 {
+  std::lock_guard<std::recursive_mutex> lock(impl_->associated_class_loaders_mutex_);
   ClassLoaderVector & v = impl_->associated_class_loaders_;
   if (auto itr = std::ranges::find(v, loader); itr != v.end()) {
     v.erase(itr);
@@ -118,22 +125,26 @@ void AbstractMetaObjectBase::removeOwningClassLoader(const ClassLoader * loader)
 
 bool AbstractMetaObjectBase::isOwnedBy(const ClassLoader * loader) const
 {
+  std::lock_guard<std::recursive_mutex> lock(impl_->associated_class_loaders_mutex_);
   const ClassLoaderVector & v = impl_->associated_class_loaders_;
   return std::ranges::find(v, loader) != v.end();
 }
 
 bool AbstractMetaObjectBase::isOwnedByAnybody() const
 {
+  std::lock_guard<std::recursive_mutex> lock(impl_->associated_class_loaders_mutex_);
   return impl_->associated_class_loaders_.size() > 0;
 }
 
 size_t AbstractMetaObjectBase::getAssociatedClassLoadersCount() const
 {
+  std::lock_guard<std::recursive_mutex> lock(impl_->associated_class_loaders_mutex_);
   return impl_->associated_class_loaders_.size();
 }
 
 ClassLoader * AbstractMetaObjectBase::getAssociatedClassLoader(size_t index) const
 {
+  std::lock_guard<std::recursive_mutex> lock(impl_->associated_class_loaders_mutex_);
   return impl_->associated_class_loaders_[index];
 }
 

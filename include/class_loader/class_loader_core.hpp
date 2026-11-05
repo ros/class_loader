@@ -346,21 +346,31 @@ requires InterfaceConstructible<Base, Args...>
 Base * createInstance(const std::string & derived_class_name, ClassLoader * loader, Args &&... args)
 {
   AbstractMetaObject<Base> * factory = nullptr;
+  bool owned_by_loader = false;
+  bool owned_by_none = false;
 
-  getPluginBaseToFactoryMapMapMutex().lock();
-  FactoryMap & factoryMap = getFactoryMapForBaseClass<Base>();
-  if (auto it = factoryMap.find(derived_class_name); it != factoryMap.end()) {
-    factory = dynamic_cast<impl::AbstractMetaObject<Base> *>(it->second);
-  } else {
-    CONSOLE_BRIDGE_logError(
-      "class_loader.impl: No metaobject exists for class type %s.", derived_class_name.c_str());
+  {
+    std::lock_guard<std::recursive_mutex> lock(getPluginBaseToFactoryMapMapMutex());
+    FactoryMap & factoryMap = getFactoryMapForBaseClass<Base>();
+    if (auto it = factoryMap.find(derived_class_name); it != factoryMap.end()) {
+      factory = dynamic_cast<impl::AbstractMetaObject<Base> *>(it->second);
+    } else {
+      CONSOLE_BRIDGE_logError(
+        "class_loader.impl: No metaobject exists for class type %s.", derived_class_name.c_str());
+    }
+    if (factory != nullptr) {
+      // isOwnedBy() must be read while still holding this mutex: another thread's
+      // addOwningClassLoader()/removeOwningClassLoader() (e.g. from loadLibrary()'s
+      // already-loaded branch) is only serialized against this same mutex.
+      owned_by_loader = factory->isOwnedBy(loader);
+      owned_by_none = factory->isOwnedBy(nullptr);
+    }
   }
-  getPluginBaseToFactoryMapMapMutex().unlock();
 
   Base * obj = nullptr;
-  if (factory != nullptr && factory->isOwnedBy(loader)) {
+  if (factory != nullptr && owned_by_loader) {
     obj = factory->create(std::forward<Args>(args)...);
-  } else if (factory && factory->isOwnedBy(nullptr)) {
+  } else if (factory && owned_by_none) {
     CONSOLE_BRIDGE_logDebug(
       "%s",
       "class_loader.impl: ALERT!!! "
