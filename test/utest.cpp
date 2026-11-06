@@ -101,7 +101,10 @@ struct InstanceTypeNames
   template<class T>
   static std::string GetName([[maybe_unused]] int index)
   {
-    return std::is_same_v<T, SharedPtr> ? "SharedPtr" : "UniquePtr";
+    if constexpr (std::is_same_v<T, SharedPtr>) {
+      return "SharedPtr";
+    }
+    return "UniquePtr";
   }
 };
 
