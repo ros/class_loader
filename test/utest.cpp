@@ -33,7 +33,10 @@
 #include <dlfcn.h>
 #endif
 
+#include <algorithm>
+#include <atomic>
 #include <memory>
+#include <new>
 #include <string>
 #include <thread>
 #include <tuple>
@@ -388,7 +391,163 @@ TEST(ClassLoaderBasicTest, isLibraryLoadedScopedToLoader) {
 }
 
 #ifndef _WIN32
+// Whether the dynamic linker still has the library mapped, whatever class_loader thinks.
+bool isLibraryMapped(const std::string & library_path)
+{
+  void * handle = dlopen(library_path.c_str(), RTLD_LAZY | RTLD_NOLOAD);
+  if (handle == nullptr) {
+    return false;
+  }
+  dlclose(handle);
+  return true;
+}
+
+// Instances that outlive their ClassLoader keep the library loaded, and the last of them unloads
+// it, in both on-demand and non-on-demand mode.
+TEST(ClassLoaderLifetimeTest, lastOrphanedInstanceUnloadsLibrary) {
+  for (bool on_demand : {false, true}) {
+    SCOPED_TRACE(on_demand ? "on-demand" : "non-on-demand");
+    ASSERT_FALSE(isLibraryMapped(LIBRARY_2));
+    auto loader = std::make_unique<class_loader::ClassLoader>(LIBRARY_2, on_demand);
+    std::shared_ptr<Base> shared = loader->createInstance<Base>("Robot");
+    class_loader::ClassLoader::UniquePtr<Base> unique = loader->createUniqueInstance<Base>("Robot");
+    loader.reset();
+    EXPECT_FALSE(class_loader::impl::isLibraryLoadedByAnybody(LIBRARY_2));
+    EXPECT_TRUE(isLibraryMapped(LIBRARY_2));
+
+    shared.reset();
+    EXPECT_EQ("Beep boop", unique->saySomething());
+    EXPECT_TRUE(isLibraryMapped(LIBRARY_2));
+    unique.reset();
+    EXPECT_FALSE(isLibraryMapped(LIBRARY_2));
+  }
+}
+#endif
+
+// The library can be loaded again while instances that outlived their ClassLoader still exist.
+TEST(ClassLoaderLifetimeTest, reloadWhileOrphanedInstancesExist) {
+  auto loader = std::make_unique<class_loader::ClassLoader>(LIBRARY_2, false);
+  std::shared_ptr<Base> orphan = loader->createInstance<Base>("Robot");
+  loader.reset();
+
+  class_loader::ClassLoader loader2(LIBRARY_2, false);
+  EXPECT_EQ("Beep boop", loader2.createInstance<Base>("Robot")->saySomething());
+  orphan.reset();
+  EXPECT_TRUE(loader2.isLibraryLoaded());
+  EXPECT_EQ("Beep boop", loader2.createUniqueInstance<Base>("Robot")->saySomething());
+}
+
+// A destroyed ClassLoader must not stay registered as an owner of its library's classes. If it
+// did, a new ClassLoader at the same address could see and create them without loading anything.
+TEST(ClassLoaderLifetimeTest, destroyedLoaderOwnsNothing) {
+  enum class Case { kLiveInstance, kLiveInstanceOnDemand, kLoadedTwice };
+  for (Case c : {Case::kLiveInstance, Case::kLiveInstanceOnDemand, Case::kLoadedTwice}) {
+    SCOPED_TRACE(static_cast<int>(c));
+    alignas(class_loader::ClassLoader) unsigned char storage[sizeof(class_loader::ClassLoader)];
+    std::shared_ptr<Base> dog;
+    {
+      auto * loader = new (storage) class_loader::ClassLoader(
+        LIBRARY_1, c == Case::kLiveInstanceOnDemand);
+      if (c == Case::kLoadedTwice) {
+        loader->loadLibrary();
+      } else {
+        dog = loader->createInstance<Base>("Dog");
+      }
+      loader->~ClassLoader();
+    }
+    {
+      auto * other = new (storage) class_loader::ClassLoader(LIBRARY_2, true);
+      EXPECT_FALSE(other->isClassAvailable<Base>("Dog"));
+      other->~ClassLoader();
+    }
+    dog.reset();
+    EXPECT_FALSE(class_loader::impl::isLibraryLoadedByAnybody(LIBRARY_1));
+  }
+}
+
+// Stress tests for state shared between loaders. Mostly useful under ThreadSanitizer.
+constexpr int STRESS_ITERATIONS = 20;
+constexpr size_t STRESS_THREADS = 8;
+
+TEST(ClassLoaderStressTest, loadersForSameLibraryOnManyThreads) {
+  std::vector<std::thread> threads;
+  for (size_t t = 0; t < STRESS_THREADS; ++t) {
+    threads.emplace_back(
+      [t]() {
+        for (int i = 0; i < STRESS_ITERATIONS; ++i) {
+          class_loader::ClassLoader loader(LIBRARY_1, (t + i) % 2 == 0);
+          EXPECT_EQ("Bark", loader.createInstance<Base>("Dog")->saySomething());
+          EXPECT_EQ("Meow", loader.createUniqueInstance<Base>("Cat")->saySomething());
+        }
+      });
+  }
+  for (auto & thread : threads) {
+    thread.join();
+  }
+  EXPECT_FALSE(class_loader::impl::isLibraryLoadedByAnybody(LIBRARY_1));
+}
+
+TEST(ClassLoaderStressTest, multiLibraryClassLoadersOnManyThreads) {
+  std::vector<std::thread> threads;
+  for (size_t t = 0; t < STRESS_THREADS; ++t) {
+    threads.emplace_back(
+      [t]() {
+        for (int i = 0; i < STRESS_ITERATIONS; ++i) {
+          class_loader::MultiLibraryClassLoader loader((t + i) % 2 == 0);
+          loader.loadLibrary(LIBRARY_1);
+          loader.loadLibrary(LIBRARY_2);
+          if ((t + i) % 2 != 0) {
+            // An on-demand loader only lists the classes of libraries it has actually loaded.
+            const auto classes = loader.getAvailableClasses<Base>();
+            EXPECT_NE(classes.end(), std::ranges::find(classes, "Dog"));
+            EXPECT_NE(classes.end(), std::ranges::find(classes, "Robot"));
+          }
+          EXPECT_EQ("Bark", loader.createInstance<Base>("Dog")->saySomething());
+          EXPECT_EQ("Beep boop", loader.createUniqueInstance<Base>("Robot")->saySomething());
+          loader.unloadLibrary(LIBRARY_1);
+        }
+      });
+  }
+  for (auto & thread : threads) {
+    thread.join();
+  }
+  EXPECT_FALSE(class_loader::impl::isLibraryLoadedByAnybody(LIBRARY_1));
+  EXPECT_FALSE(class_loader::impl::isLibraryLoadedByAnybody(LIBRARY_2));
+}
+
+// Instances deleted on other threads while their ClassLoader is being destroyed.
+TEST(ClassLoaderStressTest, instancesReleasedWhileLoaderDestroyed) {
+  for (int i = 0; i < STRESS_ITERATIONS; ++i) {
+    auto loader = std::make_unique<class_loader::ClassLoader>(LIBRARY_1, i % 2 == 0);
+    std::vector<std::shared_ptr<Base>> instances;
+    for (size_t t = 0; t < STRESS_THREADS; ++t) {
+      instances.push_back(loader->createInstance<Base>("Dog"));
+    }
+    std::atomic<bool> start{false};
+    std::vector<std::thread> threads;
+    for (auto & instance : instances) {
+      threads.emplace_back(
+        [&start, instance = std::move(instance)]() mutable {
+          while (!start.load()) {
+            std::this_thread::yield();
+          }
+          EXPECT_EQ("Bark", instance->saySomething());
+          instance.reset();
+        });
+    }
+    start = true;
+    loader.reset();
+    for (auto & thread : threads) {
+      thread.join();
+    }
+    EXPECT_FALSE(class_loader::impl::isLibraryLoadedByAnybody(LIBRARY_1));
+  }
+}
+
+#ifndef _WIN32
 // Not run on Windows because this tests dlopen-specific behavior
+// It also opens a plugin library outside class_loader, after which class_loader never unloads any
+// library in this process, so tests that check unloading must come before it.
 
 // This is a different class name so that static variables in ClassLoader are isolated
 TEST(ClassLoaderGraveyardTest, loadUnloadLoadFromGraveyard) {

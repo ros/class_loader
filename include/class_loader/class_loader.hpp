@@ -275,7 +275,12 @@ private:
              if (context->loader) {
                context->loader->onPluginDeletion<Base>(p);
              } else {
-               delete p;  // The library is still loaded: it is not unloaded while instances exist.
+               // The ClassLoader is gone, but its handle in context->library kept the library
+               // loaded. The last instance closes it.
+               delete p;
+               if (context->orphaned_instances > 0 && --context->orphaned_instances == 0) {
+                 context->library.reset();
+               }
              }
            };
   }
@@ -400,6 +405,10 @@ private:
   {
     std::recursive_mutex mutex;
     ClassLoader * loader = nullptr;  // Cleared when the ClassLoader is destroyed.
+    // Set when the ClassLoader is destroyed while managed instances still exist: a handle of
+    // their own that keeps the library loaded, and how many instances still need it.
+    std::shared_ptr<rcpputils::SharedLibrary> library;
+    std::size_t orphaned_instances = 0;
   };
   std::shared_ptr<DeleterContext> deleter_context_;
 };
