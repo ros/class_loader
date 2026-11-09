@@ -28,6 +28,7 @@
  */
 
 #include <cstddef>
+#include <cstdlib>
 
 #ifndef _WIN32
 #include <dlfcn.h>
@@ -319,6 +320,27 @@ TYPED_TEST(MultiClassLoaderTest, instanceOutlivesLoader) {
 }
 
 // Tests that don't depend on how instances are managed.
+
+// ros/class_loader#33: loaders with static storage duration, like a static pluginlib::ClassLoader,
+// are destroyed at exit after class_loader's own globals were created, and must still be able to
+// unload their libraries then.
+TEST(ClassLoaderStaticTest, staticLoadersDestroyedAtExit) {
+  // Re-run the binary for the child, so the loaders below are created before class_loader's
+  // globals, as they would be in a program that has a static loader.
+  GTEST_FLAG_SET(death_test_style, "threadsafe");
+  EXPECT_EXIT(
+  {
+    static class_loader::MultiLibraryClassLoader multi_loader(false);
+    static class_loader::ClassLoader loader(LIBRARY_2, false);
+    multi_loader.loadLibrary(LIBRARY_1);
+    if (multi_loader.createInstance<Base>("Dog")->saySomething() != "Bark" ||
+    loader.createInstance<Base>("Robot")->saySomething() != "Beep boop")
+    {
+      std::exit(1);
+    }
+    std::exit(0);
+  }, ::testing::ExitedWithCode(0), "");
+}
 
 TEST(ClassLoaderBasicTest, basicLoadFailures) {
   class_loader::ClassLoader loader1(LIBRARY_1, false);

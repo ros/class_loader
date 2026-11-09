@@ -84,20 +84,7 @@ using BaseToFactoryMapMap = std::map<BaseClassName, FactoryMap>;
 using LibraryPair = std::pair<LibraryPath, std::shared_ptr<rcpputils::SharedLibrary>>;
 using LibraryVector = std::vector<LibraryPair>;
 using MetaObjectVector = std::vector<AbstractMetaObjectBase *>;
-class MetaObjectGraveyardVector : public MetaObjectVector
-{
-public:
-  ~MetaObjectGraveyardVector()
-  {
-    // Make sure not to access the pointer value in the static variable of `getMetaObjectGraveyard()
-    // when destroying `meta_object` in the unique_ptr deleter. Because the static variable in
-    // `getMetaObjectGraveyard()` can be destructed before the static variable
-    // `g_register_plugin_ ## UniqueID` in some circumstances.
-    // NOTE of the vector dtor in the STL: if the elements themselves are pointers, the pointed-to
-    // memory is not touched in any way.  Managing the pointer is the user's responsibility.
-    clear();
-  }
-};
+using MetaObjectGraveyardVector = MetaObjectVector;
 
 CLASS_LOADER_PUBLIC
 void printDebugInfoToScreen();
