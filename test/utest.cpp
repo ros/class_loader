@@ -302,31 +302,6 @@ TYPED_TEST(MultiClassLoaderTest, nonExistentPlugin) {
 
 // Tests that don't depend on how instances are managed.
 
-// ros/class_loader#218: an unmanaged instance must stay usable after its loader is destroyed.
-TEST(ClassLoaderUnmanagedTest, instanceOutlivesLoader) {
-  auto loader = std::make_unique<class_loader::ClassLoader>(LIBRARY_1, false);
-  std::unique_ptr<Base> unmanaged(loader->createUnmanagedInstance<Base>("Cat"));
-  loader.reset();
-  EXPECT_FALSE(class_loader::impl::isLibraryLoadedByAnybody(LIBRARY_1));
-  EXPECT_EQ("Meow", unmanaged->saySomething());
-  unmanaged.reset();
-
-  // The library can still be loaded again afterwards.
-  class_loader::ClassLoader loader2(LIBRARY_1, false);
-  EXPECT_EQ("Meow", loader2.createUniqueInstance<Base>("Cat")->saySomething());
-}
-
-// Same, through MultiLibraryClassLoader, as used by pluginlib.
-TEST(ClassLoaderUnmanagedTest, instanceOutlivesMultiLibraryClassLoader) {
-  for (bool lazy : {false, true}) {
-    auto loader = std::make_unique<class_loader::MultiLibraryClassLoader>(lazy);
-    loader->loadLibrary(LIBRARY_2);
-    std::unique_ptr<Base> unmanaged(loader->createUnmanagedInstance<Base>("Robot"));
-    loader.reset();
-    EXPECT_EQ("Beep boop", unmanaged->saySomething());
-  }
-}
-
 TEST(ClassLoaderBasicTest, basicLoadFailures) {
   class_loader::ClassLoader loader1(LIBRARY_1, false);
   class_loader::ClassLoader loader2("", false);

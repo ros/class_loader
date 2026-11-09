@@ -31,6 +31,7 @@
 #include <string>
 
 #include "class_loader/class_loader.hpp"
+#include "class_loader/multi_library_class_loader.hpp"
 
 #include "gtest/gtest.h"
 
@@ -40,6 +41,7 @@
 // run in their own executable.
 
 const std::string LIBRARY_1 = class_loader::systemLibraryFormat("class_loader_TestPlugins1");  // NOLINT
+const std::string LIBRARY_2 = class_loader::systemLibraryFormat("class_loader_TestPlugins2");  // NOLINT
 const std::string LIBRARY_3 = class_loader::systemLibraryFormat("class_loader_TestPlugins3");  // NOLINT
 
 TEST(ClassLoaderUnmanagedTest, basicLoadUnmanaged) {
@@ -58,6 +60,31 @@ TEST(ClassLoaderUnmanagedTest, constructorLoadUnmanaged) {
   ASSERT_NE(unmanaged_instance, nullptr);
   ASSERT_EQ(unmanaged_instance->get_number(), 1);
   delete unmanaged_instance;
+}
+
+// ros/class_loader#218: an unmanaged instance must stay usable after its loader is destroyed.
+TEST(ClassLoaderUnmanagedTest, instanceOutlivesLoader) {
+  auto loader = std::make_unique<class_loader::ClassLoader>(LIBRARY_1, false);
+  std::unique_ptr<Base> unmanaged(loader->createUnmanagedInstance<Base>("Cat"));
+  loader.reset();
+  EXPECT_FALSE(class_loader::impl::isLibraryLoadedByAnybody(LIBRARY_1));
+  EXPECT_EQ("Meow", unmanaged->saySomething());
+  unmanaged.reset();
+
+  // The library can still be loaded again afterwards.
+  class_loader::ClassLoader loader2(LIBRARY_1, false);
+  EXPECT_EQ("Meow", loader2.createUniqueInstance<Base>("Cat")->saySomething());
+}
+
+// Same, through MultiLibraryClassLoader, as used by pluginlib.
+TEST(ClassLoaderUnmanagedTest, instanceOutlivesMultiLibraryClassLoader) {
+  for (bool lazy : {false, true}) {
+    auto loader = std::make_unique<class_loader::MultiLibraryClassLoader>(lazy);
+    loader->loadLibrary(LIBRARY_2);
+    std::unique_ptr<Base> unmanaged(loader->createUnmanagedInstance<Base>("Robot"));
+    loader.reset();
+    EXPECT_EQ("Beep boop", unmanaged->saySomething());
+  }
 }
 
 int main(int argc, char ** argv)
