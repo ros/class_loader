@@ -69,4 +69,15 @@ if(TARGET ${PROJECT_NAME}_unmanaged_test)
     ${PROJECT_NAME}_TestPlugins3)
 endif()
 
+ament_add_gtest(${PROJECT_NAME}_external_load_test external_load_test.cpp
+  APPEND_LIBRARY_DIRS "${append_library_dirs}"
+)
+if(TARGET ${PROJECT_NAME}_external_load_test)
+  target_include_directories(${PROJECT_NAME}_external_load_test PUBLIC "../include")
+  target_link_libraries(${PROJECT_NAME}_external_load_test ${PROJECT_NAME} project_options)
+  add_dependencies(${PROJECT_NAME}_external_load_test
+    ${PROJECT_NAME}_TestPlugins1
+    ${PROJECT_NAME}_TestPlugins2)
+endif()
+
 add_subdirectory(fviz_case_study)

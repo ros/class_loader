@@ -33,6 +33,7 @@
 #include <dlfcn.h>
 #endif
 
+#include <algorithm>
 #include <memory>
 #include <string>
 #include <thread>
@@ -300,6 +301,73 @@ TYPED_TEST(MultiClassLoaderTest, nonExistentPlugin) {
     class_loader::ClassLoaderException);
 }
 
+TYPED_TEST(MultiClassLoaderTest, createFromSpecificLibrary) {
+  for (bool on_demand : {false, true}) {
+    SCOPED_TRACE(on_demand ? "on-demand" : "non-on-demand");
+    class_loader::MultiLibraryClassLoader loader(on_demand);
+    loader.loadLibrary(LIBRARY_1);
+    loader.loadLibrary(LIBRARY_2);
+    EXPECT_EQ("Bark", TypeParam::template create<Base>(loader, "Dog", LIBRARY_1)->saySomething());
+    EXPECT_EQ(
+      "Beep boop", TypeParam::template create<Base>(loader, "Robot", LIBRARY_2)->saySomething());
+    // The class exists, but not in that library.
+    EXPECT_THROW(
+      std::ignore = TypeParam::template create<Base>(loader, "Dog", LIBRARY_2),
+      class_loader::CreateClassException);
+    // The library was never loaded through this loader.
+    EXPECT_THROW(
+      std::ignore = TypeParam::template create<Base>(loader, "Dog", LIBRARY_3),
+      class_loader::NoClassLoaderExistsException);
+  }
+}
+
+TYPED_TEST(MultiClassLoaderTest, constructorArguments) {
+  class_loader::MultiLibraryClassLoader loader(false);
+  loader.loadLibrary(LIBRARY_3);
+  EXPECT_EQ(
+    3, TypeParam::template create<BaseWithInterfaceCtor>(
+      loader, "Identity", "identity", std::make_unique<int>(3))->get_number());
+  // The string argument must not be taken for a library path, nor the reverse.
+  EXPECT_EQ(
+    6, TypeParam::template create<BaseWithInterfaceCtor>(
+      loader, "Double", LIBRARY_3, "double", std::make_unique<int>(3))->get_number());
+  EXPECT_THROW(
+    std::ignore = TypeParam::template create<BaseWithInterfaceCtor>(
+      loader, "Double", LIBRARY_1, "double", std::make_unique<int>(3)),
+    class_loader::NoClassLoaderExistsException);
+}
+
+TEST(MultiClassLoaderBasicTest, libraryQueries) {
+  class_loader::MultiLibraryClassLoader loader(false);
+  EXPECT_TRUE(loader.getRegisteredLibraries().empty());
+  EXPECT_FALSE(loader.isLibraryAvailable(LIBRARY_1));
+  EXPECT_THROW(
+    std::ignore = loader.getAvailableClassesForLibrary<Base>(LIBRARY_1),
+    class_loader::NoClassLoaderExistsException);
+
+  loader.loadLibrary(LIBRARY_1);
+  loader.loadLibrary(LIBRARY_2);
+  auto libraries = loader.getRegisteredLibraries();
+  std::ranges::sort(libraries);
+  std::vector<std::string> expected{LIBRARY_1, LIBRARY_2};
+  std::ranges::sort(expected);
+  EXPECT_EQ(expected, libraries);
+  EXPECT_TRUE(loader.isLibraryAvailable(LIBRARY_1));
+  EXPECT_TRUE(loader.isLibraryAvailable(LIBRARY_2));
+  EXPECT_FALSE(loader.isLibraryAvailable(LIBRARY_3));
+
+  const auto classes = loader.getAvailableClassesForLibrary<Base>(LIBRARY_2);
+  EXPECT_NE(classes.end(), std::ranges::find(classes, "Robot"));
+  EXPECT_EQ(classes.end(), std::ranges::find(classes, "Dog"));
+  EXPECT_TRUE(loader.isClassAvailable<Base>("Dog"));
+  EXPECT_FALSE(loader.isClassAvailable<Base>("Dog2"));
+
+  loader.unloadLibrary(LIBRARY_1);
+  EXPECT_FALSE(loader.isLibraryAvailable(LIBRARY_1));
+  EXPECT_FALSE(loader.isClassAvailable<Base>("Dog"));
+  EXPECT_EQ(std::vector<std::string>{LIBRARY_2}, loader.getRegisteredLibraries());
+}
+
 // Tests that don't depend on how instances are managed.
 
 TEST(ClassLoaderBasicTest, basicLoadFailures) {
@@ -315,6 +383,17 @@ TEST(ClassLoaderBasicTest, librariesUsedByClassLoader) {
   class_loader::ClassLoader loader1(LIBRARY_1, false);
   std::vector<std::string> v = class_loader::impl::getAllLibrariesUsedByClassLoader(&loader1);
   ASSERT_EQ(v.size(), 1u);
+}
+
+TEST(ClassLoaderBasicTest, isLibraryLoadedByAnyClassloader) {
+  class_loader::ClassLoader loader1(LIBRARY_1, false);
+  class_loader::ClassLoader loader2(LIBRARY_1, true);
+  EXPECT_TRUE(loader1.isLibraryLoaded());
+  EXPECT_FALSE(loader2.isLibraryLoaded());
+  EXPECT_TRUE(loader2.isLibraryLoadedByAnyClassloader());
+  loader1.unloadLibrary();
+  EXPECT_FALSE(loader1.isLibraryLoadedByAnyClassloader());
+  EXPECT_FALSE(loader2.isLibraryLoadedByAnyClassloader());
 }
 
 TEST(ClassLoaderBasicTest, correctNonLazyLoadUnload) {

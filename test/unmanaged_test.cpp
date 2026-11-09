@@ -29,8 +29,10 @@
 
 #include <memory>
 #include <string>
+#include <tuple>
 
 #include "class_loader/class_loader.hpp"
+#include "class_loader/multi_library_class_loader.hpp"
 
 #include "gtest/gtest.h"
 
@@ -58,6 +60,28 @@ TEST(ClassLoaderUnmanagedTest, constructorLoadUnmanaged) {
   ASSERT_NE(unmanaged_instance, nullptr);
   ASSERT_EQ(unmanaged_instance->get_number(), 1);
   delete unmanaged_instance;
+}
+
+TEST(ClassLoaderUnmanagedTest, multiLibraryClassLoaderUnmanaged) {
+  class_loader::MultiLibraryClassLoader loader(false);
+  loader.loadLibrary(LIBRARY_1);
+  loader.loadLibrary(LIBRARY_3);
+
+  std::unique_ptr<Base> dog(loader.createUnmanagedInstance<Base>("Dog"));
+  EXPECT_EQ("Bark", dog->saySomething());
+  std::unique_ptr<Base> cat(loader.createUnmanagedInstance<Base>("Cat", LIBRARY_1));
+  EXPECT_EQ("Meow", cat->saySomething());
+  std::unique_ptr<BaseWithInterfaceCtor> doubled(
+    loader.createUnmanagedInstance<BaseWithInterfaceCtor>(
+      "Double", LIBRARY_3, "double", std::make_unique<int>(4)));
+  EXPECT_EQ(8, doubled->get_number());
+
+  EXPECT_THROW(
+    std::ignore = loader.createUnmanagedInstance<Base>("Dog2"),
+    class_loader::CreateClassException);
+  EXPECT_THROW(
+    std::ignore = loader.createUnmanagedInstance<Base>("Dog", "not_a_loaded_library"),
+    class_loader::NoClassLoaderExistsException);
 }
 
 int main(int argc, char ** argv)
