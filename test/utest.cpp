@@ -34,6 +34,7 @@
 #endif
 
 #include <memory>
+#include <new>
 #include <string>
 #include <thread>
 #include <tuple>
@@ -388,7 +389,84 @@ TEST(ClassLoaderBasicTest, isLibraryLoadedScopedToLoader) {
 }
 
 #ifndef _WIN32
+// Whether the dynamic linker still has the library mapped, whatever class_loader thinks.
+bool isLibraryMapped(const std::string & library_path)
+{
+  void * handle = dlopen(library_path.c_str(), RTLD_LAZY | RTLD_NOLOAD);
+  if (handle == nullptr) {
+    return false;
+  }
+  dlclose(handle);
+  return true;
+}
+
+// Instances that outlive their ClassLoader keep the library loaded, and the last of them unloads
+// it, in both on-demand and non-on-demand mode.
+TEST(ClassLoaderLifetimeTest, lastOrphanedInstanceUnloadsLibrary) {
+  for (bool on_demand : {false, true}) {
+    SCOPED_TRACE(on_demand ? "on-demand" : "non-on-demand");
+    ASSERT_FALSE(isLibraryMapped(LIBRARY_2));
+    auto loader = std::make_unique<class_loader::ClassLoader>(LIBRARY_2, on_demand);
+    std::shared_ptr<Base> shared = loader->createInstance<Base>("Robot");
+    class_loader::ClassLoader::UniquePtr<Base> unique = loader->createUniqueInstance<Base>("Robot");
+    loader.reset();
+    EXPECT_FALSE(class_loader::impl::isLibraryLoadedByAnybody(LIBRARY_2));
+    EXPECT_TRUE(isLibraryMapped(LIBRARY_2));
+
+    shared.reset();
+    EXPECT_EQ("Beep boop", unique->saySomething());
+    EXPECT_TRUE(isLibraryMapped(LIBRARY_2));
+    unique.reset();
+    EXPECT_FALSE(isLibraryMapped(LIBRARY_2));
+  }
+}
+#endif
+
+// The library can be loaded again while instances that outlived their ClassLoader still exist.
+TEST(ClassLoaderLifetimeTest, reloadWhileOrphanedInstancesExist) {
+  auto loader = std::make_unique<class_loader::ClassLoader>(LIBRARY_2, false);
+  std::shared_ptr<Base> orphan = loader->createInstance<Base>("Robot");
+  loader.reset();
+
+  class_loader::ClassLoader loader2(LIBRARY_2, false);
+  EXPECT_EQ("Beep boop", loader2.createInstance<Base>("Robot")->saySomething());
+  orphan.reset();
+  EXPECT_TRUE(loader2.isLibraryLoaded());
+  EXPECT_EQ("Beep boop", loader2.createUniqueInstance<Base>("Robot")->saySomething());
+}
+
+// A destroyed ClassLoader must not stay registered as an owner of its library's classes. If it
+// did, a new ClassLoader at the same address could see and create them without loading anything.
+TEST(ClassLoaderLifetimeTest, destroyedLoaderOwnsNothing) {
+  enum class Case { kLiveInstance, kLiveInstanceOnDemand, kLoadedTwice };
+  for (Case c : {Case::kLiveInstance, Case::kLiveInstanceOnDemand, Case::kLoadedTwice}) {
+    SCOPED_TRACE(static_cast<int>(c));
+    alignas(class_loader::ClassLoader) unsigned char storage[sizeof(class_loader::ClassLoader)];
+    std::shared_ptr<Base> dog;
+    {
+      auto * loader = new (storage) class_loader::ClassLoader(
+        LIBRARY_1, c == Case::kLiveInstanceOnDemand);
+      if (c == Case::kLoadedTwice) {
+        loader->loadLibrary();
+      } else {
+        dog = loader->createInstance<Base>("Dog");
+      }
+      loader->~ClassLoader();
+    }
+    {
+      auto * other = new (storage) class_loader::ClassLoader(LIBRARY_2, true);
+      EXPECT_FALSE(other->isClassAvailable<Base>("Dog"));
+      other->~ClassLoader();
+    }
+    dog.reset();
+    EXPECT_FALSE(class_loader::impl::isLibraryLoadedByAnybody(LIBRARY_1));
+  }
+}
+
+#ifndef _WIN32
 // Not run on Windows because this tests dlopen-specific behavior
+// It also opens a plugin library outside class_loader, after which class_loader never unloads any
+// library in this process, so tests that check unloading must come before it.
 
 // This is a different class name so that static variables in ClassLoader are isolated
 TEST(ClassLoaderGraveyardTest, loadUnloadLoadFromGraveyard) {
