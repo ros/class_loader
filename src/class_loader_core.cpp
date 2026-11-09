@@ -43,17 +43,21 @@ namespace impl
 {
 
 // Global data
+//
+// These are allocated on first use and never destroyed. A ClassLoader or MultiLibraryClassLoader
+// with static storage duration (e.g. a static pluginlib::ClassLoader) may be destroyed after
+// them at exit, and still needs them to unload its libraries (ros/class_loader#33).
 
 std::recursive_mutex & getLoadedLibraryVectorMutex()
 {
-  static std::recursive_mutex m;
-  return m;
+  static auto * m = new std::recursive_mutex();
+  return *m;
 }
 
 std::recursive_mutex & getPluginBaseToFactoryMapMapMutex()
 {
-  static std::recursive_mutex m;
-  return m;
+  static auto * m = new std::recursive_mutex();
+  return *m;
 }
 
 namespace
@@ -61,15 +65,15 @@ namespace
 // Serializes loadLibrary()/unloadLibrary() so a dlopen() never overlaps a dlclose().
 std::recursive_mutex & getLoaderMutex()
 {
-  static std::recursive_mutex m;
-  return m;
+  static auto * m = new std::recursive_mutex();
+  return *m;
 }
 }  // namespace
 
 BaseToFactoryMapMap & getGlobalPluginBaseToFactoryMapMap()
 {
-  static BaseToFactoryMapMap instance;
-  return instance;
+  static auto * instance = new BaseToFactoryMapMap();
+  return *instance;
 }
 
 FactoryMap & getFactoryMapForBaseClass(const std::string & typeid_base_class_name)
@@ -81,20 +85,20 @@ FactoryMap & getFactoryMapForBaseClass(const std::string & typeid_base_class_nam
 
 MetaObjectGraveyardVector & getMetaObjectGraveyard()
 {
-  static MetaObjectGraveyardVector instance;
-  return instance;
+  static auto * instance = new MetaObjectGraveyardVector();
+  return *instance;
 }
 
 LibraryVector & getLoadedLibraryVector()
 {
-  static LibraryVector instance;
-  return instance;
+  static auto * instance = new LibraryVector();
+  return *instance;
 }
 
 std::string & getCurrentlyLoadingLibraryNameReference()
 {
-  static std::string library_name;
-  return library_name;
+  static auto * library_name = new std::string();
+  return *library_name;
 }
 
 std::string getCurrentlyLoadingLibraryName()
