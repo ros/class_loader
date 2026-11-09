@@ -58,26 +58,14 @@ if(TARGET ${PROJECT_NAME}_utest)
     ${PROJECT_NAME}_TestGlobalPlugins)
 endif()
 
-ament_add_gtest(${PROJECT_NAME}_unique_ptr_test unique_ptr_test.cpp
+ament_add_gtest(${PROJECT_NAME}_unmanaged_test unmanaged_test.cpp
   APPEND_LIBRARY_DIRS "${append_library_dirs}"
 )
-if(TARGET ${PROJECT_NAME}_unique_ptr_test)
-  if(ament_cmake_FOUND)
-    target_include_directories(${PROJECT_NAME}_unique_ptr_test
-      PUBLIC "../include")
-  else()
-    target_include_directories(${PROJECT_NAME}_unique_ptr_test
-      PUBLIC "../include")
-    target_link_libraries(${PROJECT_NAME}_unique_ptr_test)
-  endif()
-  target_link_libraries(${PROJECT_NAME}_unique_ptr_test ${PROJECT_NAME} project_options)
-
-  if(NOT WIN32)
-    target_link_libraries(${PROJECT_NAME}_unique_ptr_test pthread)
-  endif()
-  add_dependencies(${PROJECT_NAME}_unique_ptr_test
+if(TARGET ${PROJECT_NAME}_unmanaged_test)
+  target_include_directories(${PROJECT_NAME}_unmanaged_test PUBLIC "../include")
+  target_link_libraries(${PROJECT_NAME}_unmanaged_test ${PROJECT_NAME} project_options)
+  add_dependencies(${PROJECT_NAME}_unmanaged_test
     ${PROJECT_NAME}_TestPlugins1
-    ${PROJECT_NAME}_TestPlugins2
     ${PROJECT_NAME}_TestPlugins3)
 endif()
 
