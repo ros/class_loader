@@ -33,6 +33,8 @@
 #include <dlfcn.h>
 #endif
 
+#include <algorithm>
+#include <atomic>
 #include <memory>
 #include <new>
 #include <string>
@@ -459,6 +461,85 @@ TEST(ClassLoaderLifetimeTest, destroyedLoaderOwnsNothing) {
       other->~ClassLoader();
     }
     dog.reset();
+    EXPECT_FALSE(class_loader::impl::isLibraryLoadedByAnybody(LIBRARY_1));
+  }
+}
+
+// Stress tests for state shared between loaders. Mostly useful under ThreadSanitizer.
+constexpr int STRESS_ITERATIONS = 20;
+constexpr size_t STRESS_THREADS = 8;
+
+TEST(ClassLoaderStressTest, loadersForSameLibraryOnManyThreads) {
+  std::vector<std::thread> threads;
+  for (size_t t = 0; t < STRESS_THREADS; ++t) {
+    threads.emplace_back(
+      [t]() {
+        for (int i = 0; i < STRESS_ITERATIONS; ++i) {
+          class_loader::ClassLoader loader(LIBRARY_1, (t + i) % 2 == 0);
+          EXPECT_EQ("Bark", loader.createInstance<Base>("Dog")->saySomething());
+          EXPECT_EQ("Meow", loader.createUniqueInstance<Base>("Cat")->saySomething());
+        }
+      });
+  }
+  for (auto & thread : threads) {
+    thread.join();
+  }
+  EXPECT_FALSE(class_loader::impl::isLibraryLoadedByAnybody(LIBRARY_1));
+}
+
+TEST(ClassLoaderStressTest, multiLibraryClassLoadersOnManyThreads) {
+  std::vector<std::thread> threads;
+  for (size_t t = 0; t < STRESS_THREADS; ++t) {
+    threads.emplace_back(
+      [t]() {
+        for (int i = 0; i < STRESS_ITERATIONS; ++i) {
+          class_loader::MultiLibraryClassLoader loader((t + i) % 2 == 0);
+          loader.loadLibrary(LIBRARY_1);
+          loader.loadLibrary(LIBRARY_2);
+          if ((t + i) % 2 != 0) {
+            // An on-demand loader only lists the classes of libraries it has actually loaded.
+            const auto classes = loader.getAvailableClasses<Base>();
+            EXPECT_NE(classes.end(), std::ranges::find(classes, "Dog"));
+            EXPECT_NE(classes.end(), std::ranges::find(classes, "Robot"));
+          }
+          EXPECT_EQ("Bark", loader.createInstance<Base>("Dog")->saySomething());
+          EXPECT_EQ("Beep boop", loader.createUniqueInstance<Base>("Robot")->saySomething());
+          loader.unloadLibrary(LIBRARY_1);
+        }
+      });
+  }
+  for (auto & thread : threads) {
+    thread.join();
+  }
+  EXPECT_FALSE(class_loader::impl::isLibraryLoadedByAnybody(LIBRARY_1));
+  EXPECT_FALSE(class_loader::impl::isLibraryLoadedByAnybody(LIBRARY_2));
+}
+
+// Instances deleted on other threads while their ClassLoader is being destroyed.
+TEST(ClassLoaderStressTest, instancesReleasedWhileLoaderDestroyed) {
+  for (int i = 0; i < STRESS_ITERATIONS; ++i) {
+    auto loader = std::make_unique<class_loader::ClassLoader>(LIBRARY_1, i % 2 == 0);
+    std::vector<std::shared_ptr<Base>> instances;
+    for (size_t t = 0; t < STRESS_THREADS; ++t) {
+      instances.push_back(loader->createInstance<Base>("Dog"));
+    }
+    std::atomic<bool> start{false};
+    std::vector<std::thread> threads;
+    for (auto & instance : instances) {
+      threads.emplace_back(
+        [&start, instance = std::move(instance)]() mutable {
+          while (!start.load()) {
+            std::this_thread::yield();
+          }
+          EXPECT_EQ("Bark", instance->saySomething());
+          instance.reset();
+        });
+    }
+    start = true;
+    loader.reset();
+    for (auto & thread : threads) {
+      thread.join();
+    }
     EXPECT_FALSE(class_loader::impl::isLibraryLoadedByAnybody(LIBRARY_1));
   }
 }

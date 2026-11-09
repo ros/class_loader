@@ -195,18 +195,24 @@ filterAllMetaObjectsAssociatedWithLibrary(
 MetaObjectVector
 allMetaObjectsForClassLoader(const ClassLoader * owner)
 {
+  // Filter under the lock too: other threads change owners and destroy metaobjects under it.
+  std::lock_guard<std::recursive_mutex> lock(getPluginBaseToFactoryMapMapMutex());
   return filterAllMetaObjectsOwnedBy(allMetaObjects(), owner);
 }
 
 MetaObjectVector
 allMetaObjectsForLibrary(const std::string & library_path)
 {
+  // Filter under the lock too: other threads change owners and destroy metaobjects under it.
+  std::lock_guard<std::recursive_mutex> lock(getPluginBaseToFactoryMapMapMutex());
   return filterAllMetaObjectsAssociatedWithLibrary(allMetaObjects(), library_path);
 }
 
 MetaObjectVector
 allMetaObjectsForLibraryOwnedBy(const std::string & library_path, const ClassLoader * owner)
 {
+  // Filter under the lock too: other threads change owners and destroy metaobjects under it.
+  std::lock_guard<std::recursive_mutex> lock(getPluginBaseToFactoryMapMapMutex());
   return filterAllMetaObjectsOwnedBy(allMetaObjectsForLibrary(library_path), owner);
 }
 
@@ -302,6 +308,9 @@ bool isLibraryLoadedByAnybody(const std::string & library_path)
 
 bool isLibraryLoaded(const std::string & library_path, const ClassLoader * loader)
 {
+  // Answer from one consistent state, in the same lock order as unloadLibrary().
+  std::lock_guard<std::recursive_mutex> llv_lock(getLoadedLibraryVectorMutex());
+  std::lock_guard<std::recursive_mutex> b2fmm_lock(getPluginBaseToFactoryMapMapMutex());
   bool is_lib_loaded_by_anyone = isLibraryLoadedByAnybody(library_path);
   size_t num_meta_objs_for_lib = allMetaObjectsForLibrary(library_path).size();
   size_t num_meta_objs_for_lib_bound_to_loader =

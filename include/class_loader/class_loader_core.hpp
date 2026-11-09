@@ -355,12 +355,16 @@ Base * createInstance(const std::string & derived_class_name, ClassLoader * load
     CONSOLE_BRIDGE_logError(
       "class_loader.impl: No metaobject exists for class type %s.", derived_class_name.c_str());
   }
+  // Check ownership under the lock (other threads change it), but construct outside it.
+  const bool owned_by_loader = factory != nullptr && factory->isOwnedBy(loader);
+  const bool owned_by_nobody = factory != nullptr && !owned_by_loader &&
+    factory->isOwnedBy(nullptr);
   getPluginBaseToFactoryMapMapMutex().unlock();
 
   Base * obj = nullptr;
-  if (factory != nullptr && factory->isOwnedBy(loader)) {
+  if (owned_by_loader) {
     obj = factory->create(std::forward<Args>(args)...);
-  } else if (factory && factory->isOwnedBy(nullptr)) {
+  } else if (owned_by_nobody) {
     CONSOLE_BRIDGE_logDebug(
       "%s",
       "class_loader.impl: ALERT!!! "
