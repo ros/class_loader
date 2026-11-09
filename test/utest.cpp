@@ -396,6 +396,24 @@ TEST(ClassLoaderBasicTest, isLibraryLoadedByAnyClassloader) {
   EXPECT_FALSE(loader2.isLibraryLoadedByAnyClassloader());
 }
 
+// An empty path stands for libraries linked into the executable: nothing to load or unload.
+TEST(ClassLoaderBasicTest, emptyPathLoadsNothing) {
+  class_loader::ClassLoader loader("", false);
+  loader.loadLibrary();
+  EXPECT_EQ(0, loader.unloadLibrary());
+  EXPECT_EQ(0, loader.unloadLibrary());
+  EXPECT_TRUE(class_loader::impl::getAllLibrariesUsedByClassLoader(&loader).empty());
+}
+
+// Unloading a library that class_loader doesn't have loaded does nothing.
+TEST(ClassLoaderBasicTest, unloadUnknownLibrary) {
+  class_loader::ClassLoader loader(LIBRARY_1, true);
+  EXPECT_NO_THROW(class_loader::impl::unloadLibrary(LIBRARY_1, &loader));
+  EXPECT_NO_THROW(class_loader::impl::unloadLibrary("not_a_library", &loader));
+  EXPECT_FALSE(class_loader::impl::isLibraryLoadedByAnybody(LIBRARY_1));
+  EXPECT_EQ("Bark", loader.createInstance<Base>("Dog")->saySomething());
+}
+
 TEST(ClassLoaderBasicTest, correctNonLazyLoadUnload) {
   ASSERT_FALSE(class_loader::impl::isLibraryLoadedByAnybody(LIBRARY_1));
   class_loader::ClassLoader loader1(LIBRARY_1, false);
