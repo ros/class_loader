@@ -30,7 +30,6 @@
  */
 
 #include <algorithm>
-#include <memory>
 #include <string>
 #include <tuple>
 
@@ -48,17 +47,20 @@
 const std::string LIBRARY_1 = class_loader::systemLibraryFormat("class_loader_TestPlugins1");  // NOLINT
 const std::string LIBRARY_2 = class_loader::systemLibraryFormat("class_loader_TestPlugins2");  // NOLINT
 
-// Opens LIBRARY_1 outside class_loader, once for the whole process.
+// Opens LIBRARY_1 outside class_loader, once for the whole process. The handle is leaked on
+// purpose: closing the library at exit would unmap the code that class_loader's global factory
+// maps, destroyed later, still need to delete the library's MetaObjects.
 void openLibrary1Externally()
 {
-  static auto library = std::make_shared<rcpputils::SharedLibrary>(LIBRARY_1);
+  static const auto * library = new rcpputils::SharedLibrary(LIBRARY_1);
+  (void)library;
   ASSERT_TRUE(class_loader::impl::hasANonPurePluginLibraryBeenOpened());
 }
 
 // A ClassLoader with an empty path stands for libraries linked into the executable, and can use
 // the classes of any library opened outside class_loader.
 TEST(ClassLoaderExternalLoadTest, linkedClassLoader) {
-  openLibrary1Externally();
+  ASSERT_NO_FATAL_FAILURE(openLibrary1Externally());
   class_loader::ClassLoader loader("");
   const auto classes = loader.getAvailableClasses<Base>();
   EXPECT_NE(classes.end(), std::ranges::find(classes, "Dog"));
@@ -72,7 +74,7 @@ TEST(ClassLoaderExternalLoadTest, linkedClassLoader) {
 
 // A ClassLoader for the same library can still use its classes.
 TEST(ClassLoaderExternalLoadTest, loaderForExternallyOpenedLibrary) {
-  openLibrary1Externally();
+  ASSERT_NO_FATAL_FAILURE(openLibrary1Externally());
   for (bool on_demand : {false, true}) {
     SCOPED_TRACE(on_demand ? "on-demand" : "non-on-demand");
     class_loader::ClassLoader loader(LIBRARY_1, on_demand);
@@ -84,10 +86,12 @@ TEST(ClassLoaderExternalLoadTest, loaderForExternallyOpenedLibrary) {
 
 // Other libraries still load and work, but are no longer unloaded.
 TEST(ClassLoaderExternalLoadTest, otherLibrariesAreNotUnloaded) {
-  openLibrary1Externally();
-  class_loader::ClassLoader loader(LIBRARY_2, false);
-  EXPECT_EQ("Beep boop", loader.createInstance<Base>("Robot")->saySomething());
-  loader.unloadLibrary();
+  ASSERT_NO_FATAL_FAILURE(openLibrary1Externally());
+  // Robot's factory keeps this loader as its owner, since the library is never unloaded. The
+  // loader is leaked so that no other ClassLoader can reuse its address and take over Robot.
+  static auto * loader = new class_loader::ClassLoader(LIBRARY_2, false);
+  EXPECT_EQ("Beep boop", loader->createInstance<Base>("Robot")->saySomething());
+  loader->unloadLibrary();
   EXPECT_TRUE(class_loader::impl::isLibraryLoadedByAnybody(LIBRARY_2));
 }
 

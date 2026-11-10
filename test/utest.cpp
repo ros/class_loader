@@ -386,6 +386,9 @@ TEST(ClassLoaderBasicTest, librariesUsedByClassLoader) {
 }
 
 TEST(ClassLoaderBasicTest, isLibraryLoadedByAnyClassloader) {
+  if (class_loader::impl::hasANonPurePluginLibraryBeenOpened()) {
+    GTEST_SKIP() << "Libraries are never unloaded once loadUnloadLoadFromGraveyard has run";
+  }
   class_loader::ClassLoader loader1(LIBRARY_1, false);
   class_loader::ClassLoader loader2(LIBRARY_1, true);
   EXPECT_TRUE(loader1.isLibraryLoaded());
@@ -407,6 +410,9 @@ TEST(ClassLoaderBasicTest, emptyPathLoadsNothing) {
 
 // Unloading a library that class_loader doesn't have loaded does nothing.
 TEST(ClassLoaderBasicTest, unloadUnknownLibrary) {
+  if (class_loader::impl::hasANonPurePluginLibraryBeenOpened()) {
+    GTEST_SKIP() << "Libraries are never unloaded once loadUnloadLoadFromGraveyard has run";
+  }
   class_loader::ClassLoader loader(LIBRARY_1, true);
   EXPECT_NO_THROW(class_loader::impl::unloadLibrary(LIBRARY_1, &loader));
   EXPECT_NO_THROW(class_loader::impl::unloadLibrary("not_a_library", &loader));
