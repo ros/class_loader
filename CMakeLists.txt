@@ -9,6 +9,10 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
+# ENABLE_SANITIZER_* options: instrument the library, test plugins and tests alike.
+include(cmake/sanitizers.cmake)
+class_loader_enable_sanitizers()
+
 set(CLASS_LOADER_IGNORE_AMENT FALSE CACHE BOOL
   "Do not use ament when building this package.")
 if(NOT CLASS_LOADER_IGNORE_AMENT)

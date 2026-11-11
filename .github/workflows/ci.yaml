@@ -20,6 +20,8 @@ jobs:
             NAME: Address Sanitizer
           - TARGET_CMAKE_ARGS: -DENABLE_SANITIZER_THREAD=ON -DCMAKE_BUILD_TYPE=Debug
             NAME: Thread Sanitizer
+          - TARGET_CMAKE_ARGS: -DENABLE_SANITIZER_UNDEFINED_BEHAVIOR=ON -DCMAKE_BUILD_TYPE=Debug
+            NAME: Undefined Behavior Sanitizer
     env:
       ROS_DISTRO: rolling
     runs-on: ubuntu-latest
