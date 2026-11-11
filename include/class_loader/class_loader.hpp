@@ -36,6 +36,7 @@
 #include <atomic>
 #include <cassert>
 #include <cstddef>
+#include <exception>
 #include <functional>
 #include <memory>
 #include <mutex>
@@ -361,7 +362,17 @@ private:
 
     if (!managed) {
       // Unmanaged instances may outlive this loader or its library being unloaded.
-      class_loader::impl::pinLibrary(getLibraryPath());
+      // The instance already exists, so a failure here must not propagate and leak it.
+      try {
+        class_loader::impl::pinLibrary(getLibraryPath());
+      } catch (const std::exception & e) {
+        CONSOLE_BRIDGE_logWarn(
+          "class_loader::ClassLoader: Could not pin library %s: %s",
+          getLibraryPath().c_str(), e.what());
+      } catch (...) {
+        CONSOLE_BRIDGE_logWarn(
+          "class_loader::ClassLoader: Could not pin library %s.", getLibraryPath().c_str());
+      }
     }
 
     if (managed) {
