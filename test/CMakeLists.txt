@@ -69,7 +69,7 @@ ament_add_gtest(${PROJECT_NAME}_external_load_test external_load_test.cpp
 )
 if(TARGET ${PROJECT_NAME}_external_load_test)
   target_include_directories(${PROJECT_NAME}_external_load_test PUBLIC "../include")
-  target_link_libraries(${PROJECT_NAME}_external_load_test ${PROJECT_NAME} project_options)
+  target_link_libraries(${PROJECT_NAME}_external_load_test ${PROJECT_NAME})
   add_dependencies(${PROJECT_NAME}_external_load_test
     ${PROJECT_NAME}_TestPlugins1
     ${PROJECT_NAME}_TestPlugins2)
