@@ -61,6 +61,7 @@ if(TARGET ${PROJECT_NAME}_unmanaged_test)
   target_link_libraries(${PROJECT_NAME}_unmanaged_test ${PROJECT_NAME})
   add_dependencies(${PROJECT_NAME}_unmanaged_test
     ${PROJECT_NAME}_TestPlugins1
+    ${PROJECT_NAME}_TestPlugins2
     ${PROJECT_NAME}_TestPlugins3)
 endif()
 

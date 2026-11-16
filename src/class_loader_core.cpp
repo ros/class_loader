@@ -37,6 +37,12 @@
 #include <string>
 #include <vector>
 
+#ifdef _WIN32
+#include <windows.h>
+#else
+#include <dlfcn.h>
+#endif
+
 namespace class_loader
 {
 namespace impl
@@ -468,6 +474,32 @@ void loadLibrary(const std::string & library_path, ClassLoader * loader)
   LibraryVector & open_libraries = getLoadedLibraryVector();
   // Note: rcpputils::SharedLibrary automatically calls load() when library passed to constructor
   open_libraries.push_back(LibraryPair(library_path, library_handle));
+}
+
+void pinLibrary(const std::string & library_path)
+{
+  std::lock_guard<std::recursive_mutex> llv_lock(getLoadedLibraryVectorMutex());
+  LibraryVector::iterator itr = findLoadedLibrary(library_path);
+  if (itr == getLoadedLibraryVector().end()) {
+    return;
+  }
+  const std::string & path = itr->second->get_library_path();
+#ifdef _WIN32
+  HMODULE handle = nullptr;
+  const bool pinned = GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_PIN, path.c_str(), &handle);
+#else
+  // RTLD_NOLOAD only looks up the already-loaded library; RTLD_NODELETE keeps it mapped.
+  void * handle = dlopen(path.c_str(), RTLD_LAZY | RTLD_NOLOAD | RTLD_NODELETE);
+  const bool pinned = handle != nullptr;
+  if (pinned) {
+    dlclose(handle);  // Drops the reference this call added; the library stays pinned.
+  }
+#endif
+  if (!pinned) {
+    CONSOLE_BRIDGE_logWarn(
+      "class_loader.impl: Could not pin library %s; unloading it while unmanaged instances "
+      "exist will crash.", path.c_str());
+  }
 }
 
 void unloadLibrary(const std::string & library_path, ClassLoader * loader)

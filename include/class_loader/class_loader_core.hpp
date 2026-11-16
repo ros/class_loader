@@ -469,6 +469,18 @@ void loadLibrary(const std::string & library_path, ClassLoader * loader);
 CLASS_LOADER_PUBLIC
 void unloadLibrary(const std::string & library_path, ClassLoader * loader);
 
+/**
+ * @brief Keeps a loaded library mapped in memory until the process exits.
+ *
+ * Used for libraries that unmanaged instances were created from: nothing tells class_loader when
+ * those are deleted, so the library's code must stay mapped even after it is unloaded.
+ * Bookkeeping is unaffected; unloadLibrary() still detaches it from its ClassLoaders.
+ *
+ * @param library_path - The name of the (already loaded) library to pin
+ */
+CLASS_LOADER_PUBLIC
+void pinLibrary(const std::string & library_path);
+
 }  // namespace impl
 }  // namespace class_loader
 
