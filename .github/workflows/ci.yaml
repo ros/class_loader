@@ -22,6 +22,8 @@ jobs:
             NAME: Thread Sanitizer
           - TARGET_CMAKE_ARGS: -DENABLE_SANITIZER_UNDEFINED_BEHAVIOR=ON -DCMAKE_BUILD_TYPE=Debug
             NAME: Undefined Behavior Sanitizer
+          - TARGET_CMAKE_ARGS: -DCLASS_LOADER_USE_RCPPUTILS=OFF
+            NAME: Without rcpputils
     env:
       ROS_DISTRO: rolling
     runs-on: ubuntu-latest
@@ -35,3 +37,33 @@ jobs:
         run: sudo sysctl vm.mmap_rnd_bits=28
       - uses: 'ros-industrial/industrial_ci@master'
         env: ${{matrix.env}}
+
+  # Build and test without ament and ROS (CLASS_LOADER_IGNORE_AMENT=ON, dependencies from the
+  # system), install, and check the installed library via CMake and pkg-config.
+  standalone:
+    runs-on: ubuntu-latest
+    name: Standalone (without ROS)
+    env:
+      INSTALL_PREFIX: ${{ github.workspace }}/install
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libconsole-bridge-dev libgtest-dev pkg-config
+      - name: Build
+        run: |
+          cmake -S . -B build -DCLASS_LOADER_IGNORE_AMENT=ON -DBUILD_TESTING=ON \
+            -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX"
+          cmake --build build --parallel
+      - name: Test
+        run: ctest --test-dir build --output-on-failure
+      - name: Install
+        run: cmake --install build
+      - name: Test installed library
+        run: |
+          export PKG_CONFIG_PATH="$INSTALL_PREFIX/lib/pkgconfig"
+          export LD_LIBRARY_PATH="$INSTALL_PREFIX/lib"
+          cmake -S test/standalone -B build_test -DCMAKE_PREFIX_PATH="$INSTALL_PREFIX"
+          cmake --build build_test --parallel
+          ctest --test-dir build_test --output-on-failure
