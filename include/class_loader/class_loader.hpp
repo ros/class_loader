@@ -347,7 +347,7 @@ private:
       CONSOLE_BRIDGE_logInform(
         "%s",
         "class_loader::ClassLoader: "
-        "An attempt is being made to create a managed plugin instance (i.e. boost::shared_ptr), "
+        "An attempt is being made to create a managed plugin instance (i.e. std::shared_ptr), "
         "however an unmanaged instance was created within this process address space. "
         "This means libraries for the managed instances will not be shutdown automatically on "
         "final plugin destruction if on demand (lazy) loading/unloading mode is used."
