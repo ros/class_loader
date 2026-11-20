@@ -118,9 +118,14 @@ if(ament_cmake_FOUND)
   )
 else()
   set(TARGET_NAME ${PROJECT_NAME})
-  set(PKGCONFIG_LIBS
-    ${console_bridge_LIBRARIES}
-  )
+  file(READ "${CMAKE_CURRENT_SOURCE_DIR}/package.xml" _package_xml)
+  string(REGEX MATCH "<version>([^<]*)</version>" _ "${_package_xml}")
+  set(PROJECT_VERSION "${CMAKE_MATCH_1}")
+  set(PROJECT_DESCRIPTION "Library for loading plugins at runtime")
+  set(PKGCONFIG_REQUIRES console_bridge)
+  if(NOT CLASS_LOADER_USE_RCPPUTILS)
+    set(PKGCONFIG_CFLAGS "-DCLASS_LOADER_NO_RCPPUTILS")
+  endif()
 
   # Prepare and install necessary files to support finding of the library
   # using pkg-config
