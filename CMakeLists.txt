@@ -94,6 +94,9 @@ if(WIN32)
 endif()
 
 if(BUILD_TESTING)
+  if(NOT ament_cmake_FOUND)
+    enable_testing()
+  endif()
   find_package(ament_lint_auto QUIET)
   if(ament_lint_auto_FOUND)
     # TODO(mikaelarguedas) add copyright test once the linter accepts /** block comments

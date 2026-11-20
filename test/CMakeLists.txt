@@ -1,4 +1,30 @@
-find_package(ament_cmake_gtest REQUIRED)
+if(ament_cmake_FOUND)
+  find_package(ament_cmake_gtest REQUIRED)
+else()
+  find_package(GTest REQUIRED)
+
+  # Minimal replacement for ament_add_gtest() without ament, using GoogleTest from the system.
+  # Only APPEND_LIBRARY_DIRS is supported. These dirs are prepended (not appended as by ament),
+  # so that the tests do not pick up an installed class_loader.
+  function(ament_add_gtest target)
+    cmake_parse_arguments(ARG "" "" "APPEND_LIBRARY_DIRS" ${ARGN})
+    add_executable(${target} ${ARG_UNPARSED_ARGUMENTS})
+    target_link_libraries(${target} GTest::gtest_main)
+    add_test(NAME ${target} COMMAND ${target})
+    if(WIN32)
+      set(_var PATH)
+      set(_sep "\\;")
+    elseif(APPLE)
+      set(_var DYLD_LIBRARY_PATH)
+      set(_sep ":")
+    else()
+      set(_var LD_LIBRARY_PATH)
+      set(_sep ":")
+    endif()
+    string(REPLACE ";" "${_sep}" _dirs "${ARG_APPEND_LIBRARY_DIRS};$ENV{${_var}}")
+    set_tests_properties(${target} PROPERTIES ENVIRONMENT "${_var}=${_dirs}")
+  endfunction()
+endif()
 
 include("../cmake/class_loader_hide_library_symbols.cmake")
 
