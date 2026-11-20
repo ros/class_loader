@@ -34,7 +34,7 @@
 #include <tuple>
 
 #include "class_loader/class_loader.hpp"
-#include "rcpputils/shared_library.hpp"
+#include "class_loader/shared_library.hpp"
 
 #include "gtest/gtest.h"
 
@@ -52,7 +52,7 @@ const std::string LIBRARY_2 = class_loader::systemLibraryFormat("class_loader_Te
 // maps, destroyed later, still need to delete the library's MetaObjects.
 void openLibrary1Externally()
 {
-  static const auto * library = new rcpputils::SharedLibrary(LIBRARY_1);
+  static const auto * library = new class_loader::impl::SharedLibrary(LIBRARY_1);
   (void)library;
   ASSERT_TRUE(class_loader::impl::hasANonPurePluginLibraryBeenOpened());
 }

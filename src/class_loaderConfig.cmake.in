@@ -1,0 +1,14 @@
+# CMake package configuration for builds without ament (CLASS_LOADER_IGNORE_AMENT=ON)
+
+@PACKAGE_INIT@
+
+include(CMakeFindDependencyMacro)
+find_dependency(console_bridge)
+if(@CLASS_LOADER_USE_RCPPUTILS@)
+  find_dependency(rcpputils)
+endif()
+
+include("${CMAKE_CURRENT_LIST_DIR}/@PROJECT_NAME@Targets.cmake")
+include("${CMAKE_CURRENT_LIST_DIR}/class_loader_hide_library_symbols.cmake")
+
+check_required_components(@PROJECT_NAME@)

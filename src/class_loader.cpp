@@ -48,7 +48,7 @@ void ClassLoader::setUnmanagedInstanceBeenCreated(bool state)
 
 std::string systemLibraryFormat(const std::string & library_name)
 {
-  return rcpputils::get_platform_library_name(library_name);
+  return impl::get_platform_library_name(library_name);
 }
 
 ClassLoader::ClassLoader(const std::string & library_path, bool ondemand_load_unload)
