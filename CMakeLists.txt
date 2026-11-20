@@ -135,6 +135,26 @@ else()
     @ONLY)
 
   install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.pc" DESTINATION lib/pkgconfig)
+
+  # Prepare and install a CMake package configuration, providing the target
+  # class_loader::class_loader as in ament builds
+  install(EXPORT ${PROJECT_NAME}
+    NAMESPACE ${PROJECT_NAME}::
+    FILE ${PROJECT_NAME}Targets.cmake
+    DESTINATION share/${PROJECT_NAME}/cmake)
+  include(CMakePackageConfigHelpers)
+  configure_package_config_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/${PROJECT_NAME}Config.cmake.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
+    INSTALL_DESTINATION share/${PROJECT_NAME}/cmake)
+  write_basic_package_version_file(
+    "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
+    VERSION ${PROJECT_VERSION}
+    COMPATIBILITY AnyNewerVersion)  # as in ament builds
+  install(FILES
+    "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
+    "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
+    DESTINATION share/${PROJECT_NAME}/cmake)
 endif()
 
 install(TARGETS ${PROJECT_NAME} EXPORT ${PROJECT_NAME}
