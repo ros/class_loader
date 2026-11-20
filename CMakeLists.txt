@@ -23,17 +23,30 @@ else()
   set(explicit_library_type "SHARED")
 endif()
 
+if(CLASS_LOADER_IGNORE_AMENT)
+  set(_use_rcpputils_default OFF)
+else()
+  set(_use_rcpputils_default ON)
+endif()
+option(CLASS_LOADER_USE_RCPPUTILS
+  "Load libraries with rcpputils (otherwise with a minimal built-in replacement)"
+  ${_use_rcpputils_default})
+
 if(NOT CLASS_LOADER_IGNORE_AMENT)
   # Provides console_bridge 0.4.0 on platforms without it.
   find_package(console_bridge_vendor REQUIRED)
 endif()
 find_package(console_bridge REQUIRED)
 
-find_package(rcpputils REQUIRED)
+if(CLASS_LOADER_USE_RCPPUTILS)
+  find_package(rcpputils REQUIRED)
+endif()
 
 if(ament_cmake_FOUND)
   ament_export_dependencies(console_bridge)
-  ament_export_dependencies(rcpputils)
+  if(CLASS_LOADER_USE_RCPPUTILS)
+    ament_export_dependencies(rcpputils)
+  endif()
 endif()
 
 add_library(${PROJECT_NAME} ${explicit_library_type}
@@ -45,11 +58,22 @@ add_library(${PROJECT_NAME} ${explicit_library_type}
 target_include_directories(${PROJECT_NAME} PUBLIC
   "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
   "$<INSTALL_INTERFACE:include/${PROJECT_NAME}>")
+# The public headers use C++20 (e.g. concepts), so users need it as well.
+# (Previously, this was only propagated through rcpputils.)
+target_compile_features(${PROJECT_NAME} INTERFACE cxx_std_20)
+# dlopen() is used directly (and by the built-in shared library wrapper).
+target_link_libraries(${PROJECT_NAME} PRIVATE ${CMAKE_DL_LIBS})
+if(CLASS_LOADER_USE_RCPPUTILS)
+  target_link_libraries(${PROJECT_NAME} PUBLIC rcpputils::rcpputils)
+else()
+  target_sources(${PROJECT_NAME} PRIVATE src/shared_library.cpp)
+  # Also needed by users, as the public headers select the shared library wrapper with it.
+  target_compile_definitions(${PROJECT_NAME} PUBLIC CLASS_LOADER_NO_RCPPUTILS)
+endif()
 
 if(ament_cmake_FOUND)
   target_link_libraries(${PROJECT_NAME} PUBLIC
-    console_bridge::console_bridge
-    rcpputils::rcpputils)
+    console_bridge::console_bridge)
   # ament_ros_defaults is an INTERFACE target providing cxx_std_20 / c_std_17.
   # Linked PRIVATE so the standard applies to our own sources without leaking
   # into the exported interface (a SHARED library does not propagate PRIVATE
@@ -59,7 +83,7 @@ if(ament_cmake_FOUND)
 else()
   target_include_directories(${PROJECT_NAME}
     PUBLIC ${console_bridge_INCLUDE_DIRS})
-  target_link_libraries(${PROJECT_NAME} ${console_bridge_LIBRARIES})
+  target_link_libraries(${PROJECT_NAME} PUBLIC ${console_bridge_LIBRARIES})
   # Standalone (non-ament) build: request C++20 for our own translation units.
   target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_20)
 endif()
