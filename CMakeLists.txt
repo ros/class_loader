@@ -23,7 +23,10 @@ else()
   set(explicit_library_type "SHARED")
 endif()
 
-find_package(console_bridge_vendor REQUIRED) # Provides console_bridge 0.4.0 on platforms without it.
+if(NOT CLASS_LOADER_IGNORE_AMENT)
+  # Provides console_bridge 0.4.0 on platforms without it.
+  find_package(console_bridge_vendor REQUIRED)
+endif()
 find_package(console_bridge REQUIRED)
 
 find_package(rcpputils REQUIRED)
