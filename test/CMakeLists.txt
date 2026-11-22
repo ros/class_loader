@@ -76,4 +76,13 @@ if(TARGET ${PROJECT_NAME}_external_load_test)
     ${PROJECT_NAME}_TestPlugins2)
 endif()
 
+ament_add_gtest(${PROJECT_NAME}_multi_library_exit_test multi_library_exit_test.cpp
+  APPEND_LIBRARY_DIRS "${append_library_dirs}"
+)
+if(TARGET ${PROJECT_NAME}_multi_library_exit_test)
+  target_include_directories(${PROJECT_NAME}_multi_library_exit_test PUBLIC "../include")
+  target_link_libraries(${PROJECT_NAME}_multi_library_exit_test ${PROJECT_NAME})
+  add_dependencies(${PROJECT_NAME}_multi_library_exit_test ${PROJECT_NAME}_TestPlugins1)
+endif()
+
 add_subdirectory(fviz_case_study)

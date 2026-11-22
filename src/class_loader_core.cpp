@@ -50,8 +50,15 @@ namespace impl
 
 // Global data
 
+namespace
+{
+std::recursive_mutex & getLoaderMutex();
+}  // namespace
+
 std::recursive_mutex & getLoadedLibraryVectorMutex()
 {
+  // Construct the loader mutex first so it is destroyed last: unloadLibrary() locks it.
+  (void)getLoaderMutex();
   static std::recursive_mutex m;
   return m;
 }
