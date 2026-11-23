@@ -52,7 +52,12 @@ namespace impl
 
 namespace
 {
-std::recursive_mutex & getLoaderMutex();
+// Serializes loadLibrary()/unloadLibrary() so a dlopen() never overlaps a dlclose().
+std::recursive_mutex & getLoaderMutex()
+{
+  static std::recursive_mutex m;
+  return m;
+}
 }  // namespace
 
 std::recursive_mutex & getLoadedLibraryVectorMutex()
@@ -68,16 +73,6 @@ std::recursive_mutex & getPluginBaseToFactoryMapMapMutex()
   static std::recursive_mutex m;
   return m;
 }
-
-namespace
-{
-// Serializes loadLibrary()/unloadLibrary() so a dlopen() never overlaps a dlclose().
-std::recursive_mutex & getLoaderMutex()
-{
-  static std::recursive_mutex m;
-  return m;
-}
-}  // namespace
 
 BaseToFactoryMapMap & getGlobalPluginBaseToFactoryMapMap()
 {
