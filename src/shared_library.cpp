@@ -44,6 +44,9 @@
 #if defined(_GNU_SOURCE) && defined(__GLIBC__)
 #include <link.h>
 #define CLASS_LOADER_HAS_DLINFO
+#elif defined(__APPLE__)
+#include <mach-o/dyld.h>
+#include <cstdint>
 #endif
 #endif
 
@@ -108,6 +111,20 @@ SharedLibrary::SharedLibrary(const std::string & library_path)
   struct link_map * map = nullptr;
   if (dlinfo(handle_, RTLD_DI_LINKMAP, &map) == 0 && map && map->l_name && map->l_name[0]) {
     library_path_ = map->l_name;
+  }
+#elif defined(__APPLE__)
+  // As rcutils: find the loaded image with the same handle (likely near the end of the list).
+  // This resolves e.g. a bare file name found via DYLD_LIBRARY_PATH, which pinLibrary() needs.
+  for (uint32_t i = _dyld_image_count(); i > 0; --i) {
+    const char * name = _dyld_get_image_name(i - 1);
+    void * handle = name ? dlopen(name, RTLD_LAZY | RTLD_NOLOAD) : nullptr;
+    if (handle) {
+      dlclose(handle);  // still loaded through handle_
+      if (handle == handle_) {
+        library_path_ = name;
+        break;
+      }
+    }
   }
 #endif
 #endif
