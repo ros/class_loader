@@ -81,9 +81,14 @@ if(NOT CLASS_LOADER_IGNORE_AMENT)
   target_link_libraries(${PROJECT_NAME} PRIVATE ament_cmake_ros_core::ament_ros_defaults)
   ament_export_targets(${PROJECT_NAME})
 else()
-  target_include_directories(${PROJECT_NAME}
-    PUBLIC ${console_bridge_INCLUDE_DIRS})
-  target_link_libraries(${PROJECT_NAME} PUBLIC ${console_bridge_LIBRARIES})
+  if(TARGET console_bridge::console_bridge)
+    target_link_libraries(${PROJECT_NAME} PUBLIC console_bridge::console_bridge)
+  else()
+    # Older console_bridge versions do not provide an imported target.
+    target_include_directories(${PROJECT_NAME}
+      PUBLIC ${console_bridge_INCLUDE_DIRS})
+    target_link_libraries(${PROJECT_NAME} PUBLIC ${console_bridge_LIBRARIES})
+  endif()
   # Standalone (non-ament) build: request C++20 for our own translation units.
   target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_20)
 endif()
