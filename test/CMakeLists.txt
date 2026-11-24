@@ -4,10 +4,30 @@ else()
   find_package(GTest REQUIRED)
 
   # Minimal replacement for ament_add_gtest() without ament, using GoogleTest from the system.
-  # Only APPEND_LIBRARY_DIRS is supported. These dirs are prepended (not appended as by ament),
-  # so that the tests do not pick up an installed class_loader.
+  # Only APPEND_LIBRARY_DIRS is supported, the other arguments of ament_add_gtest() are ignored
+  # (with a warning). The library dirs and the dir of class_loader itself are prepended (not
+  # appended as by ament), so that the tests do not pick up an installed class_loader.
   function(ament_add_gtest target)
-    cmake_parse_arguments(ARG "" "" "APPEND_LIBRARY_DIRS" ${ARGN})
+    set(_options SKIP_LINKING_MAIN_LIBRARIES SKIP_TEST)
+    set(_one_value_args RUNNER TIMEOUT WORKING_DIRECTORY)
+    set(_multi_value_args APPEND_ENV ENV)
+    cmake_parse_arguments(ARG "${_options}" "${_one_value_args}"
+      "${_multi_value_args};APPEND_LIBRARY_DIRS" ${ARGN})
+    set(_ignored)
+    foreach(_arg ${_options})
+      if(ARG_${_arg})
+        list(APPEND _ignored ${_arg})
+      endif()
+    endforeach()
+    foreach(_arg ${_one_value_args} ${_multi_value_args})
+      if(DEFINED ARG_${_arg} OR _arg IN_LIST ARG_KEYWORDS_MISSING_VALUES)
+        list(APPEND _ignored ${_arg})
+      endif()
+    endforeach()
+    if(_ignored)
+      list(JOIN _ignored ", " _ignored)
+      message(WARNING "ament_add_gtest(${target}): ignoring ${_ignored} without ament")
+    endif()
     add_executable(${target} ${ARG_UNPARSED_ARGUMENTS})
     target_link_libraries(${target} GTest::gtest_main)
     add_test(NAME ${target} COMMAND ${target})
@@ -21,7 +41,8 @@ else()
       set(_var LD_LIBRARY_PATH)
       set(_sep ":")
     endif()
-    string(REPLACE ";" "${_sep}" _dirs "${ARG_APPEND_LIBRARY_DIRS};$ENV{${_var}}")
+    set(_dirs "$<TARGET_FILE_DIR:${PROJECT_NAME}>" ${ARG_APPEND_LIBRARY_DIRS} "$ENV{${_var}}")
+    string(REPLACE ";" "${_sep}" _dirs "${_dirs}")
     set_tests_properties(${target} PROPERTIES ENVIRONMENT "${_var}=${_dirs}")
   endfunction()
 endif()
