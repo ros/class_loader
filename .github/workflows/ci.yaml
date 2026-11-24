@@ -29,7 +29,7 @@ jobs:
     runs-on: ubuntu-latest
     name: ${{ matrix.env.NAME }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v7
       # ThreadSanitizer fails with "incompatible memory layout" under the
       # runner kernel's default ASLR entropy (vm.mmap_rnd_bits=32). The
       # industrial_ci container shares the host kernel, so lower it here.
@@ -46,7 +46,7 @@ jobs:
     env:
       INSTALL_PREFIX: ${{ github.workspace }}/install
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v7
       - name: Install dependencies
         run: |
           sudo apt-get update
