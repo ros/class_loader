@@ -1,4 +1,4 @@
-if(ament_cmake_FOUND)
+if(NOT CLASS_LOADER_IGNORE_AMENT)
   find_package(ament_cmake_gtest REQUIRED)
 else()
   find_package(GTest REQUIRED)
@@ -57,7 +57,7 @@ ament_add_gtest(${PROJECT_NAME}_utest utest.cpp
 )
 
 if(TARGET ${PROJECT_NAME}_utest)
-  if(ament_cmake_FOUND)
+  if(NOT CLASS_LOADER_IGNORE_AMENT)
     target_include_directories(${PROJECT_NAME}_utest
       PUBLIC "../include")
     target_link_libraries(${PROJECT_NAME}_utest

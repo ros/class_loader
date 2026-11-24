@@ -42,7 +42,7 @@ if(CLASS_LOADER_USE_RCPPUTILS)
   find_package(rcpputils REQUIRED)
 endif()
 
-if(ament_cmake_FOUND)
+if(NOT CLASS_LOADER_IGNORE_AMENT)
   ament_export_dependencies(console_bridge)
   if(CLASS_LOADER_USE_RCPPUTILS)
     ament_export_dependencies(rcpputils)
@@ -71,7 +71,7 @@ else()
   target_compile_definitions(${PROJECT_NAME} PUBLIC CLASS_LOADER_NO_RCPPUTILS)
 endif()
 
-if(ament_cmake_FOUND)
+if(NOT CLASS_LOADER_IGNORE_AMENT)
   target_link_libraries(${PROJECT_NAME} PUBLIC
     console_bridge::console_bridge)
   # ament_ros_defaults is an INTERFACE target providing cxx_std_20 / c_std_17.
@@ -94,10 +94,11 @@ if(WIN32)
 endif()
 
 if(BUILD_TESTING)
-  if(NOT ament_cmake_FOUND)
+  if(CLASS_LOADER_IGNORE_AMENT)
     enable_testing()
+  else()
+    find_package(ament_lint_auto QUIET)
   endif()
-  find_package(ament_lint_auto QUIET)
   if(ament_lint_auto_FOUND)
     # TODO(mikaelarguedas) add copyright test once the linter accepts /** block comments
     list(APPEND AMENT_LINT_AUTO_EXCLUDE
@@ -115,7 +116,7 @@ if(BUILD_TESTING)
   add_subdirectory(test)
 endif()
 
-if(ament_cmake_FOUND)
+if(NOT CLASS_LOADER_IGNORE_AMENT)
   ament_package(
     CONFIG_EXTRAS "class_loader-extras.cmake"
   )
