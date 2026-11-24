@@ -61,6 +61,10 @@ add_library(${PROJECT_NAME}_TestPlugins3 EXCLUDE_FROM_ALL SHARED plugins3.cpp)
 target_link_libraries(${PROJECT_NAME}_TestPlugins3 ${PROJECT_NAME})
 class_loader_hide_library_symbols(${PROJECT_NAME}_TestPlugins3)
 
+# A library without plugins, for testing SharedLibrary.
+add_library(${PROJECT_NAME}_TestSharedLibrary EXCLUDE_FROM_ALL SHARED
+  shared_library_test_library.cpp)
+
 # These plugins are loaded using dlopen() with RTLD_GLOBAL in utest and may cause side effects
 # in other tests if they are used elsewhere.
 add_library(${PROJECT_NAME}_TestGlobalPlugins EXCLUDE_FROM_ALL SHARED global_plugins.cpp)
@@ -121,6 +125,14 @@ if(TARGET ${PROJECT_NAME}_external_load_test)
   add_dependencies(${PROJECT_NAME}_external_load_test
     ${PROJECT_NAME}_TestPlugins1
     ${PROJECT_NAME}_TestPlugins2)
+endif()
+
+ament_add_gtest(${PROJECT_NAME}_shared_library_test shared_library_test.cpp
+  APPEND_LIBRARY_DIRS "${append_library_dirs}"
+)
+if(TARGET ${PROJECT_NAME}_shared_library_test)
+  target_link_libraries(${PROJECT_NAME}_shared_library_test ${PROJECT_NAME})
+  add_dependencies(${PROJECT_NAME}_shared_library_test ${PROJECT_NAME}_TestSharedLibrary)
 endif()
 
 add_subdirectory(fviz_case_study)
