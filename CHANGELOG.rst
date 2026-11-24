@@ -2,6 +2,12 @@
 Changelog for package class_loader
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Make rcpputils optional (new CMake option ``CLASS_LOADER_USE_RCPPUTILS``), so class_loader can be built without any ROS packages (`#251 <https://github.com/ros/class_loader/issues/251>`_)
+* Builds without ament (``CLASS_LOADER_IGNORE_AMENT``): don't require console_bridge_vendor, fix the pkg-config file, install a CMake package configuration, and allow running the tests (`#251 <https://github.com/ros/class_loader/issues/251>`_)
+* Contributors: Christoph Hertzberg
+
 3.0.3 (2026-10-22)
 ------------------
 * Include missing dependency in package.xml (`#235 <https://github.com/ros/class_loader/issues/235>`_)
