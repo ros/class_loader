@@ -50,18 +50,6 @@ namespace impl
 
 // Global data
 
-std::recursive_mutex & getLoadedLibraryVectorMutex()
-{
-  static std::recursive_mutex m;
-  return m;
-}
-
-std::recursive_mutex & getPluginBaseToFactoryMapMapMutex()
-{
-  static std::recursive_mutex m;
-  return m;
-}
-
 namespace
 {
 // Serializes loadLibrary()/unloadLibrary() so a dlopen() never overlaps a dlclose().
@@ -71,6 +59,20 @@ std::recursive_mutex & getLoaderMutex()
   return m;
 }
 }  // namespace
+
+std::recursive_mutex & getLoadedLibraryVectorMutex()
+{
+  // Construct the loader mutex first so it is destroyed last: unloadLibrary() locks it.
+  (void)getLoaderMutex();
+  static std::recursive_mutex m;
+  return m;
+}
+
+std::recursive_mutex & getPluginBaseToFactoryMapMapMutex()
+{
+  static std::recursive_mutex m;
+  return m;
+}
 
 BaseToFactoryMapMap & getGlobalPluginBaseToFactoryMapMap()
 {
