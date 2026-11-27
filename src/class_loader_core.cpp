@@ -490,8 +490,14 @@ void pinLibrary(const std::string & library_path)
   HMODULE handle = nullptr;
   const bool pinned = GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_PIN, path.c_str(), &handle);
 #else
+#ifdef __APPLE__
+  // dyld ignores RTLD_NODELETE if combined with RTLD_NOLOAD. The library is already loaded, so
+  // opening it again only adds a reference; RTLD_NODELETE keeps it mapped.
+  void * handle = dlopen(path.c_str(), RTLD_LAZY | RTLD_NODELETE);
+#else
   // RTLD_NOLOAD only looks up the already-loaded library; RTLD_NODELETE keeps it mapped.
   void * handle = dlopen(path.c_str(), RTLD_LAZY | RTLD_NOLOAD | RTLD_NODELETE);
+#endif
   const bool pinned = handle != nullptr;
   if (pinned) {
     dlclose(handle);  // Drops the reference this call added; the library stays pinned.
