@@ -51,3 +51,21 @@ int main()
 ```
 
 Visit the [class_loader](https://docs.ros.org/en/rolling/p/class_loader/) API documentation for a complete list of its main components.
+
+# Building without ROS
+
+class_loader can also be built and used without ament and other ROS packages; only [console_bridge](https://github.com/ros/console_bridge) is required (and GoogleTest for the tests). For example, with plain CMake:
+```
+cmake -S . -B build -DCLASS_LOADER_IGNORE_AMENT=ON
+cmake --build build
+cmake --install build
+```
+
+The following CMake options control this:
+
+ - `CLASS_LOADER_IGNORE_AMENT` (default: `OFF`): Build without ament. Instead of the ament package, a CMake package configuration (`find_package(class_loader)`, providing the target `class_loader::class_loader`) and a pkg-config file (`class_loader.pc`) are installed. With `BUILD_TESTING=ON`, the tests use GoogleTest from the system.
+ - `CLASS_LOADER_USE_RCPPUTILS` (default: `ON`, or `OFF` if `CLASS_LOADER_IGNORE_AMENT` is `ON`): Load libraries with `rcpputils::SharedLibrary`. If `OFF`, a minimal built-in replacement is used, and rcpputils (and rcutils) are not required.
+
+With `CLASS_LOADER_USE_RCPPUTILS=OFF`, the preprocessor symbol `CLASS_LOADER_NO_RCPPUTILS` is defined publicly, i.e., for class_loader and for all its users (via the CMake target and the pkg-config file), because it changes types used in the public headers. All code using class_loader must be compiled with the same setting as class_loader itself; anything else violates the one definition rule (ODR).
+
+The public headers require C++20. The CMake target provides this requirement, users of the pkg-config file need to enable C++20 themselves. The pkg-config file does not provide the flags for rcpputils, so with `CLASS_LOADER_USE_RCPPUTILS=ON` (and without ament), use the CMake package configuration.

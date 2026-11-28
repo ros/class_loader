@@ -23,14 +23,30 @@ else()
   set(explicit_library_type "SHARED")
 endif()
 
-find_package(console_bridge_vendor REQUIRED) # Provides console_bridge 0.4.0 on platforms without it.
+if(CLASS_LOADER_IGNORE_AMENT)
+  set(_use_rcpputils_default OFF)
+else()
+  set(_use_rcpputils_default ON)
+endif()
+option(CLASS_LOADER_USE_RCPPUTILS
+  "Load libraries with rcpputils (otherwise with a minimal built-in replacement)"
+  ${_use_rcpputils_default})
+
+if(NOT CLASS_LOADER_IGNORE_AMENT)
+  # Provides console_bridge 0.4.0 on platforms without it.
+  find_package(console_bridge_vendor REQUIRED)
+endif()
 find_package(console_bridge REQUIRED)
 
-find_package(rcpputils REQUIRED)
+if(CLASS_LOADER_USE_RCPPUTILS)
+  find_package(rcpputils REQUIRED)
+endif()
 
-if(ament_cmake_FOUND)
+if(NOT CLASS_LOADER_IGNORE_AMENT)
   ament_export_dependencies(console_bridge)
-  ament_export_dependencies(rcpputils)
+  if(CLASS_LOADER_USE_RCPPUTILS)
+    ament_export_dependencies(rcpputils)
+  endif()
 endif()
 
 add_library(${PROJECT_NAME} ${explicit_library_type}
@@ -42,11 +58,22 @@ add_library(${PROJECT_NAME} ${explicit_library_type}
 target_include_directories(${PROJECT_NAME} PUBLIC
   "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
   "$<INSTALL_INTERFACE:include/${PROJECT_NAME}>")
+# The public headers use C++20 (e.g. concepts), so users need it as well.
+# (Previously, this was only propagated through rcpputils.)
+target_compile_features(${PROJECT_NAME} INTERFACE cxx_std_20)
+# dlopen() is used directly (and by the built-in shared library wrapper).
+target_link_libraries(${PROJECT_NAME} PRIVATE ${CMAKE_DL_LIBS})
+if(CLASS_LOADER_USE_RCPPUTILS)
+  target_link_libraries(${PROJECT_NAME} PUBLIC rcpputils::rcpputils)
+else()
+  target_sources(${PROJECT_NAME} PRIVATE src/shared_library.cpp)
+  # Also needed by users, as the public headers select the shared library wrapper with it.
+  target_compile_definitions(${PROJECT_NAME} PUBLIC CLASS_LOADER_NO_RCPPUTILS)
+endif()
 
-if(ament_cmake_FOUND)
+if(NOT CLASS_LOADER_IGNORE_AMENT)
   target_link_libraries(${PROJECT_NAME} PUBLIC
-    console_bridge::console_bridge
-    rcpputils::rcpputils)
+    console_bridge::console_bridge)
   # ament_ros_defaults is an INTERFACE target providing cxx_std_20 / c_std_17.
   # Linked PRIVATE so the standard applies to our own sources without leaking
   # into the exported interface (a SHARED library does not propagate PRIVATE
@@ -54,9 +81,14 @@ if(ament_cmake_FOUND)
   target_link_libraries(${PROJECT_NAME} PRIVATE ament_cmake_ros_core::ament_ros_defaults)
   ament_export_targets(${PROJECT_NAME})
 else()
-  target_include_directories(${PROJECT_NAME}
-    PUBLIC ${console_bridge_INCLUDE_DIRS})
-  target_link_libraries(${PROJECT_NAME} ${console_bridge_LIBRARIES})
+  if(TARGET console_bridge::console_bridge)
+    target_link_libraries(${PROJECT_NAME} PUBLIC console_bridge::console_bridge)
+  else()
+    # Older console_bridge versions do not provide an imported target.
+    target_include_directories(${PROJECT_NAME}
+      PUBLIC ${console_bridge_INCLUDE_DIRS})
+    target_link_libraries(${PROJECT_NAME} PUBLIC ${console_bridge_LIBRARIES})
+  endif()
   # Standalone (non-ament) build: request C++20 for our own translation units.
   target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_20)
 endif()
@@ -67,7 +99,11 @@ if(WIN32)
 endif()
 
 if(BUILD_TESTING)
-  find_package(ament_lint_auto QUIET)
+  if(CLASS_LOADER_IGNORE_AMENT)
+    enable_testing()
+  else()
+    find_package(ament_lint_auto QUIET)
+  endif()
   if(ament_lint_auto_FOUND)
     # TODO(mikaelarguedas) add copyright test once the linter accepts /** block comments
     list(APPEND AMENT_LINT_AUTO_EXCLUDE
@@ -85,15 +121,27 @@ if(BUILD_TESTING)
   add_subdirectory(test)
 endif()
 
-if(ament_cmake_FOUND)
+if(NOT CLASS_LOADER_IGNORE_AMENT)
   ament_package(
     CONFIG_EXTRAS "class_loader-extras.cmake"
   )
 else()
   set(TARGET_NAME ${PROJECT_NAME})
-  set(PKGCONFIG_LIBS
-    ${console_bridge_LIBRARIES}
-  )
+  file(READ "${CMAKE_CURRENT_SOURCE_DIR}/package.xml" _package_xml)
+  string(REGEX MATCH "<version[^>]*>([^<]*)</version>" _ "${_package_xml}")
+  set(PROJECT_VERSION "${CMAKE_MATCH_1}")
+  if(NOT PROJECT_VERSION)
+    message(FATAL_ERROR "Could not read the version from package.xml")
+  endif()
+  set(PROJECT_DESCRIPTION "Library for loading plugins at runtime")
+  set(PKGCONFIG_REQUIRES console_bridge)
+  if(CLASS_LOADER_USE_RCPPUTILS)
+    message(WARNING "The pkg-config file of class_loader does not provide the flags for "
+      "rcpputils (which does not provide a pkg-config file). Use the CMake package "
+      "configuration instead, or build with CLASS_LOADER_USE_RCPPUTILS=OFF.")
+  else()
+    set(PKGCONFIG_CFLAGS "-DCLASS_LOADER_NO_RCPPUTILS")
+  endif()
 
   # Prepare and install necessary files to support finding of the library
   # using pkg-config
@@ -102,7 +150,27 @@ else()
     "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.pc"
     @ONLY)
 
-  install(FILES "${CMAKE_BINARY_DIR}/${PROJECT_NAME}.pc" DESTINATION lib/pkgconfig)
+  install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.pc" DESTINATION lib/pkgconfig)
+
+  # Prepare and install a CMake package configuration, providing the target
+  # class_loader::class_loader as in ament builds
+  install(EXPORT ${PROJECT_NAME}
+    NAMESPACE ${PROJECT_NAME}::
+    FILE ${PROJECT_NAME}Targets.cmake
+    DESTINATION share/${PROJECT_NAME}/cmake)
+  include(CMakePackageConfigHelpers)
+  configure_package_config_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/${PROJECT_NAME}Config.cmake.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
+    INSTALL_DESTINATION share/${PROJECT_NAME}/cmake)
+  write_basic_package_version_file(
+    "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
+    VERSION ${PROJECT_VERSION}
+    COMPATIBILITY AnyNewerVersion)  # as in ament builds
+  install(FILES
+    "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
+    "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
+    DESTINATION share/${PROJECT_NAME}/cmake)
 endif()
 
 install(TARGETS ${PROJECT_NAME} EXPORT ${PROJECT_NAME}

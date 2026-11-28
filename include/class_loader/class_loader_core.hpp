@@ -58,9 +58,8 @@
 #include "class_loader/exceptions.hpp"
 #include "class_loader/interface_traits.hpp"
 #include "class_loader/meta_object.hpp"
+#include "class_loader/shared_library.hpp"
 #include "class_loader/visibility_control.hpp"
-
-#include "rcpputils/shared_library.hpp"
 
 /**
  * @note This header file is the internal implementation of the plugin system which is exposed
@@ -81,7 +80,7 @@ using ClassName = std::string;
 using BaseClassName = std::string;
 using FactoryMap = std::map<ClassName, impl::AbstractMetaObjectBase *>;
 using BaseToFactoryMapMap = std::map<BaseClassName, FactoryMap>;
-using LibraryPair = std::pair<LibraryPath, std::shared_ptr<rcpputils::SharedLibrary>>;
+using LibraryPair = std::pair<LibraryPath, std::shared_ptr<SharedLibrary>>;
 using LibraryVector = std::vector<LibraryPair>;
 using MetaObjectVector = std::vector<AbstractMetaObjectBase *>;
 class MetaObjectGraveyardVector : public MetaObjectVector

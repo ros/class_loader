@@ -426,13 +426,13 @@ void loadLibrary(const std::string & library_path, ClassLoader * loader)
     return;
   }
 
-  std::shared_ptr<rcpputils::SharedLibrary> library_handle;
+  std::shared_ptr<SharedLibrary> library_handle;
 
   {
     setCurrentlyActiveClassLoader(loader);
     setCurrentlyLoadingLibraryName(library_path);
     try {
-      library_handle = std::make_shared<rcpputils::SharedLibrary>(library_path.c_str());
+      library_handle = std::make_shared<SharedLibrary>(library_path.c_str());
     } catch (const std::runtime_error & e) {
       setCurrentlyLoadingLibraryName("");
       setCurrentlyActiveClassLoader(nullptr);
@@ -474,7 +474,7 @@ void loadLibrary(const std::string & library_path, ClassLoader * loader)
   // Insert library into global loaded library vectory
   std::lock_guard<std::recursive_mutex> llv_lock(getLoadedLibraryVectorMutex());
   LibraryVector & open_libraries = getLoadedLibraryVector();
-  // Note: rcpputils::SharedLibrary automatically calls load() when library passed to constructor
+  // Note: SharedLibrary automatically calls load() when library passed to constructor
   open_libraries.push_back(LibraryPair(library_path, library_handle));
 }
 
@@ -490,8 +490,14 @@ void pinLibrary(const std::string & library_path)
   HMODULE handle = nullptr;
   const bool pinned = GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_PIN, path.c_str(), &handle);
 #else
+#ifdef __APPLE__
+  // dyld ignores RTLD_NODELETE if combined with RTLD_NOLOAD. The library is already loaded, so
+  // opening it again only adds a reference; RTLD_NODELETE keeps it mapped.
+  void * handle = dlopen(path.c_str(), RTLD_LAZY | RTLD_NODELETE);
+#else
   // RTLD_NOLOAD only looks up the already-loaded library; RTLD_NODELETE keeps it mapped.
   void * handle = dlopen(path.c_str(), RTLD_LAZY | RTLD_NOLOAD | RTLD_NODELETE);
+#endif
   const bool pinned = handle != nullptr;
   if (pinned) {
     dlclose(handle);  // Drops the reference this call added; the library stays pinned.
@@ -553,7 +559,7 @@ void unloadLibrary(const std::string & library_path, ClassLoader * loader)
         return;
       } catch (const std::runtime_error & e) {
         throw class_loader::LibraryUnloadException(
-                "Could not unload library (rcpputils exception = " + std::string(e.what()) + ")");
+                "Could not unload library (exception = " + std::string(e.what()) + ")");
       }
     } else {
       CONSOLE_BRIDGE_logDebug(
