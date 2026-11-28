@@ -75,17 +75,41 @@ ClassLoader::~ClassLoader()
     "class_loader.ClassLoader: Destroying class loader, "
     "unloading associated library...\n");
   std::lock_guard<std::recursive_mutex> lock(deleter_context_->mutex);
-  {
-    // The deferred on-demand unload in onPluginDeletion() can't happen once this loader is gone.
-    std::lock_guard<std::recursive_mutex> ref_count_lock(plugin_ref_count_mutex_);
-    if (plugin_ref_count_ > 0 && isOnDemandLoadUnloadEnabled()) {
-      CONSOLE_BRIDGE_logWarn(
-        "%s",
-        "class_loader.ClassLoader: SEVERE WARNING!!! "
-        "Destroying ClassLoader while objects created by it exist in the heap!");
+  std::lock_guard<std::recursive_mutex> ref_count_lock(plugin_ref_count_mutex_);
+  std::lock_guard<std::recursive_mutex> load_ref_lock(load_ref_count_mutex_);
+
+  if (getLibraryPath().empty() || load_ref_count_ <= 0) {
+    deleter_context_->loader = nullptr;
+    return;
+  }
+
+  if (plugin_ref_count_ > 0) {
+    // Managed instances outlive this loader. Open another handle to the library for them, so it
+    // stays loaded until the last of them is deleted (see makeDeleter()), even once nothing else
+    // uses it.
+    try {
+      deleter_context_->library = std::make_shared<rcpputils::SharedLibrary>(getLibraryPath());
+      deleter_context_->orphaned_instances = static_cast<std::size_t>(plugin_ref_count_);
+    } catch (const std::exception & e) {
+      CONSOLE_BRIDGE_logError(
+        "class_loader.ClassLoader: Destroying ClassLoader for %s while objects created by it "
+        "exist, and could not keep the library loaded for them (%s). The library will stay "
+        "loaded.", getLibraryPath().c_str(), e.what());
+      deleter_context_->loader = nullptr;
+      return;
     }
   }
-  unloadLibrary();  // TODO(mikaelarguedas): while(unloadLibrary() > 0){} ??
+
+  // Unbind from the library however many times loadLibrary() was called. Leaving this loader
+  // registered as an owner of the library's classes would leave a dangling pointer behind, and a
+  // later ClassLoader at the same address would appear to own them.
+  try {
+    class_loader::impl::unloadLibrary(getLibraryPath(), this);
+  } catch (const class_loader::LibraryUnloadException & e) {
+    CONSOLE_BRIDGE_logError(
+      "class_loader.ClassLoader: Could not unload %s: %s", getLibraryPath().c_str(), e.what());
+  }
+  load_ref_count_ = 0;
   deleter_context_->loader = nullptr;
 }
 
