@@ -36,6 +36,8 @@
 #include <string>
 #include <vector>
 
+#include "console_bridge/console.h"
+
 namespace class_loader
 {
 
@@ -57,6 +59,9 @@ protected:
     class_loader::impl::getCurrentlyLoadingLibraryName();
     class_loader::impl::getCurrentlyActiveClassLoader();
     class_loader::impl::hasANonPurePluginLibraryBeenOpened();
+    // ~ClassLoader() logs through console_bridge, so its output handler (a function-local
+    // static in console_bridge) has to outlive `class_loader_ptrs_` as well
+    console_bridge::getLogLevel();
   }
 };
 
